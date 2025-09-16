@@ -1,0 +1,218 @@
+{
+  "generated_at": "2025-09-16T02:21:53.455Z",
+  "infrastructure": {
+    "tenants": 1,
+    "organizations": 6,
+    "tenant_users": 2,
+    "tenant_members": 0
+  },
+  "users": {
+    "total_users": 4,
+    "organization_members": 0,
+    "by_role": [
+      {
+        "role": "employee",
+        "count": 2
+      },
+      {
+        "role": "manager",
+        "count": 1
+      },
+      {
+        "role": "hr",
+        "count": 1
+      }
+    ],
+    "by_organization": [
+      {
+        "organization_name": "BankNova",
+        "count": 0
+      },
+      {
+        "organization_name": "BioNova",
+        "count": 0
+      },
+      {
+        "organization_name": "EcoNova",
+        "count": 0
+      },
+      {
+        "organization_name": "FinNova",
+        "count": 0
+      },
+      {
+        "organization_name": "Design Studio",
+        "count": 0
+      },
+      {
+        "organization_name": "Tech Corp",
+        "count": 0
+      }
+    ]
+  },
+  "job_skills": {
+    "job_roles": 80,
+    "i18n_descriptions": 320,
+    "skill_categories": 6,
+    "skills": 349,
+    "job_skill_requirements": 2419,
+    "user_skills": 0
+  },
+  "quality_metrics": {
+    "health_score": 0,
+    "passed_checks": 0,
+    "failed_checks": 0,
+    "completeness_score": 3
+  },
+  "processing": {
+    "total_phases": 20,
+    "completed_phases": 8,
+    "failed_phases": 11,
+    "total_duration": "23 minutes"
+  },
+  "phases": [
+    {
+      "phase": "ORG_CREATION",
+      "status": "completed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "EXCEL_IMPORT",
+      "status": "completed",
+      "duration": "12s",
+      "summary": null
+    },
+    {
+      "phase": "JOB_ROLES_PROCESSING",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "JOB_ROLES_PROCESSING",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "JOB_ROLES_PROCESSING",
+      "status": "completed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "SKILLS_PROCESSING",
+      "status": "failed",
+      "duration": "4s",
+      "summary": null
+    },
+    {
+      "phase": "SKILLS_PROCESSING",
+      "status": "failed",
+      "duration": "10s",
+      "summary": null
+    },
+    {
+      "phase": "SKILLS_PROCESSING",
+      "status": "completed",
+      "duration": "4s",
+      "summary": null
+    },
+    {
+      "phase": "USER_CREATION",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "USER_CREATION",
+      "status": "completed",
+      "duration": "13s",
+      "summary": null
+    },
+    {
+      "phase": "TENANT_ACCESS_CREATION",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "TENANT_ACCESS_CREATION",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "TENANT_ACCESS_CREATION",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "TENANT_ACCESS_CREATION",
+      "status": "completed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "DATA_VALIDATION",
+      "status": "completed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "USER_CREATION",
+      "status": "completed",
+      "duration": "13s",
+      "summary": null
+    },
+    {
+      "phase": "FINAL_REPORT",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "FINAL_REPORT",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "FINAL_REPORT",
+      "status": "failed",
+      "duration": "0s",
+      "summary": null
+    },
+    {
+      "phase": "FINAL_REPORT",
+      "status": "started",
+      "duration": null,
+      "summary": null
+    }
+  ],
+  "configuration": {
+    "security_enabled": true,
+    "i18n_languages": [
+      "en",
+      "es",
+      "fr",
+      "it"
+    ],
+    "database_type": "PostgreSQL",
+    "orm": "Sequelize",
+    "primary_key_type": "UUID",
+    "configuration_format": "JSONB"
+  },
+  "recommendations": [
+    "Address data quality issues identified in validation report",
+    "Complete organization membership assignments for all users",
+    "Implement user skill assessment workflow",
+    "Set up automated data validation monitoring",
+    "Configure backup and disaster recovery procedures",
+    "Implement role-based access control testing",
+    "Set up performance monitoring for multi-tenant queries",
+    "Configure audit logging for tenant data access"
+  ]
+}

@@ -1,0 +1,390 @@
+{
+  "FinNova": {
+    "filename": "FinNova_Org_JD_Skills.xlsx",
+    "sheets": [
+      "Organigramma",
+      "JobDescriptions",
+      "Skills"
+    ],
+    "sheetData": {
+      "Organigramma": {
+        "rowCount": 30,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Location"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Giordano",
+            "Name": "Elisa",
+            "Role": "Fraud Analyst (FinTech)",
+            "Location": "HQ"
+          },
+          {
+            "Surname": "Marino",
+            "Name": "Alessandro",
+            "Role": "Payments Specialist",
+            "Location": "HQ"
+          }
+        ]
+      },
+      "JobDescriptions": {
+        "rowCount": 15,
+        "columns": [
+          "Role",
+          "EN_Responsibilities",
+          "EN_Requirements",
+          "IT_Responsibilities",
+          "IT_Requirements",
+          "FR_Responsibilities",
+          "FR_Requirements",
+          "ES_Responsibilities",
+          "ES_Requirements"
+        ],
+        "sampleData": [
+          {
+            "Role": "Frontend Engineer",
+            "EN_Responsibilities": "Deliver outcomes for Frontend Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Frontend Engineer.; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Frontend Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Frontend Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          },
+          {
+            "Role": "Business Analyst (FinTech)",
+            "EN_Responsibilities": "Deliver outcomes for Business Analyst (FinTech).; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Business Analyst (FinTech).; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Business Analyst (FinTech).; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Business Analyst (FinTech).; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          }
+        ]
+      },
+      "Skills": {
+        "rowCount": 450,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Category",
+          "Skill"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Giordano",
+            "Name": "Elisa",
+            "Role": "Fraud Analyst (FinTech)",
+            "Category": "Core",
+            "Skill": "Digital literacy"
+          },
+          {
+            "Surname": "Giordano",
+            "Name": "Elisa",
+            "Role": "Fraud Analyst (FinTech)",
+            "Category": "Core",
+            "Skill": "Reading comprehension"
+          }
+        ]
+      }
+    }
+  },
+  "BioNova": {
+    "filename": "BioNova_Org_JD_Skills.xlsx",
+    "sheets": [
+      "Organigramma",
+      "JobDescriptions",
+      "Skills"
+    ],
+    "sheetData": {
+      "Organigramma": {
+        "rowCount": 40,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Location"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Moretti",
+            "Name": "Chiara",
+            "Role": "Agronomist",
+            "Location": "Stabilimento"
+          },
+          {
+            "Surname": "Costa",
+            "Name": "Federico",
+            "Role": "Sanitation Team Lead",
+            "Location": "Stabilimento"
+          }
+        ]
+      },
+      "JobDescriptions": {
+        "rowCount": 19,
+        "columns": [
+          "Role",
+          "EN_Responsibilities",
+          "EN_Requirements",
+          "IT_Responsibilities",
+          "IT_Requirements",
+          "FR_Responsibilities",
+          "FR_Requirements",
+          "ES_Responsibilities",
+          "ES_Requirements"
+        ],
+        "sampleData": [
+          {
+            "Role": "Quality Assurance Specialist (HACCP)",
+            "EN_Responsibilities": "Deliver outcomes for Quality Assurance Specialist (HACCP).; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Quality Assurance Specialist (HACCP).; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Quality Assurance Specialist (HACCP).; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Quality Assurance Specialist (HACCP).; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          },
+          {
+            "Role": "Labeling & Coding Operator",
+            "EN_Responsibilities": "Deliver outcomes for Labeling & Coding Operator.; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Labeling & Coding Operator.; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Labeling & Coding Operator.; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Labeling & Coding Operator.; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          }
+        ]
+      },
+      "Skills": {
+        "rowCount": 600,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Category",
+          "Skill"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Moretti",
+            "Name": "Chiara",
+            "Role": "Agronomist",
+            "Category": "Core",
+            "Skill": "Digital literacy"
+          },
+          {
+            "Surname": "Moretti",
+            "Name": "Chiara",
+            "Role": "Agronomist",
+            "Category": "Core",
+            "Skill": "Financial literacy"
+          }
+        ]
+      }
+    }
+  },
+  "EcoNova": {
+    "filename": "EcoNova_Org_JD_Skills.xlsx",
+    "sheets": [
+      "Organigramma",
+      "JobDescriptions",
+      "Skills"
+    ],
+    "sheetData": {
+      "Organigramma": {
+        "rowCount": 25,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Location"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Colombo",
+            "Name": "Alessandro",
+            "Role": "Environmental Compliance Officer",
+            "Location": "Field"
+          },
+          {
+            "Surname": "Mancini",
+            "Name": "Sara",
+            "Role": "Energy Manager",
+            "Location": "HQ"
+          }
+        ]
+      },
+      "JobDescriptions": {
+        "rowCount": 15,
+        "columns": [
+          "Role",
+          "EN_Responsibilities",
+          "EN_Requirements",
+          "IT_Responsibilities",
+          "IT_Requirements",
+          "FR_Responsibilities",
+          "FR_Requirements",
+          "ES_Responsibilities",
+          "ES_Requirements"
+        ],
+        "sampleData": [
+          {
+            "Role": "Environmental Data Scientist",
+            "EN_Responsibilities": "Deliver outcomes for Environmental Data Scientist.; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Environmental Data Scientist.; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Environmental Data Scientist.; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Environmental Data Scientist.; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          },
+          {
+            "Role": "Battery/Storage Engineer",
+            "EN_Responsibilities": "Deliver outcomes for Battery/Storage Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Battery/Storage Engineer.; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Battery/Storage Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Battery/Storage Engineer.; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          }
+        ]
+      },
+      "Skills": {
+        "rowCount": 375,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Category",
+          "Skill"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Colombo",
+            "Name": "Alessandro",
+            "Role": "Environmental Compliance Officer",
+            "Category": "Core",
+            "Skill": "Financial literacy"
+          },
+          {
+            "Surname": "Colombo",
+            "Name": "Alessandro",
+            "Role": "Environmental Compliance Officer",
+            "Category": "Core",
+            "Skill": "Reading comprehension"
+          }
+        ]
+      }
+    }
+  },
+  "BankNova": {
+    "filename": "BankNova_Org_JD_Skills.xlsx",
+    "sheets": [
+      "Organigramma",
+      "JobDescriptions",
+      "Skills"
+    ],
+    "sheetData": {
+      "Organigramma": {
+        "rowCount": 60,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Location"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Colombo",
+            "Name": "Luca",
+            "Role": "Mortgage Underwriter",
+            "Location": "Sede Centrale"
+          },
+          {
+            "Surname": "Giordano",
+            "Name": "Federico",
+            "Role": "Product Manager (Banking)",
+            "Location": "Filiale B"
+          }
+        ]
+      },
+      "JobDescriptions": {
+        "rowCount": 20,
+        "columns": [
+          "Role",
+          "EN_Responsibilities",
+          "EN_Requirements",
+          "IT_Responsibilities",
+          "IT_Requirements",
+          "FR_Responsibilities",
+          "FR_Requirements",
+          "ES_Responsibilities",
+          "ES_Requirements"
+        ],
+        "sampleData": [
+          {
+            "Role": "Corporate Relationship Manager",
+            "EN_Responsibilities": "Deliver outcomes for Corporate Relationship Manager.; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Corporate Relationship Manager.; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Corporate Relationship Manager.; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Corporate Relationship Manager.; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          },
+          {
+            "Role": "Cybersecurity Analyst (Bank)",
+            "EN_Responsibilities": "Deliver outcomes for Cybersecurity Analyst (Bank).; Ensure compliance.; Collaborate cross‑functionally.",
+            "EN_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "IT_Responsibilities": "Conseguire i risultati per Cybersecurity Analyst (Bank).; Assicurare la conformità.; Collaborare interfunzionalmente.",
+            "IT_Requirements": "Laurea o esperienza equivalente.; Almeno 2 anni di esperienza.; Familiarità con standard del settore.",
+            "FR_Responsibilities": "Deliver outcomes for Cybersecurity Analyst (Bank).; Ensure compliance.; Collaborate cross‑functionally.",
+            "FR_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards.",
+            "ES_Responsibilities": "Deliver outcomes for Cybersecurity Analyst (Bank).; Ensure compliance.; Collaborate cross‑functionally.",
+            "ES_Requirements": "Bachelor’s degree or equivalent.; 2+ years experience.; Familiarity with industry standards."
+          }
+        ]
+      },
+      "Skills": {
+        "rowCount": 900,
+        "columns": [
+          "Surname",
+          "Name",
+          "Role",
+          "Category",
+          "Skill"
+        ],
+        "sampleData": [
+          {
+            "Surname": "Colombo",
+            "Name": "Luca",
+            "Role": "Mortgage Underwriter",
+            "Category": "Core",
+            "Skill": "Digital literacy"
+          },
+          {
+            "Surname": "Colombo",
+            "Name": "Luca",
+            "Role": "Mortgage Underwriter",
+            "Category": "Core",
+            "Skill": "Financial literacy"
+          }
+        ]
+      }
+    }
+  }
+}

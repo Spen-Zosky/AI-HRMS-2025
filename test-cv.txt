@@ -1,0 +1,17 @@
+Mario Rossi
+Software Developer
+
+Email: mario.rossi@email.com
+Phone: +39 123 456 7890
+
+ESPERIENZA:
+- 5 years di esperienza come Full Stack Developer
+- Specializzato in React, Node.js, PostgreSQL, Docker
+- Esperienza con AWS, Kubernetes, JavaScript, TypeScript
+
+EDUCAZIONE:
+- Laurea in Informatica, Università di Milano (2018)
+- Master in Software Engineering (2020)
+
+SKILLS:
+JavaScript, React, Vue, Node.js, Python, PostgreSQL, MongoDB, Docker, AWS, Git

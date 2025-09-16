@@ -1,0 +1,14 @@
+[http]
+	postBuffer = 524288000
+	version = HTTP/2
+[credential]
+	helper = store
+[user]
+	useConfigOnly = true
+	email = spen.zosky@gmail.com
+	name = Spen-Zosky
+[pack]
+	windowMemory = 100m
+	packSizeLimit = 100m
+[init]
+	defaultBranch = main

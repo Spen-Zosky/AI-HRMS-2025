@@ -1,0 +1,136 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+
+# Environment variables and sensitive configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.git-credentials
+.git-credential
+
+# Database backups and dumps
+backups/
+*.sql.backup
+*.dump
+*.backup
+
+# Uploaded files and temporary data
+uploads/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+frontend/dist/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.nyc_output/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Runtime and process files
+*.tsbuildinfo
+.grunt/
+.lock-wscript
+lib-cov/
+coverage/
+.nyc_output/
+.jest-cache/
+
+# Webpack bundle analyzer
+bundle-analyzer-report.html
+
+# Optional REPL history
+.node_repl_history
+
+# Package manager lockfiles (keeping package-lock.json for security)
+# yarn.lock
+# pnpm-lock.yaml
+
+# IDE and editor files
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Testing
+coverage/
+.jest/
+junit.xml
+
+# Local development
+.local/
+.cert/
+.key/
+.ssl/
+
+# AI and machine learning temporary files
+*.model
+*.pkl
+*.pickle
+embeddings/
+vectors/
+ml_models/
+
+# Import reports and temporary files
+import-report-*.json
+populat*-import-report-*.json
+*-import-report-*.json
+test-*.js
+verify-*.js
+update-*.js
+check-*.js
+
+# Other sensitive files
+*.pem
+*.key
+*.crt
+*.p12
+secrets.json
+credentials.json
