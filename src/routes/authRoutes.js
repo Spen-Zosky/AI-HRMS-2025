@@ -20,15 +20,12 @@ router.post('/login', async (req, res) => {
         }
 
         // Trova utente nel database
-        const user = await User.findOne({ 
+        const user = await User.findOne({
             where: { email: email.toLowerCase() },
-            include: [{
-                model: Employee,
-                as: 'employeeProfile'
-            }]
+            attributes: ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'is_active', 'employee_id', 'hire_date', 'status']
         });
 
-        if (!user || !user.isActive) {
+        if (!user || !user.is_active) {
             return res.status(401).json({
                 error: 'Credenziali non valide',
                 code: 'INVALID_CREDENTIALS'
@@ -48,8 +45,8 @@ router.post('/login', async (req, res) => {
         const tokenResponse = createTokenResponse({
             id: user.id,
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
+            firstName: user.first_name,
+            lastName: user.last_name,
             role: user.role
         });
         
@@ -109,8 +106,8 @@ router.get('/test-users', async (req, res) => {
 
     try {
         const users = await User.findAll({
-            attributes: ['email', 'role', 'firstName', 'lastName'],
-            where: { isActive: true }
+            attributes: ['email', 'role', 'first_name', 'last_name'],
+            where: { is_active: true }
         });
 
         res.json({
@@ -118,7 +115,7 @@ router.get('/test-users', async (req, res) => {
             users: users.map(u => ({
                 email: u.email,
                 role: u.role,
-                name: `${u.firstName} ${u.lastName}`,
+                name: `${u.first_name} ${u.last_name}`,
                 password: 'password123'
             }))
         });

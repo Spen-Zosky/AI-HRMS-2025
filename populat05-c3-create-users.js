@@ -201,7 +201,7 @@ async function createUser(userData) {
 async function createOrganizationMembership(userResult) {
   // Get organization ID for the company
   const [organization] = await sequelize.query(`
-    SELECT organization_id FROM organizations WHERE organization_name = :company_name
+    SELECT organization_id FROM organizations WHERE name = :company_name
   `, {
     replacements: { company_name: userResult.company },
     type: sequelize.QueryTypes.SELECT

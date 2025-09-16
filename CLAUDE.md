@@ -79,11 +79,15 @@ The system integrates AI capabilities through:
 ### Database Schema
 
 PostgreSQL database with comprehensive enterprise architecture:
-- **33 tables** with 3,544 records including complete multilingual support
+- **33 tables** with complete multilingual support and audit trails
+- **163 total users** across 6 organizations (153 employees + 10 management/admin)
+- **Company Distribution**: BankNova (58), BioNova (40), FinNova (29), EcoNova (26)
 - **Core HR entities**: Users, Employees, Organizations, Leave Management
 - **Skills System**: 347 skills, 80 job roles across 4 industries
 - **Multilingual Support**: 1,732 translations in EN/IT/FR/ES
 - **AI Components**: Vector embeddings, provider configs, processing jobs
+- **Email Standards**: CEO (ceo@company.org), HR (hr@company.org), Employees (name.surname@company.org)
+- **Authentication**: Unified password "Welcome123!" for all users
 - Complete referential integrity and audit trails
 
 ### Environment Configuration

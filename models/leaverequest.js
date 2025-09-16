@@ -6,13 +6,13 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Appartiene a un dipendente
       LeaveRequest.belongsTo(models.Employee, {
-        foreignKey: 'employeeId',
+        foreignKey: 'employee_id',
         as: 'employee'
       });
       
       // Può essere approvata da qualcuno
       LeaveRequest.belongsTo(models.Employee, {
-        foreignKey: 'approvedBy',
+        foreignKey: 'approved_by',
         as: 'approver'
       });
     }
@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    employeeId: {
+    employee_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
@@ -32,11 +32,11 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    startDate: {
+    start_date: {
       type: DataTypes.DATEONLY,
       allowNull: false
     },
-    endDate: {
+    end_date: {
       type: DataTypes.DATEONLY,
       allowNull: false
     },
@@ -49,7 +49,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'draft'
     },
-    daysRequested: {
+    days_requested: {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
       validate: {
@@ -60,7 +60,7 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    approvedBy: {
+    approved_by: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
@@ -68,11 +68,11 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    approvedAt: {
+    approved_at: {
       type: DataTypes.DATE,
       allowNull: true
     },
-    rejectionReason: {
+    rejection_reason: {
       type: DataTypes.TEXT,
       allowNull: true
     }

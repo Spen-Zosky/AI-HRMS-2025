@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
     static associate(models) {
       // User has an employee profile
       User.hasOne(models.Employee, {
-        foreignKey: 'userId',
+        foreignKey: 'user_id',
         as: 'employeeProfile'
       });
 
@@ -16,12 +16,12 @@ module.exports = (sequelize) => {
         as: 'organizationMembership'
       });
 
-      // User belongs to one organization through the membership
-      User.belongsTo(models.Organization, {
+      // User belongs to one organization through the membership (many-to-many)
+      User.belongsToMany(models.Organization, {
         through: models.OrganizationMember,
         foreignKey: 'user_id',
         otherKey: 'organization_id',
-        as: 'organization'
+        as: 'organizations'
       });
 
       // User can create assessments

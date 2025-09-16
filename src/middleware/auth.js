@@ -26,7 +26,7 @@ const authenticateToken = async (req, res, next) => {
             attributes: { exclude: ['password'] }
         });
         
-        if (!user || !user.isActive) {
+        if (!user || !user.is_active) {
             return res.status(401).json({
                 error: 'Utente non trovato o disattivato',
                 code: 'USER_NOT_FOUND'

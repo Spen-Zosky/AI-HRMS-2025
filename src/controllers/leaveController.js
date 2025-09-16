@@ -169,7 +169,7 @@ const getLeaveRequests = async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['firstName', 'lastName', 'email']
+                attributes: ['first_name', 'last_name', 'email']
             }]
         }];
 
@@ -180,7 +180,7 @@ const getLeaveRequests = async (req, res) => {
             if (!employee) {
                 return res.status(404).json({ error: 'Profilo dipendente non trovato' });
             }
-            whereClause.employeeId = employee.id;
+            whereClause.employee_id = employee.id;
         } else if (userRole === 'manager') {
             // Manager vede richieste dei suoi subordinati + le proprie
             const managerEmployee = await Employee.findOne({ where: { userId: req.user.id } });
@@ -192,15 +192,15 @@ const getLeaveRequests = async (req, res) => {
             const employeeIds = subordinates.map(emp => emp.id);
             if (managerEmployee) employeeIds.push(managerEmployee.id);
             
-            whereClause.employeeId = { [Op.in]: employeeIds };
+            whereClause.employee_id = { [Op.in]: employeeIds };
         }
         // HR vede tutto
 
         // Filtri aggiuntivi
         if (status) whereClause.status = status;
-        if (employeeId && userRole !== 'employee') whereClause.employeeId = employeeId;
-        if (startDate) whereClause.startDate = { [Op.gte]: startDate };
-        if (endDate) whereClause.endDate = { [Op.lte]: endDate };
+        if (employeeId && userRole !== 'employee') whereClause.employee_id = employeeId;
+        if (startDate) whereClause.start_date = { [Op.gte]: startDate };
+        if (endDate) whereClause.end_date = { [Op.lte]: endDate };
 
         const leaveRequests = await LeaveRequest.findAll({
             where: whereClause,
@@ -212,15 +212,15 @@ const getLeaveRequests = async (req, res) => {
             leaveRequests: leaveRequests.map(req => ({
                 id: req.id,
                 employee: req.employee ? {
-                    name: `${req.employee.user.firstName} ${req.employee.user.lastName}`,
+                    name: `${req.employee.user.first_name} ${req.employee.user.last_name}`,
                     email: req.employee.user.email,
                     position: req.employee.position
                 } : null,
-                startDate: req.startDate,
-                endDate: req.endDate,
+                startDate: req.start_date,
+                endDate: req.end_date,
                 type: req.type,
                 status: req.status,
-                daysRequested: req.daysRequested,
+                daysRequested: req.days_requested,
                 reason: req.reason,
                 createdAt: req.createdAt
             }))
@@ -247,7 +247,7 @@ const approveLeaveRequest = async (req, res) => {
                 include: [{
                     model: User,
                     as: 'user',
-                    attributes: ['firstName', 'lastName', 'email']
+                    attributes: ['first_name', 'last_name', 'email']
                 }]
             }]
         });
@@ -410,7 +410,7 @@ const getLeaveBalance = async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['firstName', 'lastName', 'email']
+                attributes: ['first_name', 'last_name', 'email']
             }]
         });
 

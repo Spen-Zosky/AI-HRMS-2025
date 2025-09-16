@@ -1,13 +1,13 @@
-const { DataTypes, Sequelize } = require('sequelize');
+const { DataTypes, Model } = require('sequelize');
 
-let ReferenceSource;
-
-const initReferenceSource = (sequelizeInstance) => {
-  if (!sequelizeInstance) {
-    throw new Error('Sequelize instance is required to initialize ReferenceSource model');
+module.exports = (sequelize) => {
+  class ReferenceSource extends Model {
+    static associate(models) {
+      // Define associations here if needed
+    }
   }
 
-  ReferenceSource = sequelizeInstance.define('ReferenceSource', {
+  ReferenceSource.init({
     source_id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -73,6 +73,8 @@ const initReferenceSource = (sequelizeInstance) => {
       allowNull: true
     }
   }, {
+    sequelize,
+    modelName: 'ReferenceSource',
     tableName: 'reference_sources',
     timestamps: true,
     underscored: true,
@@ -82,5 +84,3 @@ const initReferenceSource = (sequelizeInstance) => {
 
   return ReferenceSource;
 };
-
-module.exports = { initReferenceSource, getReferenceSourceModel: () => ReferenceSource };
