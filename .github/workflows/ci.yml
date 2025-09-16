@@ -104,7 +104,8 @@ jobs:
         cp .env.example .env
         echo "NODE_ENV=test" >> .env
         echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_hrms_test" >> .env
-        echo "JWT_SECRET=test-secret-key-for-ci-pipeline" >> .env
+        echo "JWT_SECRET=test-secret-key-for-ci-pipeline-min-32-chars-long" >> .env
+        echo "JWT_EXPIRES_IN=24h" >> .env
 
     - name: Run database migrations
       run: npx sequelize-cli db:migrate --env test
@@ -210,7 +211,8 @@ jobs:
         cp .env.example .env
         echo "NODE_ENV=test" >> .env
         echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_hrms_integration" >> .env
-        echo "JWT_SECRET=integration-test-secret-key" >> .env
+        echo "JWT_SECRET=integration-test-secret-key-min-32-chars" >> .env
+        echo "JWT_EXPIRES_IN=24h" >> .env
 
     - name: Run database setup
       run: |
