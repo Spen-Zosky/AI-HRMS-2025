@@ -54,12 +54,7 @@ router.post('/login', async (req, res) => {
         
         res.json({
             message: 'Login effettuato con successo',
-            ...tokenResponse,
-            employee: user.employeeProfile ? {
-                position: user.employeeProfile.position,
-                department: user.employeeProfile.departmentId,
-                startDate: user.employeeProfile.startDate
-            } : null
+            ...tokenResponse
         });
 
     } catch (error) {
@@ -79,12 +74,7 @@ router.get('/me', authenticateToken, (req, res) => {
             email: req.user.email,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            role: req.user.role,
-            employee: req.user.employeeProfile ? {
-                position: req.user.employeeProfile.position,
-                vacationBalance: req.user.employeeProfile.vacationBalance,
-                sickBalance: req.user.employeeProfile.sickBalance
-            } : null
+            role: req.user.role
         }
     });
 });

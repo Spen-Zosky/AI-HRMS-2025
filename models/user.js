@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
     static associate(models) {
       // User has an employee profile
       User.hasOne(models.Employee, {
-        foreignKey: 'user_id',
+        foreignKey: 'userId',
         as: 'employeeProfile'
       });
 

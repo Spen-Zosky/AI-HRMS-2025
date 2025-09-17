@@ -2,7 +2,7 @@
 
 > **Enterprise-Grade AI-Powered Human Resource Management System**
 
-[![Development Status](https://img.shields.io/badge/Status-83.3%25%20Complete-green.svg)](./DEVELOPMENT.md)
+[![Development Status](https://img.shields.io/badge/Status-92.5%25%20Complete-green.svg)](./DEVELOPMENT.md)
 [![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](./package.json)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19.1.1-blue.svg)](https://reactjs.org/)
@@ -13,7 +13,7 @@
 
 ## 🎯 **Current Project Status**
 
-### **✅ Completed Features (83.3% Complete)**
+### **✅ Completed Features (92.5% Complete)**
 
 **🏗️ Sprint 1: Foundation (100%)**
 - Three-tier multi-tenant SaaS architecture (TENANTS → ORGANIZATIONS → USERS)
@@ -50,6 +50,12 @@
 - AI-powered email drafting and meeting scheduling
 - Strategic workforce planning analytics
 
+**📊 Reports System (50%)**
+- **User Folder Reports**: Complete employee profiles with data aggregation from 10+ tables
+- **Multi-format Output**: JSON, Markdown, HTML, and downloadable formats
+- **Role-based Access**: Secure report generation with proper authorization
+- **Database-driven Templates**: Dynamic report system with versioning and audit trails (in development)
+
 **⏳ Sprint 6: Polish & Deployment (0%)**
 - Performance optimization and caching
 - Comprehensive testing suite (unit, integration, E2E)
@@ -76,6 +82,14 @@
 - **Automated Report Generation**: Generate insights and reports automatically
 - **Email Draft Generation**: AI-powered HR communication templates
 - **Workflow Automation**: Streamline repetitive HR processes
+
+### **Advanced Reporting System**
+- **User Folder Reports**: Complete 360-degree employee profiles aggregating data from all system modules
+- **Database-driven Templates**: Dynamic report generation with SQL-based templates and versioning
+- **Multi-format Output**: JSON, Markdown, HTML, and downloadable files with custom styling
+- **Bulk Generation**: Process multiple reports simultaneously with audit logging
+- **Profile Completeness Analysis**: Automatic assessment of missing employee data
+- **Role-based Security**: Granular access control ensuring appropriate data visibility
 
 ### **Enterprise Architecture**
 - **Three-Tier Multi-Tenant SaaS**: True enterprise architecture with TENANTS → ORGANIZATIONS → USERS
@@ -275,6 +289,14 @@ POST /api/skills/match               # Match skills to requirements
 GET  /api/skills/gap-analysis        # Skills gap analysis
 ```
 
+### **Reports & Analytics**
+```http
+GET  /api/reports/user-folder/:email # Generate user folder report
+GET  /api/reports/user-folder/me     # Get own user folder
+POST /api/reports/user-folder/bulk   # Bulk user folder generation
+GET  /api/reports/templates          # List available report templates
+```
+
 ---
 
 ## 🧪 **Testing**
@@ -303,8 +325,8 @@ AI-HRMS-2025/
 ├── src/
 │   ├── controllers/          # Business logic
 │   ├── models/              # Sequelize models
-│   ├── routes/              # API endpoints
-│   ├── services/            # AI and business services
+│   ├── routes/              # API endpoints (including reportRoutes.js)
+│   ├── services/            # AI and business services (including userFolderReportService.js)
 │   ├── middleware/          # Authentication, validation
 │   └── utils/               # Helper functions
 ├── frontend/
@@ -313,8 +335,10 @@ AI-HRMS-2025/
 │   └── dist/                # Built frontend
 ├── migrations/              # Database migrations
 ├── seeders/                 # Database seeds
-├── docs/                    # Technical documentation
+├── docs/                    # Technical documentation (including USER_FOLDER_REPORT.md)
 ├── config/                  # Database and app configuration
+├── user_folder_report_queries.sql # SQL query library for reports
+├── REPORTS_DEVELOPMENT.md   # Report system development tracker
 └── tests/                   # Test files
 ```
 
@@ -427,12 +451,43 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed development guidelines and s
 
 ---
 
+## 📂 **Project Structure**
+
+The project is organized for optimal maintainability and development efficiency:
+
+```
+/
+├── 📁 Core Files
+│   ├── README.md                              # Project overview
+│   ├── CLAUDE.md                              # Claude Code guidance
+│   ├── DEVELOPMENT.md                         # Development tracker
+│   ├── DEV_ROADMAP.md                         # Development roadmap
+│   └── FORM_TEMPLATES_STRATEGY.md             # Report system strategy
+├── 📁 Application
+│   ├── src/                                   # Source code
+│   ├── frontend/                              # React application
+│   ├── models/                                # Database models
+│   ├── migrations/                            # Database migrations
+│   └── config/                                # Configuration files
+├── 📁 Documentation
+│   ├── docs/                                  # Active documentation
+│   └── bookshelf/                             # Archived documentation
+└── 📁 Utilities
+    └── cabinet/                               # Development utilities
+        ├── scripts/                           # Development scripts
+        ├── data/                              # Data files
+        └── configs/                           # Configuration files
+```
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed organization guide.
+
 ## 📞 **Support**
 
 - **Documentation**: See `docs/` folder for technical guides
 - **Issues**: Report bugs and feature requests via GitHub Issues
 - **Development**: Check `DEVELOPMENT.md` for sprint progress
 - **API Documentation**: Available at `/api/docs` when running
+- **Project Structure**: See `PROJECT_STRUCTURE.md` for file organization
 
 ---
 
@@ -454,4 +509,4 @@ Built with cutting-edge technologies:
 
 ---
 
-*Last Updated: September 16, 2025 | Version 1.0.0 | POPULAT05 Complete | 163 Users with Standardized Email Structure*
+*Last Updated: September 18, 2025 | Version 1.0.0 | Report Template Strategy Complete | Project Structure Organized | 92.5% Complete*

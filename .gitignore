@@ -129,6 +129,13 @@ verify-*.js
 update-*.js
 check-*.js
 
+# Centralized credentials directory
+.credentials/
+
+# Project organization directories
+bookshelf/
+cabinet/
+
 # Other sensitive files
 *.pem
 *.key

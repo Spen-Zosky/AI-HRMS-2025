@@ -1,10 +1,31 @@
 # CLAUDE.md
 
+## 🚨 **MANDATORY PROFESSIONAL BEHAVIOR REQUIREMENTS** 🚨
+
+**BEFORE ANY CODE CHANGES - ALWAYS AND FOLLOW:**
+1. **MUST** consult /AI-HRMS-2025/.claude/commands/sys-warning.md for strict development rules
+2. **MUST** reference DATABASE_SCHEMA.md for all database operations
+3. **MUST** follow FIELD_NAMING_STANDARDS.md for all field names
+4. **MUST** implement ORGANIZATION_ENV_SYSTEM.md for multi-tenant protection
+5. **NEVER** break existing functionality
+6. **ALWAYS** update your knowledge base by reading every doc contained in the project dir/subdir
+7. **ALWAYS** understand complete system architecture before changes
+8. **ALWAYS** update and align complete system architecture after changes with a very granular review and update loop
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 📚 **Source of Truth Documentation - MUST CONSULT BEFORE ANY CHANGES**
+
+1. **WARNING.md** - Mandatory professional standards and strict development rules
+2. **DATABASE_SCHEMA.md** - Complete database structure with field naming conventions
+3. **FIELD_NAMING_STANDARDS.md** - "Talking names" system for all database fields
+4. **ORGANIZATION_ENV_SYSTEM.md** - Multi-tenant environment protection system
+
+**VIOLATION OF THESE STANDARDS REQUIRES IMMEDIATE ROLLBACK**
 
 ## Project Overview
 
-AI-HRMS-2025 is a next-generation AI-powered Human Resource Management System built with Node.js, Express, PostgreSQL, Sequelize ORM, React, and advanced AI capabilities. The system is **83.3% complete** with comprehensive features including multi-tenant architecture, predictive analytics, semantic search, multi-provider AI integration (OpenAI, Anthropic Claude, Ollama), vector database (Qdrant), and an advanced HR Copilot assistant with natural language processing.
+AI-HRMS-2025 is a next-generation AI-powered Human Resource Management System built with Node.js, Express, PostgreSQL, Sequelize ORM, React, and advanced AI capabilities. The system is **87.5% complete** with comprehensive features including multi-tenant architecture, predictive analytics, semantic search, multi-provider AI integration (OpenAI, Anthropic Claude, Ollama), vector database (Qdrant), advanced HR Copilot assistant with natural language processing, and a **revolutionary database-driven dynamic report template system** that transforms static reports into flexible, user-customizable templates with visual builder interface.
 
 ## Development Commands
 
@@ -52,6 +73,7 @@ The application follows a modular MVC architecture:
    - `leaveRoutes.js` - Leave request handling
    - `atsRoutes.js` - AI-powered applicant tracking
    - `copilotRoutes.js` - HR assistant features
+   - `reportRoutes.js` - Dynamic report generation and management
 
 2. **Controllers** (`src/controllers/`)
    - Handle business logic for each route module
@@ -60,6 +82,9 @@ The application follows a modular MVC architecture:
 3. **Services** (`src/services/`)
    - `aiService.js` - CV parsing, text extraction from PDF/DOCX
    - `ragService.js` - RAG (Retrieval-Augmented Generation) implementation
+   - `reportEngine.js` - Dynamic report template execution engine
+   - `templateManagementService.js` - Template versioning and management
+   - `formatRenderer.js` - Multi-format output generation (PDF, Excel, HTML, Markdown)
 
 4. **Middleware** (`src/middleware/`)
    - `auth.js` - JWT authentication middleware
@@ -78,6 +103,8 @@ The system integrates AI capabilities through:
 
 ### Database Schema
 
+**⚠️ CRITICAL: Always consult DATABASE_SCHEMA.md before any database operations**
+
 PostgreSQL database with comprehensive enterprise architecture:
 - **33 tables** with complete multilingual support and audit trails
 - **163 total users** across 6 organizations (153 employees + 10 management/admin)
@@ -87,8 +114,10 @@ PostgreSQL database with comprehensive enterprise architecture:
 - **Multilingual Support**: 1,732 translations in EN/IT/FR/ES
 - **AI Components**: Vector embeddings, provider configs, processing jobs
 - **Email Standards**: CEO (ceo@company.org), HR (hr@company.org), Employees (name.surname@company.org)
-- **Authentication**: Unified password "Welcome123!" for all users
+- **Authentication**: Unified password "password123" for all users (NOT "Welcome123!")
 - Complete referential integrity and audit trails
+
+**MANDATORY FIELD NAMING**: All fields MUST use table prefixes (user_, emp_, org_, etc.) - See FIELD_NAMING_STANDARDS.md
 
 ### Environment Configuration
 
@@ -108,10 +137,40 @@ Base endpoints available:
 - `/api/leave` - Leave management
 - `/api/ats` - Applicant tracking
 - `/api/copilot` - HR assistant
+- `/api/reports` - Dynamic report template system with execution, management, and analytics
 
 ### File Upload
 
 - Upload directory: `uploads/` - Stores CV files and documents
 - Supports PDF, DOCX, and TXT file formats
 - Multer middleware for file handling
-- create DEVELOPMENT.md with sprints and steps for the enhancements. you shall use and update it because it shall be the source of truth for managing development and for tracing/tracking the progress, so that you can be aware of previous last completed actions and ttend to nex one
+## 📊 Report Template System
+
+The AI-HRMS-2025 features a comprehensive database-driven report template system:
+
+### Current Implementation Status
+- **Foundation Phase**: ✅ Complete - Current User Status Full Report established
+- **Database Schema**: 📋 Planned - 4 new tables for dynamic templates
+- **Report Engine**: 📋 Planned - Dynamic execution with security & caching
+- **Visual Builder**: 📋 Planned - React-based drag-and-drop interface
+
+### Key Documents
+- **FORM_TEMPLATES_STRATEGY.md** - Complete implementation strategy
+- **CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md** - Standardized report template
+- **docs/CURRENT_USER_STATUS_REPORT_STANDARD.md** - Visual standards and guidelines
+- **docs/USER_STATUS_REPORT_STANDARD_GUIDE.md** - Technical implementation guide
+
+### Migration Path
+1. **Static to Dynamic**: Transform hardcoded reports to database templates
+2. **Version Control**: Implement template versioning and rollback
+3. **User Interface**: Visual builder for non-technical users
+4. **Enterprise Features**: Advanced scheduling, analytics, and multi-format output
+
+### Features
+- **Dynamic Templates**: Store report structure in database
+- **Multi-Format Output**: JSON, Markdown, HTML, PDF, Excel
+- **Visual Standards**: Material Design icons, Exo 2 font, consistent color palette
+- **Security**: Role-based access, parameter validation, audit trails
+- **Performance**: Query optimization, caching, resource limits
+
+create DEVELOPMENT.md with sprints and steps for the enhancements. you shall use and update it because it shall be the source of truth for managing development and for tracing/tracking the progress, so that you can be aware of previous last completed actions and ttend to nex one

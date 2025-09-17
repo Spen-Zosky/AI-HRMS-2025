@@ -16,6 +16,7 @@ const aiRoutes = require('./src/routes/aiRoutes');
 const vectorRoutes = require('./src/routes/vectorRoutes');
 const organizationRoutes = require('./src/routes/organizationRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
+const reportRoutes = require('./src/routes/reportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +54,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/vector', vectorRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Serve static files from frontend build
 app.use(express.static(path.join(__dirname, 'frontend/dist')));

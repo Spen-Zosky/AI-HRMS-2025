@@ -6,29 +6,29 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Appartiene a un utente
       Employee.belongsTo(models.User, {
-        foreignKey: 'user_id',
+        foreignKey: 'userId',
         as: 'user'
       });
-      
+
       // Può avere un manager (self-referencing)
       Employee.belongsTo(models.Employee, {
-        foreignKey: 'manager_id',
+        foreignKey: 'managerId',
         as: 'manager'
       });
-      
+
       // Può gestire altri dipendenti
       Employee.hasMany(models.Employee, {
-        foreignKey: 'manager_id',
+        foreignKey: 'managerId',
         as: 'subordinates'
       });
-      
+
       // Può avere richieste di ferie
       Employee.hasMany(models.LeaveRequest, {
-        foreignKey: 'employee_id',
+        foreignKey: 'leave_emp_id',
         as: 'leaveRequests'
       });
 
-      // Employee belongs to an organization (tenant)
+      // Employee belongs to an organization
       Employee.belongsTo(models.Organization, {
         foreignKey: 'tenant_id',
         as: 'organization'
