@@ -2,18 +2,31 @@
 
 > **Enterprise-Grade AI-Powered Human Resource Management System**
 
-[![Development Status](https://img.shields.io/badge/Status-92.5%25%20Complete-green.svg)](./DEVELOPMENT.md)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](./package.json)
+[![Development Status](https://img.shields.io/badge/Status-95.0%25%20Complete-brightgreen.svg)](./DEVELOPMENT.md)
+[![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](https://github.com/Spen-Zosky/AI-HRMS-2025/releases/tag/v1.2.0)
+[![Release](https://img.shields.io/badge/Latest%20Release-v1.2.0-success.svg)](https://github.com/Spen-Zosky/AI-HRMS-2025/releases/latest)
+[![GitHub](https://img.shields.io/badge/Repository-AI--HRMS--2025-black.svg?logo=github)](https://github.com/Spen-Zosky/AI-HRMS-2025)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19.1.1-blue.svg)](https://reactjs.org/)
 
 **AI-HRMS-2025** is a next-generation Human Resource Management System that combines advanced artificial intelligence, predictive analytics, and modern web technologies to revolutionize HR operations for enterprise and mid-market organizations.
 
+## 🚀 **Latest Release - v1.2.0**
+
+### **Major Project Reorganization & Architecture Improvements**
+- **📁 Complete project structure reorganization** with 100+ files systematically categorized
+- **🔐 Enhanced security** with centralized credential management
+- **📖 Comprehensive documentation** with navigation guides
+- **🏗️ Improved maintainability** and development workflow
+- **🛡️ GitHub branch protection** with required PR reviews
+
+**[📋 View Full Release Notes](https://github.com/Spen-Zosky/AI-HRMS-2025/releases/tag/v1.2.0)** | **[📦 All Releases](https://github.com/Spen-Zosky/AI-HRMS-2025/releases)**
+
 ---
 
 ## 🎯 **Current Project Status**
 
-### **✅ Completed Features (92.5% Complete)**
+### **✅ Completed Features (95.0% Complete)**
 
 **🏗️ Sprint 1: Foundation (100%)**
 - Three-tier multi-tenant SaaS architecture (TENANTS → ORGANIZATIONS → USERS)
