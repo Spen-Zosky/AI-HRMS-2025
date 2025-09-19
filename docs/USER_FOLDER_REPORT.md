@@ -262,7 +262,7 @@ curl -X GET "http://localhost:3000/api/reports/user-folder/ceo@banknova.org?form
 
 ## Future Architecture: Database-driven Templates
 
-This User Folder Report will be migrated to the new **Database-driven Report Templates** system (see [REPORTS_DEVELOPMENT.md](../REPORTS_DEVELOPMENT.md)) which includes:
+This User Folder Report will be migrated to the new **Database-driven Report Templates** system (see the comprehensive report system implementation guide) which includes:
 
 ### Enhanced Features Coming Soon
 - **Template Versioning**: Maintain report template history and rollback capabilities
@@ -343,20 +343,20 @@ SELECT * FROM employees WHERE user_id = (SELECT id FROM users WHERE email = 'use
 
 ## Related Documentation
 
-- **[REPORTS_DEVELOPMENT.md](../REPORTS_DEVELOPMENT.md)**: Comprehensive development plan for database-driven report system
-- **[FORM_TEMPLATES_STRATEGY.md](../FORM_TEMPLATES_STRATEGY.md)**: Complete implementation strategy (79 pages)
+- **Report System Guide**: Comprehensive development plan for database-driven report system
+- **Template Strategy**: Complete implementation strategy for dynamic report templates
 - **[CURRENT_USER_STATUS_REPORT_STANDARD.md](./CURRENT_USER_STATUS_REPORT_STANDARD.md)**: Visual standards and guidelines
 - **[USER_STATUS_REPORT_STANDARD_GUIDE.md](./USER_STATUS_REPORT_STANDARD_GUIDE.md)**: Technical implementation guide
-- **[CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md](../CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md)**: Standardized template
+- **Report System Complete Guide**: Comprehensive implementation documentation (see .development/REPORT_SYSTEM_COMPLETE_GUIDE.md)
 - **[CLAUDE.md](../CLAUDE.md)**: Project overview and development guidelines
-- **[DEVELOPMENT.md](../DEVELOPMENT.md)**: Main development tracker and sprint progress
+- **Development Tracker**: Main development progress and sprint tracking
 
 ## Support
 
 For issues or questions:
 - Check logs in `/logs/`
 - Review SQL queries in `/user_folder_report_queries.sql`
-- Review development progress in `/REPORTS_DEVELOPMENT.md`
+- Review development progress in the report system implementation guide
 - Contact: hr@company.org
 
 ---

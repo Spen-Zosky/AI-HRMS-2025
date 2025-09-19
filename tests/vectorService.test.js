@@ -152,7 +152,7 @@ describe('Vector Service', () => {
       const jobDescription = 'Senior React Developer position';
       const jobData = {
         title: 'Senior React Developer',
-        company: 'Tech Corp',
+        company: 'TechCorp',
         requiredSkills: ['React', 'TypeScript'],
         experienceLevel: 'senior',
         location: 'Remote'
@@ -177,7 +177,7 @@ describe('Vector Service', () => {
           type: 'job',
           job_id: jobId,
           title: 'Senior React Developer',
-          company: 'Tech Corp',
+          company: 'TechCorp',
           required_skills: ['React', 'TypeScript'],
           experience_level: 'senior',
           location: 'Remote'

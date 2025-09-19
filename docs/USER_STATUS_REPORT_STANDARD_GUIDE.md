@@ -3,9 +3,11 @@
 
 ---
 
-## 1. REPORT STRUCTURE - TAG HIERARCHY
+## 1. REPORT STRUCTURE - 6-BLOCK TAG HIERARCHY
 
-### Complete Tag Mapping
+### Complete Tag Mapping - 19 Consolidated Sections in 6-Block Organization
+
+**BLOCK STRUCTURE: A⚡ B○ C▤ D⚙ E▦ F◊**
 
 ```
 TAG_REPORT_ROOT
@@ -215,7 +217,7 @@ TAG_REPORT_ROOT
 | `LeaveRequest.js` | Model | Leave request model | `/models/` |
 | `Skill.js` | Model | Skills data model | `/models/` |
 | `Project.js` | Model | Project data model | `/models/` |
-| `CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md` | Template | Report template | `/` |
+| `.development/REPORT_SYSTEM_COMPLETE_GUIDE.md` | Guide | Complete report system implementation | `/.development/` |
 | `CURRENT_USER_STATUS_REPORT_STANDARD.md` | Documentation | Standard documentation | `/docs/` |
 
 ---
@@ -489,8 +491,8 @@ radar-beta
 graph TD
     Board[Board of Directors]
     CEO[Maria Bianchi<br/>Chief Executive Officer<br/>□ Team: 0]
-    HR[Giulia Marchetti<br/>HR Manager<br/>👥 Team: 12]
-    Risk[Paolo Ferrari<br/>Risk Manager<br/>⚠️ Assessments: 45]
+    HR[Giulia Marchetti<br/>HR Manager<br/>○ Team: 12]
+    Risk[Paolo Ferrari<br/>Risk Manager<br/>▲ Assessments: 45]
 
     Board --> CEO
     CEO --> HR
@@ -661,7 +663,7 @@ async generateReport(employeeId) {
 ### Step 2: Template Processing
 ```javascript
 assembleReport(sections) {
-    const template = fs.readFileSync('CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md', 'utf8');
+    const template = fs.readFileSync('.development/REPORT_SYSTEM_COMPLETE_GUIDE.md', 'utf8');
 
     let report = template;
 
@@ -762,9 +764,9 @@ const ICONS = {
     fifteen: '⑮',
 
     // Status
-    check: '✅',
-    cross: '❌',
-    warning: '⚠️',
+    check: '◉',
+    cross: '◯',
+    warning: '▲',
 
     // Performance
     green_circle: '🟢',
@@ -1043,4 +1045,4 @@ const reportOutputStructure = {
 
 ---
 
-*This guide serves as the complete technical documentation for generating the Current User Status Full Report in the AI-HRMS-2025 system. Last updated: September 17, 2025*
+*This guide serves as the complete technical documentation for generating the Current User Status Full Report in the AI-HRMS-2025 system with 6-block architecture and Material Design compliance. Last updated: September 18, 2025*

@@ -1,7 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   class Organization extends Model {
     static associate(models) {
       // Organization belongs to a tenant
@@ -10,30 +10,42 @@ module.exports = (sequelize, DataTypes) => {
         as: 'tenant'
       });
 
-      // Organization has many organization members (single-org employees)
+      // Organization has many organization members
       Organization.hasMany(models.OrganizationMember, {
         foreignKey: 'organization_id',
+        sourceKey: 'organization_id',
         as: 'members'
       });
 
-      // Organization has many tenant members (tenant users with multi-org access)
+      // Organization has many employees
+      Organization.hasMany(models.Employee, {
+        foreignKey: 'organization_id',
+        sourceKey: 'organization_id',
+        as: 'employees'
+      });
+
+      // Organization has many tenant members
       Organization.hasMany(models.TenantMember, {
         foreignKey: 'organization_id',
+        sourceKey: 'organization_id',
         as: 'tenantMembers'
       });
 
       // Organization has many assessments
       Organization.hasMany(models.Assessment, {
-        foreignKey: 'organization_id',
+        foreignKey: 'tenant_id',
+        sourceKey: 'organization_id',
         as: 'assessments'
       });
 
-      // Organization has many employees through organization members
+      // Organization has many users through organization members
       Organization.belongsToMany(models.User, {
         through: models.OrganizationMember,
         foreignKey: 'organization_id',
         otherKey: 'user_id',
-        as: 'employees'
+        sourceKey: 'organization_id',
+        targetKey: 'id',
+        as: 'users'
       });
     }
 
@@ -44,6 +56,10 @@ module.exports = (sequelize, DataTypes) => {
 
     getMemberCount() {
       return this.members ? this.members.length : 0;
+    }
+
+    getEmployeeCount() {
+      return this.employees ? this.employees.length : 0;
     }
 
     getTenantMemberCount() {
@@ -64,13 +80,17 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     getCurrency() {
-      return this.currency || this.tenant?.currency || 'USD';
+      return this.currency || this.tenant?.currency || 'EUR';
     }
 
     getFullDomain() {
       if (this.domain) return this.domain;
       if (this.tenant?.domain) return `${this.slug}.${this.tenant.domain}`;
       return `${this.slug}.${this.tenant?.tenant_slug || 'system'}.hrms.com`;
+    }
+
+    getDisplayId() {
+      return `ORG-${this.organization_id.substring(0, 8).toUpperCase()}`;
     }
   }
 
@@ -100,6 +120,7 @@ module.exports = (sequelize, DataTypes) => {
     slug: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      unique: true,
       validate: {
         isLowercase: true,
         isAlphanumeric: true,
@@ -141,11 +162,29 @@ module.exports = (sequelize, DataTypes) => {
     currency: {
       type: DataTypes.STRING(3),
       allowNull: true,
-      defaultValue: 'USD',
+      defaultValue: 'EUR',
       validate: {
         len: [3, 3],
         isUppercase: true
       }
+    },
+    subscription_plan: {
+      type: DataTypes.ENUM('trial', 'starter', 'professional', 'enterprise'),
+      allowNull: false,
+      defaultValue: 'trial'
+    },
+    subscription_status: {
+      type: DataTypes.ENUM('trial', 'active', 'cancelled', 'expired', 'suspended'),
+      allowNull: false,
+      defaultValue: 'trial'
+    },
+    trial_ends_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    subscription_ends_at: {
+      type: DataTypes.DATE,
+      allowNull: true
     },
     settings: {
       type: DataTypes.JSONB,
@@ -245,7 +284,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       beforeCreate: (organization) => {
-        // Set default features based on tenant's subscription plan
+        // Set default features based on subscription plan
         if (!organization.features_enabled) {
           organization.features_enabled = {
             time_tracking: true,

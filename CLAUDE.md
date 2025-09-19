@@ -4,9 +4,9 @@
 
 **BEFORE ANY CODE CHANGES - ALWAYS AND FOLLOW:**
 1. **MUST** consult /AI-HRMS-2025/.claude/commands/sys-warning.md for strict development rules
-2. **MUST** reference DATABASE_SCHEMA.md for all database operations
-3. **MUST** follow FIELD_NAMING_STANDARDS.md for all field names
-4. **MUST** implement ORGANIZATION_ENV_SYSTEM.md for multi-tenant protection
+2. **MUST** reference docs/DATABASE_COMPLETE_GUIDE.md for all database operations
+3. **MUST** follow the comprehensive database guide for field naming standards
+4. **MUST** implement docs/ORGANIZATION_ENV_SYSTEM.md for multi-tenant protection
 5. **NEVER** break existing functionality
 6. **ALWAYS** update your knowledge base by reading every doc contained in the project dir/subdir
 7. **ALWAYS** understand complete system architecture before changes
@@ -16,10 +16,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 📚 **Source of Truth Documentation - MUST CONSULT BEFORE ANY CHANGES**
 
-1. **WARNING.md** - Mandatory professional standards and strict development rules
-2. **DATABASE_SCHEMA.md** - Complete database structure with field naming conventions
-3. **FIELD_NAMING_STANDARDS.md** - "Talking names" system for all database fields
-4. **ORGANIZATION_ENV_SYSTEM.md** - Multi-tenant environment protection system
+1. **bookshelf/WARNING.md** - Mandatory professional standards and strict development rules
+2. **docs/DATABASE_COMPLETE_GUIDE.md** - Complete database architecture, schema, and naming standards
+3. **docs/PLATFORM_ARCHITECTURE_COMPLETE.md** - Technical specifications and API documentation
+4. **docs/ORGANIZATION_ENV_SYSTEM.md** - Multi-tenant environment protection system
+5. **docs/AI_HRM_STRATEGIC_IMPLEMENTATION_GUIDE.md** - Strategic implementation and go-to-market guide
 
 **VIOLATION OF THESE STANDARDS REQUIRES IMMEDIATE ROLLBACK**
 
@@ -55,10 +56,11 @@ AI-HRMS-2025 is a next-generation AI-powered Human Resource Management System bu
 ├── .development/          # Development strategy documentation (3 files)
 ├── bookshelf/            # Archived documentation (23 files)
 ├── cabinet/              # Organized utilities (scripts/data/configs - 80+ files)
-├── docs/                 # Active documentation (5 files)
+├── docs/                 # All documentation (22+ files)
+├── config/               # Configuration files
 ├── src/                  # Source code (unchanged)
-├── [Essential root files] # 20 essential files only
-└── [Organization dirs]   # BankNova/, TechCorp/ for tenant reports
+├── [Essential root files] # 10 essential files only
+└── workspaces/           # Tenant organizations (BankNova, TechCorp, etc.)
 ```
 
 **🎯 Production Readiness Status:**
@@ -77,6 +79,34 @@ AI-HRMS-2025 is a next-generation AI-powered Human Resource Management System bu
 
 **Repository URL**: https://github.com/Spen-Zosky/AI-HRMS-2025
 **Latest Release**: https://github.com/Spen-Zosky/AI-HRMS-2025/releases/tag/v1.2.0
+
+## 📁 Project File Organization (Updated September 19, 2025)
+
+**MAJOR UPDATE**: Comprehensive documentation cleanup and consolidation completed:
+
+### Current Structure After Cleanup:
+- **Root Directory**: Only 10 essential files (README, CLAUDE, package.json, server.js, etc.)
+- **Documentation**: Consolidated in `/docs/` directory (25 optimized files)
+- **Scripts & Utilities**: Organized in `/cabinet/scripts/` (45+ scripts)
+- **Configuration**: Centralized in `/config/` (jest, webpack configs)
+- **Credentials**: Secured in `/.credentials/` (git-ignored)
+- **Development Strategy**: Comprehensive guides in `/.development/`
+- **Historical Archive**: Preserved development history in `/bookshelf/`
+
+### Major Documentation Consolidations:
+- **Database Guide**: 5 docs → `DATABASE_COMPLETE_GUIDE.md` (comprehensive database architecture)
+- **Platform Architecture**: 5 docs → `PLATFORM_ARCHITECTURE_COMPLETE.md` (complete technical specs)
+- **Strategic Guide**: 4 docs → `AI_HRM_STRATEGIC_IMPLEMENTATION_GUIDE.md` (go-to-market strategy)
+- **Report System**: 3 docs → `.development/REPORT_SYSTEM_COMPLETE_GUIDE.md` (implementation guide)
+
+### Key Consolidated Documentation:
+- Database & schema → `docs/DATABASE_COMPLETE_GUIDE.md`
+- Technical architecture → `docs/PLATFORM_ARCHITECTURE_COMPLETE.md`
+- Strategic planning → `docs/AI_HRM_STRATEGIC_IMPLEMENTATION_GUIDE.md`
+- Development progress → `docs/DEVELOPMENT.md`
+- Project structure → `docs/PROJECT_STRUCTURE.md`
+
+**See `docs/README.md` for complete navigation guide to consolidated documentation**
 
 ## Development Commands
 
@@ -154,7 +184,7 @@ The system integrates AI capabilities through:
 
 ### Database Schema
 
-**⚠️ CRITICAL: Always consult DATABASE_SCHEMA.md before any database operations**
+**⚠️ CRITICAL: Always consult docs/DATABASE_COMPLETE_GUIDE.md before any database operations**
 
 PostgreSQL database with comprehensive enterprise architecture:
 - **33 tables** with complete multilingual support and audit trails
@@ -168,7 +198,7 @@ PostgreSQL database with comprehensive enterprise architecture:
 - **Authentication**: Unified password "password123" for all users (NOT "Welcome123!")
 - Complete referential integrity and audit trails
 
-**MANDATORY FIELD NAMING**: All fields MUST use table prefixes (user_, emp_, org_, etc.) - See FIELD_NAMING_STANDARDS.md
+**MANDATORY FIELD NAMING**: All fields MUST use table prefixes (user_, emp_, org_, etc.) - See docs/DATABASE_COMPLETE_GUIDE.md
 
 ### Environment Configuration
 
@@ -201,13 +231,15 @@ The AI-HRMS-2025 features a comprehensive database-driven report template system
 
 ### Current Implementation Status
 - **Foundation Phase**: ✅ Complete - Current User Status Full Report established
-- **Database Schema**: 📋 Planned - 4 new tables for dynamic templates
-- **Report Engine**: 📋 Planned - Dynamic execution with security & caching
-- **Visual Builder**: 📋 Planned - React-based drag-and-drop interface
+- **6-Block Architecture**: ✅ Complete - Revolutionary structure with 35% redundancy reduction (A⚡ B○ C▤ D⚙ E▦ F◊)
+- **Material Design Compliance**: ✅ Complete - Zero emoji violations, professional icon standards
+- **19 Consolidated Sections**: ✅ Complete - Streamlined from 20+ sections with comprehensive validation
+- **Template System**: ✅ Complete - SQL-based templates with versioning and audit trails
+- **Database Schema**: 📋 Future - 4 new tables for dynamic templates
+- **Visual Builder**: 📋 Future - React-based drag-and-drop interface
 
 ### Key Documents
-- **FORM_TEMPLATES_STRATEGY.md** - Complete implementation strategy
-- **CURRENT_USER_STATUS_FULL_REPORT_TEMPLATE.md** - Standardized report template
+- **.development/REPORT_SYSTEM_COMPLETE_GUIDE.md** - Complete implementation strategy and standardized templates
 - **docs/CURRENT_USER_STATUS_REPORT_STANDARD.md** - Visual standards and guidelines
 - **docs/USER_STATUS_REPORT_STANDARD_GUIDE.md** - Technical implementation guide
 
@@ -218,10 +250,14 @@ The AI-HRMS-2025 features a comprehensive database-driven report template system
 4. **Enterprise Features**: Advanced scheduling, analytics, and multi-format output
 
 ### Features
+- **6-Block Organization**: A⚡(Executive) B○(Profile) C▤(Compensation) D⚙(Operations) E▦(Governance) F◊(Analytics)
+- **19 Consolidated Sections**: 35% redundancy reduction from original 20+ sections
+- **Material Design Compliance**: Professional outline icons, zero emoji violations
 - **Dynamic Templates**: Store report structure in database
 - **Multi-Format Output**: JSON, Markdown, HTML, PDF, Excel
 - **Visual Standards**: Material Design icons, Exo 2 font, consistent color palette
 - **Security**: Role-based access, parameter validation, audit trails
 - **Performance**: Query optimization, caching, resource limits
+- **Template Validation**: Comprehensive compliance checking and automated quality assurance
 
 create DEVELOPMENT.md with sprints and steps for the enhancements. you shall use and update it because it shall be the source of truth for managing development and for tracing/tracking the progress, so that you can be aware of previous last completed actions and ttend to nex one

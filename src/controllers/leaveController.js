@@ -1,5 +1,6 @@
 const { LeaveRequest, Employee, User } = require('../../models');
 const { Op } = require('sequelize');
+const { checkPermission, getTargetUser } = require('../services/authorizationService');
 const logger = require('../utils/logger');
 
 // Calcola giorni lavorativi tra due date
@@ -160,8 +161,34 @@ const createLeaveRequest = async (req, res) => {
 const getLeaveRequests = async (req, res) => {
     try {
         const { status, employeeId, startDate, endDate } = req.query;
-        const userRole = req.user.role;
-        
+        const requestor = req.user;
+
+        // Parameter-based authorization check for viewing leave requests
+        const authResult = await checkPermission(
+            requestor,              // Requestor parameter
+            'leave-request',        // Resource type
+            'read',                // Action
+            null,                  // Target (general access check)
+            {                      // Options
+                scope: employeeId ? 'specific' : 'list',
+                employeeId: employeeId
+            }
+        );
+
+        if (!authResult.authorized) {
+            logger.warn('Leave requests access denied', {
+                requestorId: requestor.id,
+                requestorRole: requestor.role,
+                reason: authResult.reason
+            });
+
+            return res.status(403).json({
+                error: 'Access denied',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                reason: authResult.reason
+            });
+        }
+
         let whereClause = {};
         let includeClause = [{
             model: Employee,
@@ -169,36 +196,34 @@ const getLeaveRequests = async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['first_name', 'last_name', 'email']
+                attributes: ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
             }]
         }];
 
-        // Role-based filtering
-        if (userRole === 'employee') {
-            // Employee vede solo le proprie richieste
-            const employee = await Employee.findOne({ where: { userId: req.user.id } });
+        // Dynamic filtering based on permission level
+        if (authResult.permissionLevel <= 1) { // READ_OWN
+            const employee = await Employee.findOne({ where: { userId: requestor.id } });
             if (!employee) {
                 return res.status(404).json({ error: 'Profilo dipendente non trovato' });
             }
             whereClause.employee_id = employee.id;
-        } else if (userRole === 'manager') {
-            // Manager vede richieste dei suoi subordinati + le proprie
-            const managerEmployee = await Employee.findOne({ where: { userId: req.user.id } });
+        } else if (authResult.permissionLevel <= 20) { // READ_TEAM/WRITE_TEAM
+            const managerEmployee = await Employee.findOne({ where: { userId: requestor.id } });
             const subordinates = await Employee.findAll({
                 where: { managerId: managerEmployee?.id },
                 attributes: ['id']
             });
-            
+
             const employeeIds = subordinates.map(emp => emp.id);
             if (managerEmployee) employeeIds.push(managerEmployee.id);
-            
+
             whereClause.employee_id = { [Op.in]: employeeIds };
         }
-        // HR vede tutto
+        // Higher permission levels (HR, Admin, SysAdmin) see all
 
         // Filtri aggiuntivi
         if (status) whereClause.status = status;
-        if (employeeId && userRole !== 'employee') whereClause.employee_id = employeeId;
+        if (employeeId && authResult.permissionLevel > 1) whereClause.employee_id = employeeId;
         if (startDate) whereClause.start_date = { [Op.gte]: startDate };
         if (endDate) whereClause.end_date = { [Op.lte]: endDate };
 
@@ -232,14 +257,18 @@ const getLeaveRequests = async (req, res) => {
     }
 };
 
-// PUT /leave/requests/:id/approve - Approva richiesta (FIX)
+// PUT /leave/requests/:id/approve - Approva richiesta
 const approveLeaveRequest = async (req, res) => {
     try {
         const { id } = req.params;
         const { comment } = req.body;
-        
-        logger.info(`Attempting to approve leave request ${id} by user ${req.user.email}`);
-        
+        const requestor = req.user;
+
+        logger.info(`Attempting to approve leave request ${id}`, {
+            requestorId: requestor.id,
+            requestorEmail: requestor.email
+        });
+
         const leaveRequest = await LeaveRequest.findByPk(id, {
             include: [{
                 model: Employee,
@@ -247,7 +276,7 @@ const approveLeaveRequest = async (req, res) => {
                 include: [{
                     model: User,
                     as: 'user',
-                    attributes: ['first_name', 'last_name', 'email']
+                    attributes: ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
                 }]
             }]
         });
@@ -263,29 +292,38 @@ const approveLeaveRequest = async (req, res) => {
             });
         }
 
-        // Verifica autorizzazione - SEMPLIFICATA
-        let approverEmployee = null;
-        try {
-            approverEmployee = await Employee.findOne({ where: { userId: req.user.id } });
-        } catch (err) {
-            logger.error('Error finding approver employee:', err);
-        }
+        // Parameter-based authorization check for approval
+        const authResult = await checkPermission(
+            requestor,              // Requestor parameter
+            'leave-request',        // Resource type
+            'approve',             // Action
+            leaveRequest,          // Target leave request
+            {                      // Options
+                employeeId: leaveRequest.employee.id,
+                managerId: leaveRequest.employee.managerId
+            }
+        );
 
-        const canApprove = req.user.role === 'hr' || 
-                          (req.user.role === 'manager' && 
-                           leaveRequest.employee.managerId === approverEmployee?.id);
+        if (!authResult.authorized) {
+            logger.warn('Leave request approval denied', {
+                requestorId: requestor.id,
+                requestorEmail: requestor.email,
+                requestorRole: requestor.role,
+                leaveRequestId: id,
+                reason: authResult.reason
+            });
 
-        if (!canApprove) {
-            logger.warn(`User ${req.user.email} (${req.user.role}) cannot approve request for employee with manager ${leaveRequest.employee.managerId}`);
             return res.status(403).json({
-                error: 'Non autorizzato ad approvare questa richiesta',
-                debug: {
-                    userRole: req.user.role,
-                    approverId: approverEmployee?.id,
-                    employeeManagerId: leaveRequest.employee.managerId
-                }
+                error: 'Access denied',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                reason: authResult.reason,
+                permissionLevel: authResult.permissionLevel,
+                requiredLevel: authResult.requiredLevel
             });
         }
+
+        // Get approver employee profile for audit trail
+        const approverEmployee = await Employee.findOne({ where: { userId: requestor.id } });
 
         // Aggiorna richiesta
         await leaveRequest.update({
@@ -355,17 +393,39 @@ const rejectLeaveRequest = async (req, res) => {
             });
         }
 
-        // Verifica autorizzazione
-        const approverEmployee = await Employee.findOne({ where: { userId: req.user.id } });
-        const canReject = req.user.role === 'hr' || 
-                         (req.user.role === 'manager' && 
-                          leaveRequest.employee.managerId === approverEmployee?.id);
+        // Parameter-based authorization check for rejection
+        const requestor = req.user;
+        const authResult = await checkPermission(
+            requestor,              // Requestor parameter
+            'leave-request',        // Resource type
+            'approve',             // Action (reject uses same permission as approve)
+            leaveRequest,          // Target leave request
+            {                      // Options
+                employeeId: leaveRequest.employee.id,
+                managerId: leaveRequest.employee.managerId
+            }
+        );
 
-        if (!canReject) {
+        if (!authResult.authorized) {
+            logger.warn('Leave request rejection denied', {
+                requestorId: requestor.id,
+                requestorEmail: requestor.email,
+                requestorRole: requestor.role,
+                leaveRequestId: id,
+                reason: authResult.reason
+            });
+
             return res.status(403).json({
-                error: 'Non autorizzato a rifiutare questa richiesta'
+                error: 'Access denied',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                reason: authResult.reason,
+                permissionLevel: authResult.permissionLevel,
+                requiredLevel: authResult.requiredLevel
             });
         }
+
+        // Get approver employee profile for audit trail
+        const approverEmployee = await Employee.findOne({ where: { userId: req.user.id } });
 
         await leaveRequest.update({
             status: 'rejected',
@@ -410,7 +470,7 @@ const getLeaveBalance = async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['first_name', 'last_name', 'email']
+                attributes: ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
             }]
         });
 
@@ -418,20 +478,40 @@ const getLeaveBalance = async (req, res) => {
             return res.status(404).json({ error: 'Dipendente non trovato' });
         }
 
-        // Verifica autorizzazione
-        const requestorEmployee = await Employee.findOne({ where: { userId: req.user.id } });
-        const canView = req.user.role === 'hr' ||
-                       req.user.role === 'manager' ||
-                       requestorEmployee?.id === employee.id ||
-                       employee.managerId === requestorEmployee?.id;
+        // Parameter-based authorization check for viewing balance
+        const requestor = req.user;
+        const authResult = await checkPermission(
+            requestor,              // Requestor parameter
+            'leave-request',        // Resource type
+            'read',                // Action
+            employee,              // Target employee
+            {                      // Options
+                employeeId: employee.id,
+                scope: 'balance'
+            }
+        );
 
-        if (!canView) {
-            return res.status(403).json({ error: 'Non autorizzato a vedere questo bilancio' });
+        if (!authResult.authorized) {
+            logger.warn('Leave balance access denied', {
+                requestorId: requestor.id,
+                requestorEmail: requestor.email,
+                requestorRole: requestor.role,
+                targetEmployeeId: employee.id,
+                reason: authResult.reason
+            });
+
+            return res.status(403).json({
+                error: 'Access denied',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                reason: authResult.reason,
+                permissionLevel: authResult.permissionLevel,
+                requiredLevel: authResult.requiredLevel
+            });
         }
 
         res.json({
             employee: {
-                name: `${employee.user.firstName} ${employee.user.lastName}`,
+                name: `${employee.user.first_name} ${employee.user.last_name}`,
                 position: employee.position
             },
             balance: {

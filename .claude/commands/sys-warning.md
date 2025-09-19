@@ -22,6 +22,7 @@ These rules are **NON-NEGOTIABLE** and must be followed without exception.
 ### **🔒 STRICT DEVELOPMENT RULES**
 
 #### **1. NEVER BREAK EXISTING FUNCTIONALITY**
+- **ALWAYS** THINK HARD and use all available /mcp servers and /agents 
 - **ALWAYS** test the complete pipeline before making changes
 - **NEVER** remove code without understanding downstream dependencies
 - **ALWAYS** backup working functionality before modifications
@@ -225,11 +226,11 @@ Waiting for your approval to execute the plan above.
 ## **🎯 REQUIRED SOURCE OF TRUTH FILES**
 
 ### **Must Be Consulted Before Any Changes:**
-1. `DATABASE_SCHEMA.md` - Complete database structure
-2. `ORGANIZATION_ENV_SYSTEM.md` - Environment protection system
-3. `FIELD_NAMING_STANDARDS.md` - Field naming conventions
-4. `API_ENDPOINTS.md` - Complete API documentation
-5. `TENANT_ARCHITECTURE.md` - Multi-tenant system design
+1. **Database Complete Guide** - Comprehensive database structure, schema, and naming standards
+2. **Organization Environment System** - Multi-tenant environment protection system
+3. **Platform Architecture Guide** - Complete technical specifications and API documentation
+4. **Development Progress Tracker** - Current implementation status and guidelines
+5. **Project Structure Guide** - File organization and navigation
 
 ---
 

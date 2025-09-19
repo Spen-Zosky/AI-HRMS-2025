@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
     static associate(models) {
       // User has an employee profile
       User.hasOne(models.Employee, {
-        foreignKey: 'userId',
+        foreignKey: 'user_id',
         as: 'employeeProfile'
       });
 
@@ -41,6 +41,12 @@ module.exports = (sequelize) => {
         foreignKey: 'evaluator_id',
         as: 'evaluatedResults'
       });
+
+      // User can approve leave requests
+      User.hasMany(models.LeaveRequest, {
+        foreignKey: 'approved_by',
+        as: 'approvedLeaveRequests'
+      });
     }
 
     // Instance methods
@@ -65,19 +71,31 @@ module.exports = (sequelize) => {
     }
 
     isAdmin() {
-      return this.role === 'admin';
+      return this.role === 'admin' || this.isSysAdmin();
+    }
+
+    isSysAdmin() {
+      return this.role === 'sysadmin' || this.is_sysadmin === true;
     }
 
     canManageEmployees() {
-      return this.isManager();
+      return this.isManager() || this.isSysAdmin();
     }
 
     canViewReports() {
-      return this.isHR();
+      return this.isHR() || this.isSysAdmin();
     }
 
     canManageSettings() {
-      return this.isAdmin();
+      return this.isAdmin() || this.isSysAdmin();
+    }
+
+    canManageAllTenants() {
+      return this.isSysAdmin();
+    }
+
+    hasUnrestrictedAccess() {
+      return this.isSysAdmin();
     }
 
     getDaysEmployed() {
@@ -88,11 +106,23 @@ module.exports = (sequelize) => {
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
+    getAge() {
+      if (!this.birth_date) return null;
+      const now = new Date();
+      const birthDate = new Date(this.birth_date);
+      const diffTime = Math.abs(now - birthDate);
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+    }
+
     getEmployeeDisplayId() {
       return this.employee_id || `EMP-${this.id.substring(0, 8).toUpperCase()}`;
     }
+
+    getDisplayId() {
+      return `USR-${this.id.substring(0, 8).toUpperCase()}`;
+    }
   }
-  
+
   User.init({
     id: {
       type: DataTypes.UUID,
@@ -101,24 +131,25 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     first_name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [1, 100]
+        len: [1, 255]
       }
     },
     last_name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [1, 100]
+        len: [1, 255]
       }
     },
     email: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      unique: true,
       validate: {
         isEmail: true
       }
@@ -131,7 +162,7 @@ module.exports = (sequelize) => {
       }
     },
     role: {
-      type: DataTypes.ENUM('employee', 'manager', 'hr', 'admin'),
+      type: DataTypes.ENUM('employee', 'manager', 'hr', 'admin', 'sysadmin'),
       allowNull: false,
       defaultValue: 'employee'
     },
@@ -155,6 +186,46 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    is_sysadmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Platform-level super administrator with full cross-tenant permissions'
+    },
+    tenant_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'organizations',
+        key: 'organization_id'
+      }
+    },
+    // New fields added by migration
+    birth_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      comment: 'User birth date for age verification and compliance'
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: 'User phone number for contact purposes'
+    },
+    address: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'User residential address'
+    },
+    emergency_contact: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'Emergency contact information'
+    },
+    profile_picture_url: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: 'URL to user profile picture'
     }
   }, {
     sequelize,
@@ -210,6 +281,14 @@ module.exports = (sequelize) => {
           role: 'admin'
         }
       },
+      sysadmins: {
+        where: {
+          [sequelize.Sequelize.Op.or]: [
+            { role: 'sysadmin' },
+            { is_sysadmin: true }
+          ]
+        }
+      },
       byStatus(status) {
         return {
           where: {
@@ -235,6 +314,9 @@ module.exports = (sequelize) => {
         if (user.employee_id) {
           user.employee_id = user.employee_id.toUpperCase().trim();
         }
+        if (user.phone) {
+          user.phone = user.phone.replace(/[^\d\+\-\(\)\s]/g, '').trim();
+        }
       },
       beforeCreate: (user) => {
         // Set hire_date to today if not provided for active users
@@ -244,6 +326,6 @@ module.exports = (sequelize) => {
       }
     }
   });
-  
+
   return User;
 };

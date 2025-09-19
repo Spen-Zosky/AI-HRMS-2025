@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireRole } = require('../middleware/auth');
+const { checkPermission, requirePermission, getTargetUser } = require('../services/authorizationService');
 const { generateUserFolder, formatUserFolderToMarkdown, saveUserFolder } = require('../services/userFolderReportService');
 const logger = require('../utils/logger');
 const fs = require('fs').promises;
@@ -16,35 +17,64 @@ const { User, Employee, Organization, OrganizationMember, sequelize } = require(
  * GET /api/reports/user-folder/:email
  * Generate user folder report for a specific user
  *
- * Access: HR, Manager (for their team), Employee (self only)
+ * Access: Dynamic authorization based on requestor permissions and target relationship
  */
 router.get('/user-folder/:email', authenticateToken, async (req, res) => {
     try {
         const targetEmail = req.params.email;
-        const requestorEmail = req.user.email;
-        const requestorRole = req.user.role;
+        const requestor = req.user;
 
-        // Authorization check
-        let authorized = false;
+        // Get target user for authorization context
+        const targetUser = await getTargetUser(targetEmail, 'email');
 
-        if (requestorRole === 'hr' || requestorRole === 'admin') {
-            // HR and Admin can view anyone
-            authorized = true;
-        } else if (requestorRole === 'manager') {
-            // Managers can view their team members
-            // TODO: Check if target user is in manager's team
-            authorized = true; // Simplified for now
-        } else if (requestorEmail === targetEmail) {
-            // Users can view their own folder
-            authorized = true;
-        }
-
-        if (!authorized) {
-            return res.status(403).json({
-                error: 'Not authorized to view this user folder',
-                code: 'UNAUTHORIZED_ACCESS'
+        if (!targetUser) {
+            return res.status(404).json({
+                error: 'Target user not found',
+                code: 'USER_NOT_FOUND'
             });
         }
+
+        // Check permission using parameter-based authorization
+        const authResult = await checkPermission(
+            requestor,           // requestor (passed as parameter)
+            'user-folder',       // resource type
+            'read',             // action
+            targetUser,         // target user (passed as parameter)
+            {                   // options
+                crossTenant: targetUser.tenant_id !== requestor.tenant_id,
+                format: req.query.format || 'json'
+            }
+        );
+
+        if (!authResult.authorized) {
+            logger.warn('User folder access denied', {
+                requestorId: requestor.id,
+                requestorEmail: requestor.email,
+                requestorRole: requestor.role,
+                targetEmail: targetEmail,
+                reason: authResult.reason
+            });
+
+            return res.status(403).json({
+                error: 'Access denied',
+                code: 'INSUFFICIENT_PERMISSIONS',
+                reason: authResult.reason,
+                permissionLevel: authResult.permissionLevel,
+                requiredLevel: authResult.requiredLevel
+            });
+        }
+
+        // Log authorized access with full context
+        logger.info('User folder access authorized', {
+            requestorId: requestor.id,
+            requestorEmail: requestor.email,
+            requestorRole: requestor.role,
+            targetEmail: targetEmail,
+            targetId: targetUser.id,
+            authReason: authResult.reason,
+            permissionLevel: authResult.permissionLevel,
+            context: authResult.context
+        });
 
         // Generate the user folder
         const userFolder = await generateUserFolder(targetEmail);
@@ -52,7 +82,12 @@ router.get('/user-folder/:email', authenticateToken, async (req, res) => {
         // Format based on requested format
         const format = req.query.format || 'json';
 
-        logger.info(`User folder generated for ${targetEmail} by ${requestorEmail}`);
+        logger.info('User folder generated successfully', {
+            targetEmail,
+            requestorEmail: requestor.email,
+            format,
+            authContext: authResult.context
+        });
 
         switch (format.toLowerCase()) {
             case 'markdown':
@@ -348,7 +383,7 @@ router.post('/hrm-create-folder', authenticateToken, requireRole('hr', 'admin'),
         // Complete user lookup with proper associations using corrected field names
         const users = await User.findAll({
             where: searchConditions,
-            attributes: ['id', 'first_name', 'last_name', 'email', 'role', 'is_active', 'employee_id', 'hire_date', 'status'],
+            attributes: ['id', 'first_name', 'last_name', 'email', 'role', 'is_active', 'employee_id', 'hire_date', 'status', 'birth_date', 'phone', 'address', 'emergency_contact', 'profile_picture_url'],
             include: [
                 {
                     model: OrganizationMember,

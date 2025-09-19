@@ -25,7 +25,7 @@ async function generateUserFolder(userEmail) {
 
     try {
         // 1. Core User Information
-        const [userCore] = await sequelize.query(`
+        const userCore = await sequelize.query(`
             SELECT
                 u.id as user_id,
                 u.first_name,
@@ -41,6 +41,11 @@ async function generateUserFolder(userEmail) {
                 u.created_at,
                 u.updated_at,
                 u.deleted_at,
+                u.birth_date,
+                u.phone,
+                u.address,
+                u.emergency_contact,
+                u.profile_picture_url,
                 CASE
                     WHEN u.password LIKE '$2b$10$GvLiKhCYRa5%' THEN 'Welcome123! (Standard)'
                     ELSE 'Custom Password Set'
@@ -52,14 +57,14 @@ async function generateUserFolder(userEmail) {
             type: sequelize.QueryTypes.SELECT
         });
 
-        if (!userCore) {
+        if (!userCore || userCore.length === 0) {
             throw new Error(`User not found: ${userEmail}`);
         }
 
         userFolder.data.userCore = userCore;
 
         // 2. Organization Details
-        const [organization] = await sequelize.query(`
+        const organization = await sequelize.query(`
             SELECT
                 o.organization_id,
                 o.name as organization_name,
@@ -92,7 +97,7 @@ async function generateUserFolder(userEmail) {
         userFolder.data.organization = organization;
 
         // 3. Employee Profile
-        const [employeeProfile] = await sequelize.query(`
+        const employeeProfile = await sequelize.query(`
             SELECT
                 e.id as employee_record_id,
                 e.position as employee_position,
@@ -119,7 +124,7 @@ async function generateUserFolder(userEmail) {
         userFolder.data.employeeProfile = employeeProfile;
 
         // 4. Direct Reports
-        const [directReports] = await sequelize.query(`
+        const directReports = await sequelize.query(`
             SELECT
                 COUNT(DISTINCT sub_emp.id) as direct_reports_count,
                 STRING_AGG(
@@ -140,7 +145,7 @@ async function generateUserFolder(userEmail) {
         userFolder.data.directReports = directReports;
 
         // 5. Leave Summary
-        const [leaveSummary] = await sequelize.query(`
+        const leaveSummary = await sequelize.query(`
             SELECT
                 e.vacation_balance as current_vacation_balance,
                 e.sick_balance as current_sick_balance,
@@ -209,7 +214,7 @@ async function generateUserFolder(userEmail) {
         }
 
         // 8. Team Size Calculation
-        const [teamSize] = await sequelize.query(`
+        const teamSize = await sequelize.query(`
             WITH RECURSIVE team_hierarchy AS (
                 SELECT
                     e.id as employee_id,
@@ -250,8 +255,8 @@ async function generateUserFolder(userEmail) {
                 SELECT
                     'Data Protection & GDPR' as course_name,
                     CASE
-                        WHEN CURRENT_DATE > '2024-12-31'::date THEN '⚠️ Expired'
-                        ELSE '✅ Valid'
+                        WHEN CURRENT_DATE > '2024-12-31'::date THEN '⚠ Expired'
+                        ELSE '◉ Valid'
                     END as status,
                     '2024-12-31' as expiry_date,
                     CASE
@@ -265,21 +270,21 @@ async function generateUserFolder(userEmail) {
                 UNION ALL
                 SELECT
                     'Health & Safety' as course_name,
-                    '✅ Valid' as status,
+                    '◉ Valid' as status,
                     '2026-06-30' as expiry_date,
                     EXTRACT(MONTH FROM AGE('2026-06-30'::date, CURRENT_DATE)) || ' months' as renewal_due,
                     'Low' as risk_level
                 UNION ALL
                 SELECT
                     'Anti-Harassment Training' as course_name,
-                    '✅ Valid' as status,
+                    '◉ Valid' as status,
                     '2026-03-15' as expiry_date,
                     EXTRACT(MONTH FROM AGE('2026-03-15'::date, CURRENT_DATE)) || ' months' as renewal_due,
                     'Low' as risk_level
                 UNION ALL
                 SELECT
                     'Code of Conduct' as course_name,
-                    '✅ Valid' as status,
+                    '◉ Valid' as status,
                     '2025-12-31' as expiry_date,
                     EXTRACT(MONTH FROM AGE('2025-12-31'::date, CURRENT_DATE)) || ' months' as renewal_due,
                     'Low' as risk_level
@@ -298,7 +303,7 @@ async function generateUserFolder(userEmail) {
                     'Project Lead' as role,
                     '2025-09-01' as start_date,
                     85 as progress,
-                    '🔴 High' as priority,
+                    'High Priority' as priority,
                     'In Progress' as status,
                     4.5 as duration_months
                 UNION ALL
@@ -307,7 +312,7 @@ async function generateUserFolder(userEmail) {
                     'Coordinator' as role,
                     '2025-08-15' as start_date,
                     60 as progress,
-                    '🟡 Medium' as priority,
+                    'Medium Priority' as priority,
                     'In Progress' as status,
                     3.0 as duration_months
                 UNION ALL
@@ -316,12 +321,12 @@ async function generateUserFolder(userEmail) {
                     'Stakeholder' as role,
                     '2025-07-01' as start_date,
                     90 as progress,
-                    '🟢 Low' as priority,
+                    'Low Priority' as priority,
                     'Near Completion' as status,
                     5.0 as duration_months
             `);
 
-            const [projectStats] = await sequelize.query(`
+            const projectStats = await sequelize.query(`
                 SELECT
                     3 as active_projects,
                     2 as completed_this_year,
@@ -339,11 +344,26 @@ async function generateUserFolder(userEmail) {
 
         // 11. Emergency Contacts & Medical Info
         try {
-            const [emergencyData] = await sequelize.query(`
+            const emergencyData = await sequelize.query(`
                 SELECT
-                    NULL as primary_contact_name,
-                    NULL as primary_contact_relationship,
-                    NULL as primary_contact_phone,
+                    u.emergency_contact,
+                    u.phone as user_phone,
+                    u.address as user_address,
+                    CASE
+                        WHEN u.emergency_contact IS NOT NULL AND u.emergency_contact != ''
+                        THEN SPLIT_PART(u.emergency_contact, ' - ', 1)
+                        ELSE NULL
+                    END as primary_contact_name,
+                    CASE
+                        WHEN u.emergency_contact IS NOT NULL AND u.emergency_contact != ''
+                        THEN 'Emergency Contact'
+                        ELSE NULL
+                    END as primary_contact_relationship,
+                    CASE
+                        WHEN u.emergency_contact IS NOT NULL AND u.emergency_contact != ''
+                        THEN SPLIT_PART(u.emergency_contact, ' - ', 2)
+                        ELSE NULL
+                    END as primary_contact_phone,
                     NULL as secondary_contact_name,
                     NULL as secondary_contact_relationship,
                     NULL as secondary_contact_phone,
@@ -352,15 +372,27 @@ async function generateUserFolder(userEmail) {
                     NULL as medical_conditions,
                     NULL as allergies,
                     NULL as emergency_procedures
-            `);
+                FROM users u
+                WHERE u.email = :userEmail
+            `, {
+                replacements: { userEmail },
+                type: sequelize.QueryTypes.SELECT
+            });
             userFolder.data.emergencyData = emergencyData;
         } catch (error) {
-            console.log('Emergency data simulated');
-            userFolder.data.emergencyData = null;
+            console.log('Emergency data extraction failed, using fallback');
+            userFolder.data.emergencyData = {
+                emergency_contact: userCore.emergency_contact,
+                user_phone: userCore.phone,
+                user_address: userCore.address,
+                primary_contact_name: userCore.emergency_contact ? 'Emergency Contact' : null,
+                primary_contact_relationship: userCore.emergency_contact ? 'Emergency Contact' : null,
+                primary_contact_phone: userCore.emergency_contact ? userCore.emergency_contact : null
+            };
         }
 
         // 12. Profile Completeness
-        const [completeness] = await sequelize.query(`
+        const completeness = await sequelize.query(`
             WITH profile_checks AS (
                 SELECT
                     u.id as user_id,
@@ -369,6 +401,11 @@ async function generateUserFolder(userEmail) {
                     CASE WHEN u.email IS NOT NULL AND u.email != '' THEN 1 ELSE 0 END as has_email,
                     CASE WHEN u.employee_id IS NOT NULL THEN 1 ELSE 0 END as has_employee_id,
                     CASE WHEN u.hire_date IS NOT NULL THEN 1 ELSE 0 END as has_hire_date,
+                    CASE WHEN u.birth_date IS NOT NULL THEN 1 ELSE 0 END as has_birth_date,
+                    CASE WHEN u.phone IS NOT NULL AND u.phone != '' THEN 1 ELSE 0 END as has_phone,
+                    CASE WHEN u.address IS NOT NULL AND u.address != '' THEN 1 ELSE 0 END as has_address,
+                    CASE WHEN u.emergency_contact IS NOT NULL AND u.emergency_contact != '' THEN 1 ELSE 0 END as has_emergency_contact,
+                    CASE WHEN u.profile_picture_url IS NOT NULL AND u.profile_picture_url != '' THEN 1 ELSE 0 END as has_profile_picture,
                     CASE WHEN e.id IS NOT NULL THEN 1 ELSE 0 END as has_employee_profile,
                     CASE WHEN e.position IS NOT NULL THEN 1 ELSE 0 END as has_position,
                     CASE WHEN e.salary IS NOT NULL AND e.salary > 0 THEN 1 ELSE 0 END as has_salary,
@@ -379,16 +416,19 @@ async function generateUserFolder(userEmail) {
                 LEFT JOIN organization_members om ON u.id = om.user_id
                 WHERE u.email = :userEmail
                 GROUP BY u.id, u.first_name, u.last_name, u.email, u.employee_id, u.hire_date,
+                         u.birth_date, u.phone, u.address, u.emergency_contact, u.profile_picture_url,
                          e.id, e.position, e.salary, e.department_id, om.member_id
             )
             SELECT
                 (has_first_name + has_last_name + has_email + has_employee_id + has_hire_date +
+                 has_birth_date + has_phone + has_address + has_emergency_contact + has_profile_picture +
                  has_employee_profile + has_position + has_salary + has_department +
                  has_org_membership) as completed_fields,
-                10 as total_fields,
+                15 as total_fields,
                 ROUND(((has_first_name + has_last_name + has_email + has_employee_id + has_hire_date +
+                        has_birth_date + has_phone + has_address + has_emergency_contact + has_profile_picture +
                         has_employee_profile + has_position + has_salary + has_department +
-                        has_org_membership) * 100.0 / 10), 1) as completeness_percentage
+                        has_org_membership) * 100.0 / 15), 1) as completeness_percentage
             FROM profile_checks
         `, {
             replacements: { userEmail },
@@ -406,38 +446,63 @@ async function generateUserFolder(userEmail) {
 }
 
 /**
- * Format user folder data to Markdown (matching reference user_folder.md format)
+ * Format user folder data to Markdown (following MARIA_BIANCHI_PHASE4_RADAR_FINAL.md standard)
  * @param {Object} userFolder - User folder data from generateUserFolder
  * @returns {string} Markdown formatted report
  */
 function formatUserFolderToMarkdown(userFolder) {
     const data = userFolder.data;
-    const user = data.userCore;
-    const org = data.organization;
-    const emp = data.employeeProfile;
-    const leave = data.leaveSummary;
-    const team = data.teamSize;
-    const completeness = data.profileCompleteness;
+    const user = data.userCore?.[0];  // Fix: Access first element of array
+    const org = data.organization?.[0];  // Fix: Access first element of array
+    const emp = data.employeeProfile?.[0];  // Fix: Access first element of array
+    const leave = data.leaveSummary?.[0];  // Fix: Access first element of array
+    const team = data.teamSize?.[0];  // Fix: Access first element of array
+    const completeness = data.profileCompleteness?.[0];  // Fix: Access first element of array
     const trainings = data.trainings;
     const projects = data.projects;
-    const projectStats = data.projectStats;
-    const emergencyData = data.emergencyData;
+    const projectStats = data.projectStats?.[0];  // Fix: Access first element of array
+    const emergencyData = data.emergencyData?.[0];  // Fix: Access first element of array
 
-    let markdown = `# User Folder - Complete Employee Profile
+    // Parse emergency contact data if it exists
+    const parseEmergencyContact = (contactData) => {
+        if (!contactData) return { name: null, relationship: null, phone: null };
+        try {
+            if (typeof contactData === 'string') {
+                const parsed = JSON.parse(contactData);
+                return {
+                    name: parsed.name || null,
+                    relationship: parsed.relationship || null,
+                    phone: parsed.phone || null
+                };
+            }
+            return contactData;
+        } catch (e) {
+            return { name: null, relationship: null, phone: null };
+        }
+    };
+
+    const emergencyContact = parseEmergencyContact(user.emergency_contact);
+
+    let markdown = `<div style="color: #2E5893;">
+
+# ${user.full_name} - Complete Outlook
+
+</div>
+
 ## AI-HRMS-2025 System
 
 ---
 
 ### ☐ Executive Summary
-**Generated:** ${new Date(userFolder.generatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-**Subject:** ${user.full_name}
+**Generated:** ${userFolder.generatedAt ? new Date(userFolder.generatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+**Subject:** ${user.full_name || `${user.first_name} ${user.last_name}`}
 **Position:** ${emp?.employee_position || 'Chief Executive Officer'}
 **Organization:** ${org?.organization_name || 'Not Assigned'}
 **Profile Completeness:** ${Math.round(completeness?.completeness_percentage || 75)}%
 
 ---
 
-## 1️⃣ Core User Information
+## ① Core User Information
 
 | Field | Value |
 |-------|-------|
@@ -445,10 +510,10 @@ function formatUserFolderToMarkdown(userFolder) {
 | **Full Name** | ${user.full_name} |
 | **Email** | ${user.email} |
 | **System Role** | ${user.system_role} |
-| **Account Status** | ${user.is_active ? '✅ Active' : '❌ Inactive'} |
+| **Account Status** | ${user.is_active ? '◉ Active' : '◯ Inactive'} |
 | **Employment Status** | ${user.employment_status} |
-| **Created** | ${new Date(user.created_at).toISOString()} |
-| **Last Updated** | ${new Date(user.updated_at).toISOString()} |
+| **Created** | ${user.created_at ? new Date(user.created_at).toISOString() : 'Not Available'} |
+| **Last Updated** | ${user.updated_at ? new Date(user.updated_at).toISOString() : 'Not Available'} |
 
 ### ☐ Security Information
 - **Password:** ${user.password_status || 'Standardized (Welcome123!)'}
@@ -458,7 +523,7 @@ function formatUserFolderToMarkdown(userFolder) {
 
 ---
 
-## 2️⃣ Organization & Employment
+## ② Organization & Employment
 
 ### ▢ Company Details
 | Field | Value |
@@ -481,16 +546,16 @@ function formatUserFolderToMarkdown(userFolder) {
 
 ---
 
-## 3️⃣ Compensation & Benefits
+## ③ Compensation & Benefits
 
-### 💰 Compensation Package
+### ▣ Compensation Package
 \`\`\`
 Base Salary:        €${emp?.salary ? Number(emp.salary).toLocaleString() : '250,000'} per annum
 Bonus Target:       40% of base (€${emp?.salary ? Math.round(Number(emp.salary) * 0.4).toLocaleString() : '100,000'})
 Total Target Comp:  €${emp?.salary ? Math.round(Number(emp.salary) * 1.4).toLocaleString() : '350,000'}
 \`\`\`
 
-### 🎁 Benefits
+### ▢ Benefits
 - **Health Insurance:** Premium Plan
 - **Retirement:** 401k with 6% match
 - **Car Allowance:** €1,500/month
@@ -500,19 +565,19 @@ Total Target Comp:  €${emp?.salary ? Math.round(Number(emp.salary) * 1.4).toLo
 
 ---
 
-## 4️⃣ Leave Management
+## ④ Leave Management
 
 ### □ Current Balances
 | Leave Type | Available | Used | Remaining |
 |------------|-----------|------|-----------|
-| **Vacation** | ${leave?.current_vacation_balance || 25}.0 days | ${leave?.total_days_taken || 0} | ${leave?.current_vacation_balance || 25}.0 days |
-| **Sick Leave** | ${leave?.current_sick_balance || 15}.0 days | 0 | ${leave?.current_sick_balance || 15}.0 days |
-| **Total** | ${(leave?.current_vacation_balance || 25) + (leave?.current_sick_balance || 15)}.0 days | ${leave?.total_days_taken || 0} | ${(leave?.current_vacation_balance || 25) + (leave?.current_sick_balance || 15)}.0 days |
+| **Vacation** | ${leave?.current_vacation_balance || 25} days | ${leave?.total_days_taken || 0} | ${leave?.current_vacation_balance || 25} days |
+| **Sick Leave** | ${leave?.current_sick_balance || 15} days | 0 | ${leave?.current_sick_balance || 15} days |
+| **Total** | ${(parseFloat(leave?.current_vacation_balance) || 25) + (parseFloat(leave?.current_sick_balance) || 15)} days | ${leave?.total_days_taken || 0} | ${(parseFloat(leave?.current_vacation_balance) || 25) + (parseFloat(leave?.current_sick_balance) || 15)} days |
 
 ### ↗ Leave Usage Visualization
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#212121', 'primaryTextColor': '#212121', 'primaryBorderColor': '#424242', 'lineColor': '#616161', 'secondaryColor': '#424242', 'tertiaryColor': '#BDBDBD', 'fontFamily': 'Exo 2, sans-serif', 'pieTitleTextSize': '16px', 'pieTitleTextColor': '#212121', 'pieSectionTextSize': '14px', 'pieSectionTextColor': '#212121'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'pie1': '#4CAF50', 'pie2': '#FF9800', 'pie3': '#2196F3', 'pieTitleTextSize': '16px', 'pieTitleTextColor': '#212121'}}}%%
 pie title Leave Balance Overview
     "Vacation Days Available" : ${leave?.current_vacation_balance || 25}
     "Sick Leave Available" : ${leave?.current_sick_balance || 15}
@@ -522,7 +587,7 @@ pie title Leave Balance Overview
 #### □ Leave Usage Analytics
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'xyChart': { 'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242' }, 'fontFamily': 'Exo 2, sans-serif'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#4CAF50,#FF9800,#2196F3,#E91E63'}}}}%%
 xychart-beta
     title "Leave Usage Analysis: Current vs Target"
     x-axis ["Vacation Days", "Sick Leave", "Personal Days", "Training Days"]
@@ -535,9 +600,9 @@ xychart-beta
 
 | Leave Type | Allocated | Used | Remaining | Utilization | Target Usage |
 |------------|-----------|------|-----------|-------------|--------------|
-| **Vacation Days** | ${leave?.current_vacation_balance + (leave?.total_days_taken || 0) || 25} | ${leave?.total_days_taken || 0} | **${leave?.current_vacation_balance || 25}** | ${Math.round((leave?.total_days_taken || 0) / (leave?.current_vacation_balance + (leave?.total_days_taken || 0) || 25) * 100)}% | 75% recommended |
+| **Vacation Days** | ${(parseFloat(leave?.current_vacation_balance) || 25) + (parseFloat(leave?.total_days_taken) || 0)} | ${leave?.total_days_taken || 0} | **${leave?.current_vacation_balance || 25}** | ${leave?.total_days_taken && leave?.current_vacation_balance ? Math.round((parseFloat(leave.total_days_taken) / (parseFloat(leave.current_vacation_balance) + parseFloat(leave.total_days_taken))) * 100) : 0}% | 75% recommended |
 | **Sick Leave** | ${leave?.current_sick_balance || 15} | 0 | **${leave?.current_sick_balance || 15}** | 0% | As needed |
-| **Total Available** | ${(leave?.current_vacation_balance + (leave?.total_days_taken || 0) || 25) + (leave?.current_sick_balance || 15)} | ${leave?.total_days_taken || 0} | **${(leave?.current_vacation_balance || 25) + (leave?.current_sick_balance || 15)}** | ${Math.round((leave?.total_days_taken || 0) / ((leave?.current_vacation_balance + (leave?.total_days_taken || 0) || 25) + (leave?.current_sick_balance || 15)) * 100)}% | Optimal use |
+| **Total Available** | ${(parseFloat(leave?.current_vacation_balance) || 25) + (parseFloat(leave?.current_sick_balance) || 15)} | ${leave?.total_days_taken || 0} | **${(parseFloat(leave?.current_vacation_balance) || 25) + (parseFloat(leave?.current_sick_balance) || 15)}** | ${leave?.total_days_taken && leave?.current_vacation_balance && leave?.current_sick_balance ? Math.round((parseFloat(leave.total_days_taken) / (parseFloat(leave.current_vacation_balance) + parseFloat(leave.current_sick_balance))) * 100) : 0}% | Optimal use |
 
 ### ◇ Leave History
 \`\`\`
@@ -550,11 +615,12 @@ data.leaveHistory.map(req =>
 
 ---
 
-## 5️⃣ Organizational Hierarchy
+## ⑤ Organizational Hierarchy
 
-### 👥 Reporting Structure
+### ○ Reporting Structure
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#1976D2', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#0D47A1', 'lineColor': '#424242', 'secondaryColor': '#E3F2FD', 'tertiaryColor': '#BBDEFB'}}}%%
 graph TD
     Board[Board of Directors]
     CEO[${user.full_name}<br/>${emp?.employee_position || 'CEO'}<br/>□ Team: ${team?.total_team_size || 56}]
@@ -564,13 +630,9 @@ graph TD
             const cleanName = name.replace(/[^a-zA-Z0-9]/g, '');
             return `    ${cleanName}[${name}<br/>Manager<br/>↗ Projects: 2-3]`;
         }).join('\n') :
-        `    HR[Giulia Marchetti<br/>HR Manager<br/>👥 Team: 12]
-    Risk[Paolo Ferrari<br/>Risk Manager<br/>⚠️ Assessments: 45]
-    Branch[Francesca Gallo<br/>Branch Manager<br/>🏪 Locations: 8]
-    IT[Marco Santoro<br/>IT Manager<br/>💻 Systems: 15]
-    Ops[Silvia Gatti<br/>Operations Manager<br/>⚙ Processes: 28]`}
-    Projects[Active Projects<br/>□ HRMS: 85%<br/>☐ Onboarding: 60%<br/>⭐ Reviews: 90%]
-    Analytics[Performance Analytics<br/>□ KPIs: 15<br/>📈 Metrics: Active<br/>◯ Goals: Q4 2025]
+        `    Note[No Direct Reports<br/>Individual Contributor<br/>▣ Focus: Strategic Leadership]`}
+    Projects[Active Projects<br/>▣ HRMS: 85%<br/>▢ Onboarding: 60%<br/>★ Reviews: 90%]
+    Analytics[Performance Analytics<br/>▣ KPIs: 15<br/>▲ Metrics: Active<br/>◯ Goals: Q4 2025]
 
     Board --> CEO
     ${data.directReports && data.directReports.direct_reports_count > 0 ?
@@ -580,145 +642,125 @@ graph TD
             return `    CEO --> ${cleanName}
     ${cleanName} -.-> Projects`;
         }).join('\n') :
-        `    CEO --> HR
-    CEO --> Risk
-    CEO --> Branch
-    CEO --> IT
-    CEO --> Ops
-    HR -.-> Projects
-    Risk -.-> Analytics
-    IT -.-> Projects
-    Ops -.-> Analytics`}
+        `    CEO -.-> Note`}
     CEO -.-> Projects
     CEO -.-> Analytics
 \`\`\`
 
-### 📈 Team Metrics
-- **Direct Reports:** ${team?.direct_reports || data.directReports?.direct_reports_count || 5} managers
-- **Total Team Size:** ${team?.total_team_size || 56} employees
-- **Span of Control:** ${team?.total_team_size ? (team.total_team_size / Math.max(team.direct_reports || 1, 1)).toFixed(1) : '11.2'} (average)
+### ▣ Team Metrics
+- **Direct Reports:** ${team?.direct_reports || data.directReports?.[0]?.direct_reports_count || 0} people
+- **Total Team Size:** ${team?.total_team_size || data.directReports?.[0]?.direct_reports_count || 0} employees
+- **Span of Control:** ${team?.total_team_size ? (team.total_team_size / Math.max(team.direct_reports || 1, 1)).toFixed(1) : '0.0'} (average)
 
 ---
 
-## 6️⃣ Skills & Competencies
+## ⑥ Skills & Competencies
 
 ### ◯ Core Competencies
 
-| Skill | Proficiency Level |
-|-------|------------------|
+| Status | Assessment Needed |
+|--------|------------------|
 ${data.skills && data.skills.length > 0 ?
 data.skills.map(skill => {
     const level = skill.proficiency_level?.toLowerCase() || 'intermediate';
-    let stars = '⭐⭐⭐';
+    let stars = '★★★☆☆';
     let levelName = 'Intermediate';
 
     switch(level) {
         case 'expert':
-            stars = '⭐⭐⭐⭐⭐';
+            stars = '★★★★★';
             levelName = 'Expert';
             break;
         case 'advanced':
-            stars = '⭐⭐⭐⭐';
+            stars = '★★★★☆';
             levelName = 'Advanced';
             break;
         case 'intermediate':
-            stars = '⭐⭐⭐';
+            stars = '★★★☆☆';
             levelName = 'Intermediate';
             break;
         case 'beginner':
-            stars = '⭐⭐';
+            stars = '★★☆☆☆';
             levelName = 'Beginner';
             break;
         default:
-            stars = '⭐⭐⭐';
+            stars = '★★★☆☆';
             levelName = 'Intermediate';
     }
 
     return `| **${skill.skill_name || 'Professional Skill'}** | ${stars} ${levelName} |`;
 }).join('\n') :
-`| **Leadership & Management** | ⭐⭐⭐⭐⭐ Expert |
-| **Strategic Planning** | ⭐⭐⭐⭐⭐ Expert |
-| **Stakeholder Management** | ⭐⭐⭐⭐⭐ Expert |
-| **Financial Analysis** | ⭐⭐⭐⭐ Advanced |
-| **Risk Management** | ⭐⭐⭐⭐ Advanced |
-| **Regulatory Compliance** | ⭐⭐⭐⭐ Advanced |
-| **Digital Banking** | ⭐⭐⭐ Intermediate |`}
+`| **Skills Assessment** | ■ Not yet completed |
+| **Available Skills Database** | 349 skills available for assessment |
+| **Next Step** | Schedule comprehensive skills evaluation |`}
 
-### 🎓 Education & Certifications
-- **MBA in Finance** - University of Milan
-- **Certified Bank Executive (CBE)**
-- **Digital Leadership Certificate**
+### ▢ Education & Certifications
+- **Education Records:** Not yet collected
+- **Professional Certifications:** Assessment pending
+- **Training History:** To be documented in HR system
 
 ### □ Skills Assessment Radar
 
-\`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'radarChart': { 'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'gridColor': '#BDBDBD', 'axisLabelColor': '#424242', 'radarStrokeColor': '#212121', 'radarFillColor': 'rgba(66, 66, 66, 0.1)' }, 'fontFamily': 'Exo 2, sans-serif'}}}%%
-radar
-    title Skills Competency Assessment
-    Leadership : 5
-    Strategic Planning : 5
-    Financial Management : 4
-    Communication : 4
-    Risk Management : 4
-    Compliance : 4
-    Digital Innovation : 3
-\`\`\`
+**Status:** Skills assessment not yet completed
+
+| Assessment Area | Status | Action Required |
+|----------------|--------|-----------------|
+| **Core Competencies** | ◯ Pending | Schedule initial assessment |
+| **Technical Skills** | ◯ Pending | Complete skills inventory |
+| **Leadership Abilities** | ◯ Pending | 360-degree feedback collection |
+| **Industry Knowledge** | ◯ Pending | Certification mapping |
+
+*Note: Skills radar chart will be available after competency assessment completion.*
 
 #### ◯ Detailed Skills Matrix
 
-| Competency Area | Proficiency Level | Score | Assessment |
-|-----------------|------------------|-------|------------|
-| **Leadership** | 🟢 Expert | 5/5 | Exceptional team management and vision |
-| **Strategic Planning** | 🟢 Expert | 5/5 | Outstanding long-term planning capabilities |
-| **Financial Management** | 🟡 Advanced | 4/5 | Strong financial analysis and budgeting |
-| **Communication** | 🟡 Advanced | 4/5 | Excellent interpersonal and presentation skills |
-| **Risk Management** | 🟡 Advanced | 4/5 | Comprehensive risk assessment abilities |
-| **Compliance** | 🟡 Advanced | 4/5 | Strong regulatory knowledge and adherence |
-| **Digital Innovation** | 🟠 Intermediate | 3/5 | Growing digital transformation expertise |
+| Assessment Category | Status | Next Steps |
+|-------------------|--------|------------|
+| **Leadership Assessment** | ■ Not started | Schedule 360-degree feedback |
+| **Technical Competencies** | ■ Not started | Complete skills inventory |
+| **Industry Knowledge** | ■ Not started | Map certifications and experience |
+| **Soft Skills Evaluation** | ■ Not started | Conduct behavioral assessment |
 
-#### 📈 Skills Development Roadmap
+*Skills matrix will populate once comprehensive assessment is completed.*
 
-\`\`\`mermaid
-gantt
-    title Skills Enhancement Timeline 2025
-    dateFormat  YYYY-MM-DD
-    section Leadership
-    Advanced Leadership Training     :done, lead1, 2025-01-01, 2025-03-31
-    Executive Coaching Program       :active, lead2, 2025-04-01, 2025-06-30
-    section Digital Innovation
-    Digital Transformation Course    :done, digital1, 2025-02-01, 2025-04-30
-    AI in Banking Workshop          :active, digital2, 2025-05-01, 2025-07-31
-    Advanced Analytics Training      :digital3, 2025-08-01, 2025-10-31
-    section Compliance
-    Updated Regulatory Framework     :comp1, 2025-06-01, 2025-08-31
-    GDPR Advanced Certification     :comp2, 2025-09-01, 2025-11-30
-\`\`\`
+#### ▣ Skills Development Roadmap
 
-*Overall Skills Assessment Score: **85/100** (Expert Level)*
+**Status:** Development plan pending skills assessment
+
+| Development Phase | Action Required | Timeline |
+|------------------|----------------|----------|
+| **1. Initial Assessment** | Complete comprehensive skills evaluation | Week 1-2 |
+| **2. Gap Analysis** | Identify development priorities | Week 3 |
+| **3. Learning Plan** | Create personalized development roadmap | Week 4 |
+| **4. Implementation** | Begin skill enhancement programs | Month 2+ |
+
+*Development roadmap will be created following skills assessment completion.*
+
+*Overall Skills Assessment: **Pending** (Assessment not yet completed)*
 
 ---
 
-## 7️⃣ Goals & Performance
+## ⑦ Goals & Performance
 
 ### ◯ 2025 Objectives
 
 | Quarter | Goal | Status |
 |---------|------|--------|
-| **Q1** | Implement digital transformation strategy | 🔄 In Progress |
-| **Q2** | Achieve 15% growth in customer base | ⏳ Planned |
-| **Q3** | Launch mobile banking platform | ⏳ Planned |
-| **Q4** | Complete AI-driven risk assessment system | ⏳ Planned |
+| **Q1** | Implement digital transformation strategy | ◐ In Progress |
+| **Q2** | Achieve 15% growth in customer base | ◯ Planned |
+| **Q3** | Launch mobile banking platform | ◯ Planned |
+| **Q4** | Complete AI-driven risk assessment system | ◯ Planned |
 
-### 📊 Performance Metrics
+### ▣ Performance Metrics
 - **Last Review:** Not Available
 - **Performance Rating:** Not Available
 - **Next Review Due:** Not Scheduled
 
 ---
 
-## 8️⃣ System Access & Permissions
+## ⑧ System Access & Permissions
 
-### 🔑 Access Rights
+### ⚙ Access Rights
 
 | Module | Access Level | Permissions |
 |--------|--------------|-------------|
@@ -729,36 +771,35 @@ gantt
 | **Salary Information** | Manager View | View Team Salaries |
 | **Report Generation** | Full Access | Create, Export, Schedule |
 
-### 🛡️ Security Compliance
-- **GDPR Consent:** ✅ Given
+### ▢ Security Compliance
+- **GDPR Consent:** ◉ Given
 - **Data Retention:** Standard (7 years)
 - **Access Audit:** Enabled
 - **IP Restrictions:** None
 
 ---
 
-## 9️⃣ Training & Development
+## ⑨ Training & Development
 
-### 📚 Required Certifications
+### ■ Required Certifications
 | Certification | Status | Expiry Date | Renewal Due |
 |---------------|--------|-------------|-------------|
 ${trainings && trainings.length > 0 ?
 trainings.map(cert =>
-    `| **${cert.course_name}** | ${cert.status} | ${cert.expiry_date} | ${cert.renewal_due} |`
+    `| **${cert.course_name || cert.name || 'Training Course'}** | ${cert.status || 'Status TBD'} | ${cert.expiry_date || cert.expires || 'TBD'} | ${cert.renewal_due || cert.due || 'TBD'} |`
 ).join('\n') :
-`| **Data Protection Training** | ⚠️ Expired | 12/31/2024 | Overdue |
-| **Health & Safety** | ✅ Valid | 06/30/2026 | 8 months |
-| **Anti-Harassment Training** | ✅ Valid | 03/15/2026 | 5 months |
-| **Code of Conduct** | ✅ Valid | 12/31/2025 | 3 months |`}
+`| **Training Assessment** | ■ Not conducted | - | Schedule assessment |
+| **Skills Certification** | ■ Not conducted | - | Complete evaluation |
+| **Compliance Training** | ■ Not conducted | - | Enroll in program |`}
 
-### ⚖️ Compliance Status
+### ▣ Compliance Status
 | Area | Status | Risk Level | Action Required |
 |------|--------|------------|-----------------|
-| **GDPR Compliance** | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.status === '⚠️ Expired' ? '⚠️ Needs Update' : '✅ Compliant'} | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.risk_level || 'Medium'} | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.status === '⚠️ Expired' ? 'Complete Data Protection Training' : 'None'} |
-| **Workplace Safety** | ✅ Compliant | Low | None |
-| **Ethical Standards** | ✅ Compliant | Low | None |
+| **GDPR Compliance** | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.status === '▲ Expired' ? '▲ Needs Update' : '◉ Compliant'} | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.risk_level || 'Medium'} | ${trainings?.find(t => t.course_name?.includes('GDPR'))?.status === '▲ Expired' ? 'Complete Data Protection Training' : 'None'} |
+| **Workplace Safety** | ◉ Compliant | Low | None |
+| **Ethical Standards** | ◉ Compliant | Low | None |
 
-### 📈 Development Plan
+### ▣ Development Plan
 | Development Area | Priority | Target Date | Status |
 |------------------|----------|-------------|--------|
 | Leadership Skills | High | Q4 2025 | ☐ Planning |
@@ -769,31 +810,31 @@ trainings.map(cert =>
 
 ---
 
-## 🔟 Project Assignments & Responsibilities
+## ⑩ Project Assignments & Responsibilities
 
 ### □ Active Projects
 | Project Name | Role | Start Date | Progress | Priority |
 |--------------|------|------------|----------|----------|
 ${projects && projects.length > 0 ?
 projects.map(project =>
-    `| ${project.project_name} | ${project.role} | ${project.start_date ? project.start_date.split('-').slice(1).join('/') + '/2025' : 'Not Specified'} | ${project.progress}% | ${project.priority} |`
+    `| ${project.project_name || project.name || 'Project Assignment'} | ${project.role || project.position || 'Team Member'} | ${project.start_date ? project.start_date.split('-').slice(1).join('/') + '/2025' : 'TBD'} | ${project.progress || project.completion || '0'}% | ${project.priority || project.status || 'Standard'} |`
 ).join('\n') :
-`| HRMS Implementation | Project Lead | 09/01/2025 | 85% | 🔴 High |
-| Employee Onboarding | Coordinator | 08/15/2025 | 60% | 🟡 Medium |
-| Performance Review System | Stakeholder | 07/01/2025 | 90% | 🟢 Low |`}
+`| **Project Portfolio** | ■ Not assigned | - | Schedule assignment |
+| **Team Collaboration** | ■ Not defined | - | Define role and responsibilities |
+| **Strategic Initiatives** | ■ Not allocated | - | Assign to strategic projects |`}
 
-### 📊 Project Statistics
+### ▢ Project Statistics
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Active Projects** | ${projectStats?.active_projects || 3} | ✅ Normal Load |
-| **Projects Completed This Year** | ${projectStats?.completed_this_year || 2} | ✅ On Track |
-| **Average Project Duration** | ${projectStats?.avg_duration_months || 4.5} months | ✅ Efficient |
-| **Success Rate** | ${projectStats?.success_rate || 95}% | ✅ Excellent |
+| **Active Projects** | ${projectStats?.active_projects || 3} | ◉ Normal Load |
+| **Projects Completed This Year** | ${projectStats?.completed_this_year || 2} | ◉ On Track |
+| **Average Project Duration** | ${projectStats?.avg_duration_months || 4.5} months | ◉ Efficient |
+| **Success Rate** | ${projectStats?.success_rate || 95}% | ◉ Excellent |
 
-### 📈 Project Progress Dashboard
+### ▣ Project Progress Dashboard
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#2E86AB', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#1A5A7A', 'lineColor': '#F18F01', 'secondaryColor': '#A23B72', 'tertiaryColor': '#F18F01'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#1976D2', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#0D47A1', 'lineColor': '#424242', 'secondaryColor': '#E3F2FD', 'tertiaryColor': '#BBDEFB'}}}%%
 gantt
     title Project Portfolio Progress Timeline
     dateFormat  YYYY-MM-DD
@@ -813,9 +854,10 @@ gantt
     Go-Live                    :perf4, 2025-09-16, 2025-09-30
 \`\`\`
 
-#### 🎯 Portfolio Performance Metrics
+#### ▣ Portfolio Performance Metrics
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#1976D2,#42A5F5,#90CAF9,#E3F2FD,#BBDEFB'}}}}%%
 xychart-beta
     title "Project Completion & Resource Allocation"
     x-axis ["HRMS", "Onboarding", "Performance", "Portfolio Avg"]
@@ -823,19 +865,20 @@ xychart-beta
     bar [85, 60, 90, 78]
 \`\`\`
 
-#### 📊 Executive Project Summary
+#### ▢ Executive Project Summary
 
 | Metric | Current Value | Target | Status | Trend |
 |--------|---------------|---------|---------|-------|
-| **Overall Portfolio Completion** | 78% | 85% | 🟡 On Track | ↗️ Improving |
-| **Risk Level** | Low (20%) | Medium (50%) | 🟢 Excellent | ↘️ Decreasing |
-| **Resource Utilization** | 80% | 75% | 🟡 High Capacity | ↗️ Increasing |
-| **Budget Performance** | 92% | 95% | 🟢 Under Budget | ↗️ Efficient |
-| **Timeline Adherence** | 94% | 90% | 🟢 Ahead of Schedule | ↗️ Excellent |
+| **Overall Portfolio Completion** | 78% | 85% | ◐ On Track | ↗️ Improving |
+| **Risk Level** | Low (20%) | Medium (50%) | ◉ Excellent | ↘ Decreasing |
+| **Resource Utilization** | 80% | 75% | ◐ High Capacity | ↗️ Increasing |
+| **Budget Performance** | 92% | 95% | ◉ Under Budget | ↗ Efficient |
+| **Timeline Adherence** | 94% | 90% | ◉ Ahead of Schedule | ↗ Excellent |
 
-#### 🔍 Project Risk & Quality Matrix
+#### ▣ Project Risk & Quality Matrix
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#81C784', 'primaryTextColor': '#212121', 'primaryBorderColor': '#66BB6A', 'lineColor': '#424242', 'secondaryColor': '#C8E6C9', 'tertiaryColor': '#E8F5E8'}}}%%
 quadrantChart
     title Project Risk vs Quality Assessment
     x-axis Low Risk --> High Risk
@@ -852,42 +895,45 @@ quadrantChart
 
 ---
 
-## 1️⃣1️⃣ Emergency Contacts
+## ⑪ Emergency Contacts
 
-### 🚨 Emergency Information
+### ▲ Emergency Information
 | Contact Type | Name | Relationship | Phone | Status |
 |--------------|------|--------------|-------|--------|
-| **Primary Contact** | ${emergencyData?.primary_contact_name || 'Not Provided'} | ${emergencyData?.primary_contact_relationship || '-'} | ${emergencyData?.primary_contact_phone || '-'} | ${emergencyData?.primary_contact_name ? '✅ Complete' : '❌ Missing'} |
-| **Secondary Contact** | ${emergencyData?.secondary_contact_name || 'Not Provided'} | ${emergencyData?.secondary_contact_relationship || '-'} | ${emergencyData?.secondary_contact_phone || '-'} | ${emergencyData?.secondary_contact_name ? '✅ Complete' : '❌ Missing'} |
-| **Medical Contact** | ${emergencyData?.medical_contact_name || 'Not Provided'} | - | ${emergencyData?.medical_contact_phone || '-'} | ${emergencyData?.medical_contact_name ? '✅ Complete' : '❌ Missing'} |
+| **Primary Contact** | ${emergencyData?.primary_contact_name || 'Not Provided'} | ${emergencyData?.primary_contact_relationship || '-'} | ${emergencyData?.primary_contact_phone || '-'} | ${emergencyData?.primary_contact_name ? '◉ Complete' : '◯ Missing'} |
+| **Secondary Contact** | ${emergencyData?.secondary_contact_name || 'Not Provided'} | ${emergencyData?.secondary_contact_relationship || '-'} | ${emergencyData?.secondary_contact_phone || '-'} | ${emergencyData?.secondary_contact_name ? '◉ Complete' : '◯ Missing'} |
+| **Medical Contact** | ${emergencyData?.medical_contact_name || 'Not Provided'} | - | ${emergencyData?.medical_contact_phone || '-'} | ${emergencyData?.medical_contact_name ? '◉ Complete' : '◯ Missing'} |
 
-### 🏥 Medical Information
+### ◇ Medical Information
 | Information | Status | Notes |
 |-------------|--------|-------|
-| **Medical Conditions** | ${emergencyData?.medical_conditions ? '✅ On File' : 'Not Provided'} | Confidential |
-| **Allergies** | ${emergencyData?.allergies ? '✅ On File' : 'Not Provided'} | Important for workplace safety |
-| **Emergency Procedures** | ${emergencyData?.emergency_procedures ? '✅ On File' : 'Not Provided'} | Required for compliance |
+| **Medical Conditions** | ${emergencyData?.medical_conditions ? '◉ On File' : 'Not Provided'} | Confidential |
+| **Allergies** | ${emergencyData?.allergies ? '◉ On File' : 'Not Provided'} | Important for workplace safety |
+| **Emergency Procedures** | ${emergencyData?.emergency_procedures ? '◉ On File' : 'Not Provided'} | Required for compliance |
 
-*⚠️ Emergency contact information is incomplete. Please update in employee portal.*
+*▲ Emergency contact information is incomplete. Please update in employee portal.*
 
 ---
 
-## 1️⃣2️⃣ Communication & Contact
+## ⑫ Communication & Contact
 
 ### ○ Contact Information
 
 | Channel | Details |
 |---------|---------|
 | **Work Email** | ${user.email} |
-| **Phone** | Not Specified |
+| **Phone** | ${user.phone || 'Not Specified'} |
+| **Address** | ${user.address || 'Not Specified'} |
 | **Office Location** | Milan HQ, Executive Floor |
 | **Desk Number** | Not Specified |
-| **Emergency Contact** | Not Specified |
+| **Birth Date** | ${user.birth_date ? new Date(user.birth_date).toLocaleDateString() : 'Not Specified'} |
+| **Emergency Contact** | ${user.emergency_contact || 'Not Specified'} |
+| **Profile Picture** | ${user.profile_picture_url ? '◉ Available' : 'Not Set'} |
 
 ### ◇ Collaboration Tools
-- **Microsoft Teams:** ✅ Active
-- **Slack:** ❌ Not Used
-- **Email Groups:** executive-team@${org?.domain?.split('.')[0] || 'company'}.org
+- **Microsoft Teams:** ◉ Active
+- **Slack:** ◯ Not Used
+- **Email Groups:** executive-team@${org?.domain || (org?.organization_slug + '.org') || 'banknova.org'}
 
 ### ▢ Preferences
 - **Languages:** Italian (Native), English (Fluent)
@@ -896,34 +942,34 @@ quadrantChart
 
 ---
 
-## 1️⃣3️⃣ Documents & Compliance
+## ⑬ Documents & Compliance
 
 ### ☐ Employment Documents
 
 | Document | Status | Date |
 |----------|--------|------|
-| **Employment Contract** | ✅ On File | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
-| **NDA** | ✅ Signed | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
-| **Code of Conduct** | ✅ Acknowledged | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
-| **Data Protection Agreement** | ✅ Signed | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
+| **Employment Contract** | ◉ On File | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
+| **NDA** | ◉ Signed | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
+| **Code of Conduct** | ◉ Acknowledged | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
+| **Data Protection Agreement** | ◉ Signed | ${emp?.start_date ? new Date(emp.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]} |
 
-### 🆔 Personal Documents
+### ◇ Personal Documents
 
 | Document | Status | Expiry |
 |----------|--------|--------|
-| **ID/Passport** | ✅ On File | 2030 |
+| **ID/Passport** | ◉ On File | 2030 |
 | **Work Permit** | N/A | EU Citizen |
-| **Medical Info** | ⚠️ Basic Only | - |
-| **Emergency Contact** | ❌ Missing | - |
+| **Medical Info** | ▲ Basic Only | - |
+| **Emergency Contact** | ◯ Missing | - |
 
 ---
 
-## 1️⃣4️⃣ Data Relationships
+## ⑭ Data Relationships
 
 ### ◇ System Integration Architecture
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#212121', 'primaryTextColor': '#212121', 'primaryBorderColor': '#424242', 'lineColor': '#616161', 'secondaryColor': '#424242', 'tertiaryColor': '#BDBDBD', 'fontFamily': 'Exo 2, sans-serif', 'fontSize': '14px'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#1976D2', 'primaryTextColor': '#212121', 'primaryBorderColor': '#0D47A1', 'lineColor': '#424242', 'secondaryColor': '#E3F2FD', 'tertiaryColor': '#BBDEFB', 'fontSize': '14px'}}}%%
 graph TD
     subgraph CORE["Core HR Platform"]
         U[○ User Management<br/>Authentication & Access]
@@ -968,9 +1014,10 @@ graph TD
     class PAY,LMS,BI externalStyle
 \`\`\`
 
-#### 🔍 Data Flow Analysis
+#### ▢ Data Flow Analysis
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#1976D2', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#0D47A1', 'lineColor': '#424242', 'secondaryColor': '#E3F2FD', 'tertiaryColor': '#BBDEFB'}}}%%
 flowchart LR
     subgraph INPUT["📥 Data Sources"]
         HR[HR Input<br/>Manual entry]
@@ -978,7 +1025,7 @@ flowchart LR
         EXT[External APIs<br/>Integration]
     end
 
-    subgraph PROCESS["⚙ Processing Layer"]
+    subgraph PROCESS["◑ Processing Layer"]
         VAL[Data Validation<br/>Quality checks]
         TRANS[Transformation<br/>Normalization]
         ENR[Enrichment<br/>AI enhancement]
@@ -1008,22 +1055,23 @@ flowchart LR
     style OUTPUT fill:#27AE60,stroke:#2ECC71,stroke-width:2px,color:#fff
 \`\`\`
 
-#### 📊 Integration Health Dashboard
+#### ▣ Integration Health Dashboard
 
 | System Component | Status | Last Sync | Data Quality | Performance | SLA |
 |------------------|---------|-----------|--------------|-------------|-----|
-| **User Authentication** | 🟢 Operational | Real-time | 98% | Excellent | 99.9% |
-| **Employee Profiles** | 🟢 Operational | Real-time | 100% | Excellent | 99.9% |
-| **Organization Data** | 🟢 Operational | Real-time | 95% | Good | 99.5% |
-| **Skills Management** | 🟡 Limited | 24h ago | 60% | Fair | 95.0% |
-| **Project Portfolio** | 🟢 Operational | 1h ago | 85% | Good | 98.0% |
-| **Leave Management** | 🟢 Operational | Real-time | 100% | Excellent | 99.8% |
-| **External Payroll** | 🟢 Connected | Monthly | 99.95% | Excellent | 99.9% |
-| **Learning Platform** | 🟡 Sync Issues | 6h ago | 78% | Fair | 95.0% |
+| **User Authentication** | ◉ Operational | Real-time | 98% | Excellent | 99.9% |
+| **Employee Profiles** | ◉ Operational | Real-time | 100% | Excellent | 99.9% |
+| **Organization Data** | ◉ Operational | Real-time | 95% | Good | 99.5% |
+| **Skills Management** | ◐ Limited | 24h ago | 60% | Fair | 95.0% |
+| **Project Portfolio** | ◉ Operational | 1h ago | 85% | Good | 98.0% |
+| **Leave Management** | ◉ Operational | Real-time | 100% | Excellent | 99.8% |
+| **External Payroll** | ◉ Connected | Monthly | 99.95% | Excellent | 99.9% |
+| **Learning Platform** | ◐ Sync Issues | 6h ago | 78% | Fair | 95.0% |
 
 #### ☐ Security & Compliance Matrix
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#FF6B35', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#E55722', 'lineColor': '#795548', 'secondaryColor': '#FFE0B2', 'tertiaryColor': '#FFF3E0', 'background': '#FAFAFA'}}}%%
 mindmap
   root((Security<br/>Framework))
     Authentication
@@ -1050,17 +1098,17 @@ mindmap
 
 ---
 
-## 1️⃣5️⃣ Audit Trail
+## ⑮ Audit Trail
 
-### 📝 Recent Activity Log
+### ▣ Recent Activity Log
 
 | Date | Action | Details | By |
 |------|--------|---------|-----|
 | ${new Date().toISOString().split('T')[0]} ${new Date().toTimeString().split(' ')[0]} | Field Standardization | Email format updated | System |
-| ${new Date(user.created_at).toISOString().split('T')[0]} ${new Date(user.created_at).toTimeString().split(' ')[0]} | Organization Link | Joined ${org?.organization_name || 'Organization'} | System |
-| ${new Date(user.created_at).toISOString().split('T')[0]} ${new Date(user.created_at).toTimeString().split(' ')[0]} | Account Created | Initial user setup | populat05 |
+| ${user.created_at ? `${new Date(user.created_at).toISOString().split('T')[0]} ${new Date(user.created_at).toTimeString().split(' ')[0]}` : 'N/A'} | Organization Link | Joined ${org?.organization_name || 'Organization'} | System |
+| ${user.created_at ? `${new Date(user.created_at).toISOString().split('T')[0]} ${new Date(user.created_at).toTimeString().split(' ')[0]}` : 'N/A'} | Account Created | Initial user setup | populat05 |
 
-### 🔍 Compliance Tracking
+### ▢ Compliance Tracking
 - **Last Security Review:** ${new Date().toISOString().split('T')[0]}
 - **Next Review Due:** ${new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0]}
 - **Data Classification:** CONFIDENTIAL
@@ -1068,25 +1116,32 @@ mindmap
 
 ---
 
-## 📊 Profile Completeness Analysis
+## ⑯ Profile Completeness Analysis
 
 **Overall Completeness:** ${Math.round(completeness?.completeness_percentage || 75)}%
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#6C5CE7', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#5A4FCF', 'lineColor': '#00B894', 'secondaryColor': '#FD79A8', 'tertiaryColor': '#FDCB6E'}}}%%
-pie title Profile Data Completeness Distribution
-    "Personal Information" : 80
-    "Employment Details" : 100
-    "Skills & Training" : 40
-    "Emergency Contacts" : 0
-    "Performance Data" : 60
-    "Documentation" : 90
-    "System Access" : 100
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#4CAF50,#FF9800,#2196F3,#E91E63,#9C27B0,#00BCD4,#795548'}}}}%%
+xychart-beta horizontal
+    title "Profile Data Completeness Distribution"
+    y-axis ["Personal Information", "Employment Details", "Skills & Training", "Emergency Contacts", "Performance Data", "Documentation", "System Access"]
+    x-axis "Completion Percentage" 0 --> 100
+    bar [80, 100, 40, 0, 60, 90, 100]
 \`\`\`
 
-#### 📈 Completeness Trends & Targets
+**Profile Categories:**
+1. Personal Information: 80%
+2. Employment Details: 100%
+3. Skills & Training: 40%
+4. Emergency Contacts: 0%
+5. Performance Data: 60%
+6. Documentation: 90%
+7. System Access: 100%
+
+#### ▣ Completeness Trends & Targets
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#1976D2,#42A5F5,#90CAF9,#E3F2FD,#BBDEFB'}}}}%%
 xychart-beta
     title "Profile Completion Status vs Targets"
     x-axis ["Personal", "Employment", "Skills", "Emergency", "Performance", "Docs", "Access"]
@@ -1095,41 +1150,41 @@ xychart-beta
     line [85, 95, 70, 50, 80, 95, 100]
 \`\`\`
 
-#### 🎯 Data Quality Scorecard
+#### ▢ Data Quality Scorecard
 
 | Profile Category | Current | Target | Status | Priority | Action Required |
 |------------------|---------|---------|---------|----------|-----------------|
-| **Personal Information** | 80% | 85% | 🟡 Good | Medium | Update contact details |
-| **Employment Details** | 100% | 95% | 🟢 Excellent | Low | Maintain current |
-| **Skills & Training** | 40% | 70% | 🔴 Needs Attention | High | Complete skills assessment |
-| **Emergency Contacts** | 0% | 50% | 🔴 Critical | High | Add emergency contacts |
-| **Performance Data** | 60% | 80% | 🟡 Acceptable | Medium | Update goal tracking |
-| **Documentation** | 90% | 95% | 🟢 Excellent | Low | Minor updates needed |
-| **System Access** | 100% | 100% | 🟢 Perfect | Low | No action required |
+| **Personal Information** | 80% | 85% | ◐ Good | Medium | Update contact details |
+| **Employment Details** | 100% | 95% | ◉ Excellent | Low | Maintain current |
+| **Skills & Training** | 40% | 70% | ◯ Needs Attention | High | Complete skills assessment |
+| **Emergency Contacts** | 0% | 50% | ◯ Critical | High | Add emergency contacts |
+| **Performance Data** | 60% | 80% | ◐ Acceptable | Medium | Update goal tracking |
+| **Documentation** | 90% | 95% | ◉ Excellent | Low | Minor updates needed |
+| **System Access** | 100% | 100% | ◉ Perfect | Low | No action required |
 
-### ✅ Complete (${Math.round(completeness?.completeness_percentage || 75)}%)
-- ✅ Basic Information
-- ✅ Organization Assignment
-- ✅ Employment Details
-- ✅ Compensation Structure
-- ✅ Leave Balances
-- ✅ System Access
-- ✅ Document Compliance
-- ✅ Audit Trail
+### ◉ Complete (${Math.round(completeness?.completeness_percentage || 75)}%)
+- ◉ Basic Information
+- ◉ Organization Assignment
+- ◉ Employment Details
+- ◉ Compensation Structure
+- ◉ Leave Balances
+- ◉ System Access
+- ◉ Document Compliance
+- ◉ Audit Trail
 
-### ❌ Missing/Incomplete (${100 - Math.round(completeness?.completeness_percentage || 75)}%)
-- ❌ Phone Number
-- ❌ Emergency Contact
-- ❌ Full Address
-- ${data.skills && data.skills.length > 0 ? '✅' : '❌'} Skills Assessment Data
-- ❌ Performance Reviews
-- ❌ Training Records
-- ❌ Department Assignment
-- ⚠️ Tenant Association
+### ◯ Missing/Incomplete (${100 - Math.round(completeness?.completeness_percentage || 75)}%)
+- ◯ Phone Number
+- ◯ Emergency Contact
+- ◯ Full Address
+- ${data.skills && data.skills.length > 0 ? '◉' : '◯'} Skills Assessment Data
+- ◯ Performance Reviews
+- ◯ Training Records
+- ◯ Department Assignment
+- ▲ Tenant Association
 
 ---
 
-## 📋 Recommended Actions
+## ⑰ Recommended Actions
 
 1. **Immediate (This Week)**
    - [ ] Add emergency contact information
@@ -1148,22 +1203,22 @@ xychart-beta
 
 ---
 
-## 🔒 Data Privacy Notice
+## ⑱ Data Privacy Notice
 
 > **CONFIDENTIAL**: This user folder contains sensitive personal and employment information. Access is restricted to authorized personnel only. Any unauthorized access, distribution, or modification is strictly prohibited.
 
-**Data Protection Officer:** privacy@${org?.domain?.split('.')[0] || 'company'}.org
+**Data Protection Officer:** privacy@${org?.domain || (org?.organization_slug + '.org') || 'banknova.org'}
 **Last Updated:** ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 **Version:** 1.0
 
 ---
 
-## ◯ Executive Dashboard
+## ⑲ Executive Dashboard
 
 ### □ Key Performance Indicators
 
 \`\`\`mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'xyChart': { 'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#212121,#424242,#616161,#757575,#9E9E9E' }, 'fontFamily': 'Exo 2, sans-serif'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#1976D2,#42A5F5,#90CAF9,#E3F2FD,#BBDEFB'}}}}%%
 xychart-beta
     title "Executive Performance Scorecard - ${user.full_name}"
     x-axis ["Skills Mastery", "Project Delivery", "Goal Achievement", "Training Progress", "Compliance Score", "Team Engagement"]
@@ -1172,42 +1227,43 @@ xychart-beta
     line [80, 75, 70, 75, 85, 85]
 \`\`\`
 
-#### 🏆 Performance Metrics Overview
+#### ▣ Performance Metrics Overview
 
 | KPI Category | Current Score | Target | Trend | Status | Action Required |
 |--------------|---------------|--------|-------|---------|-----------------|
-| **Skills Proficiency** | 85% | 80% | ↗️ +5% | 🟢 Exceeds | Maintain excellence |
-| **Project Delivery** | 78% | 75% | ↗️ +3% | 🟢 On Target | Continue current approach |
-| **Goal Achievement** | 65% | 70% | ↘️ -2% | 🟡 Below Target | Focus on Q4 objectives |
-| **Training Completion** | 70% | 75% | ↗️ +10% | 🟡 Improving | Complete pending courses |
-| **Compliance Score** | 90% | 85% | ↗️ +5% | 🟢 Excellent | No action needed |
-| **Employee Engagement** | 88% | 85% | ↗️ +3% | 🟢 High | Maintain engagement |
+| **Skills Proficiency** | 85% | 80% | ↗ +5% | ◉ Exceeds | Maintain excellence |
+| **Project Delivery** | 78% | 75% | ↗ +3% | ◉ On Target | Continue current approach |
+| **Goal Achievement** | 65% | 70% | ↘️ -2% | ◐ Below Target | Focus on Q4 objectives |
+| **Training Completion** | 70% | 75% | ↗️ +10% | ◐ Improving | Complete pending courses |
+| **Compliance Score** | 90% | 85% | ↗ +5% | ◉ Excellent | No action needed |
+| **Employee Engagement** | 88% | 85% | ↗ +3% | ◉ High | Maintain engagement |
 
-### 📈 Business Impact Analysis
+### ▢ Business Impact Analysis
 
 \`\`\`mermaid
-sankey-beta
-    source,BankNova Leadership,100
-    BankNova Leadership,Strategic Initiatives,85
-    BankNova Leadership,Team Management,60
-    BankNova Leadership,Operational Excellence,75
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#3F51B5', 'primaryTextColor': '#FFFFFF', 'primaryBorderColor': '#303F9F', 'lineColor': '#424242', 'secondaryColor': '#E8EAF6', 'tertiaryColor': '#F3E5F5', 'background': '#FAFAFA'}}}%%
+flowchart TD
+    A[Leadership<br/>100%] --> B[Strategy<br/>85%]
+    A --> C[Team<br/>60%]
+    A --> D[Ops<br/>75%]
 
-    Strategic Initiatives,Digital Transformation,40
-    Strategic Initiatives,Process Improvement,25
-    Strategic Initiatives,Innovation Projects,20
+    B --> E[Digital<br/>40%]
+    B --> F[Process<br/>25%]
+    B --> G[Innovation<br/>20%]
 
-    Team Management,Direct Reports,25
-    Team Management,Cross-functional,20
-    Team Management,Stakeholder Relations,15
+    C --> H[Reports<br/>25%]
+    C --> I[Cross-Func<br/>20%]
+    C --> J[Stakeholder<br/>15%]
 
-    Operational Excellence,Risk Management,30
-    Operational Excellence,Compliance,25
-    Operational Excellence,Quality Assurance,20
+    D --> K[Risk<br/>30%]
+    D --> L[Compliance<br/>25%]
+    D --> M[Quality<br/>20%]
 \`\`\`
 
-#### 💼 Executive Impact Scorecard
+#### ▣ Executive Impact Scorecard
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'primaryColor': '#81C784', 'primaryTextColor': '#212121', 'primaryBorderColor': '#66BB6A', 'lineColor': '#424242', 'secondaryColor': '#C8E6C9', 'tertiaryColor': '#E8F5E8'}}}%%
 quadrantChart
     title Strategic Impact vs Operational Efficiency
     x-axis Low Impact --> High Impact
@@ -1222,20 +1278,21 @@ quadrantChart
     Previous Period: [0.80, 0.72]
 \`\`\`
 
-### 🎯 Strategic Objectives Dashboard
+### ▢ Strategic Objectives Dashboard
 
 #### Q4 2025 Executive Goals
 
 | Strategic Goal | Progress | Target Date | Risk Level | Owner | Dependencies |
 |----------------|----------|-------------|------------|-------|--------------|
-| **Digital Banking Launch** | 85% | Nov 30, 2025 | 🟡 Medium | Maria Bianchi | IT, Compliance |
-| **Customer Growth +15%** | 72% | Dec 31, 2025 | 🟢 Low | Sales Team | Marketing, Operations |
-| **AI Risk Management** | 45% | Dec 15, 2025 | 🔴 High | Risk Dept | External Consultants |
-| **Employee Satisfaction** | 88% | Ongoing | 🟢 Low | HR Team | All Departments |
+| **Digital Banking Launch** | 85% | Nov 30, 2025 | ◐ Medium | Maria Bianchi | IT, Compliance |
+| **Customer Growth +15%** | 72% | Dec 31, 2025 | ○ Low | Sales Team | Marketing, Operations |
+| **AI Risk Management** | 45% | Dec 15, 2025 | ● High | Risk Dept | External Consultants |
+| **Employee Satisfaction** | 88% | Ongoing | ○ Low | HR Team | All Departments |
 
-#### 🔮 Predictive Analytics & Forecasting
+#### ▣ Predictive Analytics & Forecasting
 
 \`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily': 'Exo 2', 'xyChart': {'backgroundColor': '#FAFAFA', 'titleColor': '#212121', 'xAxisTextColor': '#424242', 'yAxisTextColor': '#424242', 'plotColorPalette': '#1976D2,#42A5F5,#90CAF9,#E3F2FD,#BBDEFB'}}}}%%
 xychart-beta
     title "Performance Forecast - Next 6 Months"
     x-axis ["Oct 2025", "Nov 2025", "Dec 2025", "Jan 2026", "Feb 2026", "Mar 2026"]
@@ -1244,39 +1301,56 @@ xychart-beta
     bar [76, 80, 83, 86, 88, 91]
 \`\`\`
 
-#### 📊 Leadership Effectiveness Matrix
+#### ▢ Leadership Effectiveness Matrix
 
-| Leadership Dimension | Current Rating | Industry Avg | Top Quartile | Development Priority |
-|---------------------|----------------|--------------|--------------|---------------------|
-| **Vision & Strategy** | 9.2/10 | 7.5/10 | 8.5/10 | 🟢 Maintain |
-| **Team Development** | 8.8/10 | 7.8/10 | 8.8/10 | 🟢 Sustain |
-| **Innovation Drive** | 7.5/10 | 7.2/10 | 8.2/10 | 🟡 Develop |
-| **Digital Leadership** | 6.8/10 | 6.5/10 | 8.0/10 | 🔴 Priority |
-| **Stakeholder Relations** | 9.1/10 | 7.9/10 | 8.7/10 | 🟢 Excellent |
+**Status:** Leadership assessment not yet conducted
 
-### 🎯 Action Items & Strategic Priorities
+| Assessment Component | Status | Action Required |
+|---------------------|--------|-----------------|
+| **360-Degree Feedback** | ◯ Pending | Collect stakeholder input |
+| **Leadership Competency Review** | ◯ Pending | Schedule formal evaluation |
+| **Performance Metrics Analysis** | ◯ Pending | Analyze leadership KPIs |
+| **Development Planning** | ◯ Pending | Create leadership roadmap |
+
+*Leadership effectiveness matrix will be available after comprehensive assessment.*
+
+#### ★ Leadership Effectiveness Radar Chart
+
+**Chart Status:** Awaiting leadership assessment completion
+
+| Leadership Area | Assessment Method | Timeline |
+|----------------|------------------|----------|
+| **Vision & Strategy** | Strategic planning review | Phase 1 |
+| **Team Development** | 360-degree feedback | Phase 2 |
+| **Innovation Drive** | Innovation metrics analysis | Phase 3 |
+| **Digital Leadership** | Digital transformation assessment | Phase 3 |
+| **Stakeholder Relations** | Stakeholder feedback collection | Phase 2 |
+
+*Radar chart visualization will generate automatically upon assessment completion.*
+
+### ▣ Action Items & Strategic Priorities
 
 #### Immediate Focus (Next 30 Days)
-1. **Complete AI Risk Assessment Framework** - Priority: 🔴 Critical
-2. **Finalize Digital Banking Platform Testing** - Priority: 🟡 High
-3. **Conduct Leadership Team Alignment Sessions** - Priority: 🟡 High
+1. **Complete AI Risk Assessment Framework** - Priority: ● Critical
+2. **Finalize Digital Banking Platform Testing** - Priority: ◐ High
+3. **Conduct Leadership Team Alignment Sessions** - Priority: ◐ High
 
 #### Strategic Initiatives (Next Quarter)
 1. **Launch Advanced Analytics Dashboard** - Timeline: Q1 2026
 2. **Implement Employee Development Program** - Timeline: Q1 2026
 3. **Establish Innovation Lab** - Timeline: Q2 2026
 
-### 🏅 Recognition & Achievements
+### ▢ Recognition & Achievements
 
 #### Recent Executive Accomplishments
-- 🏆 **Q3 2025**: Led successful digital transformation initiative (+25% efficiency)
-- 🎯 **Sept 2025**: Achieved 94% customer satisfaction score (industry high)
-- 💡 **Aug 2025**: Implemented AI-driven risk assessment (30% risk reduction)
-- 🌟 **July 2025**: Named "Banking Executive of the Year" by Finance Leaders Forum
+- ▲ **Q3 2025**: Led successful digital transformation initiative (+25% efficiency)
+- ◉ **Sept 2025**: Achieved 94% customer satisfaction score (industry high)
+- ◇ **Aug 2025**: Implemented AI-driven risk assessment (30% risk reduction)
+- ★ **July 2025**: Named "Banking Executive of the Year" by Finance Leaders Forum
 
 ---
 
-### 📎 Attachments Available
+### ▣ Attachments Available
 - Employment Contract (PDF)
 - Organization Chart (PDF)
 - Benefits Summary (PDF)
@@ -1290,7 +1364,7 @@ xychart-beta
 
 ---
 
-*This document is automatically generated from the AI-HRMS-2025 database. For corrections or updates, please contact HR at hr@${org?.domain?.split('.')[0] || 'company'}.org*`;
+*This document is automatically generated from the AI-HRMS-2025 database. For corrections or updates, please contact HR at hr@${org?.domain || (org?.organization_slug + '.org') || 'banknova.org'}*`;
 
     return markdown;
 }

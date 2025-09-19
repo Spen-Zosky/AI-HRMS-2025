@@ -3,6 +3,7 @@ const router = express.Router();
 const { Organization, OrganizationMember, User } = require('../../models');
 const { authenticateToken } = require('../middleware/auth');
 const { addTenantContext, requireTenant, createTenantQuery, validateUserTenant } = require('../middleware/tenantIsolation');
+const { checkPermission, getTargetUser } = require('../services/authorizationService');
 const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 
@@ -145,7 +146,7 @@ router.get('/current', authenticateToken, requireTenant, async (req, res) => {
         include: [{
           model: User,
           as: 'user',
-          attributes: ['id', 'first_name', 'last_name', 'email']
+          attributes: ['id', 'first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
         }],
         attributes: ['member_id', 'role', 'department', 'is_primary', 'joined_at'],
         limit: 10 // Limit to prevent large responses
@@ -181,20 +182,36 @@ router.get('/current', authenticateToken, requireTenant, async (req, res) => {
  */
 router.put('/current', authenticateToken, requireTenant, async (req, res) => {
   try {
-    // Check if user has admin permissions
-    const membership = await OrganizationMember.findOne({
-      where: {
-        user_id: req.user.id,
-        organization_id: req.tenantId,
-        status: 'active'
-      }
-    });
+    const requestor = req.user;
 
-    if (!membership || !['owner', 'admin'].includes(membership.role)) {
+    // Parameter-based authorization check for organization update
+    const authResult = await checkPermission(
+      requestor,                    // Requestor parameter
+      'organization-management',    // Resource type
+      'write',                     // Action
+      req.tenant,                  // Target organization
+      {                           // Options
+        organizationId: req.tenantId,
+        scope: 'update'
+      }
+    );
+
+    if (!authResult.authorized) {
+      logger.warn('Organization update denied', {
+        requestorId: requestor.id,
+        requestorEmail: requestor.email,
+        requestorRole: requestor.role,
+        organizationId: req.tenantId,
+        reason: authResult.reason
+      });
+
       return res.status(403).json({
         success: false,
-        message: 'Insufficient permissions to update organization',
-        code: 'INSUFFICIENT_PERMISSIONS'
+        message: 'Access denied',
+        code: 'INSUFFICIENT_PERMISSIONS',
+        reason: authResult.reason,
+        permissionLevel: authResult.permissionLevel,
+        requiredLevel: authResult.requiredLevel
       });
     }
 
@@ -267,7 +284,7 @@ router.get('/members', authenticateToken, requireTenant, async (req, res) => {
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'first_name', 'last_name', 'email', 'is_active']
+        attributes: ['id', 'first_name', 'last_name', 'email', 'is_active', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
       }],
       attributes: [
         'member_id', 'role', 'permissions', 'department', 'is_primary',
@@ -308,20 +325,36 @@ router.get('/members', authenticateToken, requireTenant, async (req, res) => {
  */
 router.post('/members/invite', authenticateToken, requireTenant, async (req, res) => {
   try {
-    // Check if user has admin permissions
-    const membership = await OrganizationMember.findOne({
-      where: {
-        user_id: req.user.id,
-        organization_id: req.tenantId,
-        status: 'active'
-      }
-    });
+    const requestor = req.user;
 
-    if (!membership || !['owner', 'admin'].includes(membership.role)) {
+    // Parameter-based authorization check for member invitation
+    const authResult = await checkPermission(
+      requestor,                    // Requestor parameter
+      'organization-management',    // Resource type
+      'write',                     // Action
+      req.tenant,                  // Target organization
+      {                           // Options
+        organizationId: req.tenantId,
+        scope: 'invite_members'
+      }
+    );
+
+    if (!authResult.authorized) {
+      logger.warn('Member invitation denied', {
+        requestorId: requestor.id,
+        requestorEmail: requestor.email,
+        requestorRole: requestor.role,
+        organizationId: req.tenantId,
+        reason: authResult.reason
+      });
+
       return res.status(403).json({
         success: false,
-        message: 'Insufficient permissions to invite users',
-        code: 'INSUFFICIENT_PERMISSIONS'
+        message: 'Access denied',
+        code: 'INSUFFICIENT_PERMISSIONS',
+        reason: authResult.reason,
+        permissionLevel: authResult.permissionLevel,
+        requiredLevel: authResult.requiredLevel
       });
     }
 

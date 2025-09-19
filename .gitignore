@@ -32,6 +32,10 @@ lerna-debug.log*
 .git-credential
 .gitconfig
 
+# SysAdmin credentials - NEVER commit
+.sysadmin.env
+.sysadmin.*
+
 # Keep only example files for reference
 !.env.example
 
@@ -145,4 +149,7 @@ cabinet/
 *.crt
 *.p12
 secrets.json
-credentials.json
+credentials.jsonclaude.config/cc01/mcp-servers/servers
+
+# Claude Code configuration
+claude.config/
