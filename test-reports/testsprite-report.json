@@ -1,0 +1,157 @@
+{
+  "timestamp": "2025-09-21T17:34:14.945Z",
+  "project": {
+    "name": "AI-HRMS-2025",
+    "version": "1.3.0",
+    "description": "Enterprise-grade AI-powered Human Resource Management System",
+    "type": "express-ejs",
+    "framework": "express"
+  },
+  "environment": {
+    "NODE_ENV": "test",
+    "DATABASE_URL": "postgresql://test:test@localhost:5432/ai_hrms_test",
+    "JWT_SECRET": "test-jwt-secret-key",
+    "PORT": 3001
+  },
+  "duration": 40906,
+  "summary": {
+    "total": 5,
+    "passed": 3,
+    "failed": 2,
+    "duration": 40906,
+    "successRate": "60.00"
+  },
+  "results": [
+    {
+      "name": "Unit Tests",
+      "status": "failed",
+      "duration": 11039,
+      "output": "\n> ai-hrms-2025@1.3.0 test\n> jest\n\ninfo: OpenAI provider initialized {\"timestamp\":\"2025-09-21T17:33:36.867Z\"}\nwarn: Vector service not available: {\"timestamp\":\"2025-09-21T17:33:37.154Z\"}\nerror: Error storing CV embedding: Embedding service unavailable {\"stack\":\"Error: Embedding service unavailable\\n    at VectorService.<anonymous> (/home/enzo/AI-HRMS-2025/tests/vectorService.test.js:193:24)\\n    at /home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:305:39\\n    at VectorService.<anonymous> (/home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:312:13)\\n    at VectorService.mockConstructor (/home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:102:19)\\n    at VectorService.createEmbedding [as storeCVEmbedding] (/home/enzo/AI-HRMS-2025/src/services/vectorService.js:316:36)\\n    at Object.storeCVEmbedding (/home/enzo/AI-HRMS-2025/tests/vectorService.test.js:196:34)\\n    at Promise.finally.completed (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\\n    at new Promise (<anonymous>)\\n    at callAsyncCircusFn (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\\n    at _callCircusTest (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\\n    at _runTest (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\\n    at _runTestsForDescribeBlock (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\\n    at _runTestsForDescribeBlock (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\\n    at _runTestsForDescribeBlock (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\\n    at run (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\\n    at runAndTransformResultsToJestFormat (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\\n    at jestAdapter (/home/enzo/AI-HRMS-2025/node_modules/jest-circus/build/runner.js:101:19)\\n    at runTestInternal (/home/enzo/AI-HRMS-2025/node_modules/jest-runner/build/testWorker.js:275:16)\\n    at runTest (/home/enzo/AI-HRMS-2025/node_modules/jest-runner/build/testWorker.js:343:7)\\n    at Object.worker (/home/enzo/AI-HRMS-2025/node_modules/jest-runner/build/testWorker.js:497:12)\",\"timestamp\":\"2025-09-21T17:33:44.713Z\"}\nerror: Error storing job embedding: Storage failed {\"stack\":\"Error: Storage failed\\n    at VectorService.<anonymous> (/home/enzo/AI-HRMS-2025/tests/vectorService.test.js:206:24)\\n    at /home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:305:39\\n    at VectorService.<anonymous> (/home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:312:13)\\n    at VectorService.mockConstructor [as storeEmbedding] (/home/enzo/AI-HRMS-2025/node_modules/jest-mock/build/index.js:102:19)\\n    at VectorService.storeEmbedding [as storeJobEmbedding] (/home/enzo/AI-HRMS-2025/src/services/vectorService.js:354:25)\\n    at Object.<anonymous> (/home/enzo/AI-HRMS-2025/tests/vectorService.test.js:209:7)\",\"timestamp\":\"2025-09-21T17:33:44.716Z\"}\ninfo: Starting batch processing for cvs {\"timestamp\":\"2025-09-21T17:33:44.717Z\"}\ninfo: Batch processing completed: 0 cvs processed {\"timestamp\":\"2025-09-21T17:33:44.718Z\"}\ninfo: Starting batch processing for cvs {\"timestamp\":\"2025-09-21T17:33:44.719Z\"}\ninfo: Batch processing completed: 0 cvs processed {\"timestamp\":\"2025-09-21T17:33:44.719Z\"}\ninfo: Starting batch processing for jobs {\"timestamp\":\"2025-09-21T17:33:44.720Z\"}\ninfo: Batch processing completed: 0 jobs processed {\"timestamp\":\"2025-09-21T17:33:44.720Z\"}\ninfo: Starting batch processing for profiles {\"timestamp\":\"2025-09-21T17:33:44.722Z\"}\ninfo: Batch processing completed: 0 profiles processed {\"timestamp\":\"2025-09-21T17:33:44.722Z\"}\n  console.warn\n    Failed to obtain server version. Unable to check client-server compatibility. Set checkCompatibility=false to skip version check.\n\n      at node_modules/@qdrant/js-client-rest/dist/cjs/qdrant-client.js:69:25\n\nerror: Failed to initialize Qdrant client: fetch failed {\"cause\":{\"code\":\"EAI_AGAIN\",\"errno\":-3001,\"hostname\":\"nonexistent\",\"syscall\":\"getaddrinfo\"},\"stack\":\"TypeError: fetch failed\\n    at node:internal/deps/undici/undici:13510:13\\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\\n    at fetchJson (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/openapi-typescript-fetch/dist/cjs/fetcher.js:135:22)\\n    at /home/enzo/AI-HRMS-2025/node_modules/@qdrant/js-client-rest/dist/cjs/api-client.js:36:24\\n    at handler (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/openapi-typescript-fetch/dist/cjs/fetcher.js:156:16)\\n    at /home/enzo/AI-HRMS-2025/node_modules/@qdrant/js-client-rest/dist/cjs/api-client.js:20:24\\n    at handler (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/openapi-typescript-fetch/dist/cjs/fetcher.js:156:16)\\n    at fetchUrl (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/openapi-typescript-fetch/dist/cjs/fetcher.js:162:22)\\n    at Object.fun [as getCollections] (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/openapi-typescript-fetch/dist/cjs/fetcher.js:168:20)\\n    at QdrantClient.getCollections (/home/enzo/AI-HRMS-2025/node_modules/@qdrant/js-client-rest/dist/cjs/qdrant-client.js:875:26)\\n    at VectorService.initialize (/home/enzo/AI-HRMS-2025/src/services/vectorService.js:36:7)\\n    at Object.<anonymous> (/home/enzo/AI-HRMS-2025/tests/vectorService.test.js:82:7)\",\"timestamp\":\"2025-09-21T17:33:44.779Z\"}\n",
+      "errorOutput": "PASS tests/testsprite.integration.test.js\n  AI-HRMS-2025 Integration Tests\n    🏥 Health Check & Basic Functionality\n      ✓ Health endpoint should return OK status (36 ms)\n      ✓ Health endpoint should include expected features (7 ms)\n      ✓ Server should include security headers (8 ms)\n      ✓ CORS should be enabled (7 ms)\n    📁 Static Assets\n      ✓ CSS file should be accessible (169 ms)\n      ✓ JavaScript files should be accessible (28 ms)\n    🔐 API Routes Structure\n      ✓ Auth routes should be registered (19 ms)\n      ✓ Employee routes should be registered (9 ms)\n      ✓ Leave management routes should be registered (9 ms)\n      ✓ ATS routes should be registered (8 ms)\n      ✓ Copilot routes should be registered (4 ms)\n      ✓ Analytics routes should be registered (4 ms)\n    📊 Request/Response Handling\n      ✓ Server should handle JSON requests (6 ms)\n      ✓ Server should handle large payloads (34 ms)\n    🔍 Error Handling\n      ✓ Server should handle 404 routes gracefully (5 ms)\n      ✓ Server should handle malformed JSON (6 ms)\n    ⚡ Performance Tests\n      ✓ Health endpoint should respond quickly (2 ms)\n      ✓ Server should handle concurrent requests (25 ms)\n    🔒 Security Tests\n      ✓ Server should prevent XSS in query parameters (3 ms)\n      ✓ Server should handle SQL injection attempts (3 ms)\n    📦 Middleware Tests\n      ✓ Request logging should be active (4 ms)\n      ✓ CORS middleware should set appropriate headers (4 ms)\n      ✓ Helmet security middleware should be active (3 ms)\n    📈 Monitoring & Diagnostics\n      ✓ Server uptime should be tracked (3 ms)\n      ✓ Environment information should be available (5 ms)\n      ✓ Server should provide timestamp information (5 ms)\n\nPASS tests/aiProviders.test.js\n  AI Providers\n    Provider Interface Compliance\n      ✓ OpenAI provider implements all required methods (12 ms)\n      ✓ Anthropic provider implements all required methods (3 ms)\n      ✓ Ollama provider implements all required methods (5 ms)\n    Rate Limits and Cost Info\n      ✓ All providers return rate limit information (8 ms)\n      ✓ All providers return cost information (5 ms)\n    AI Service Factory\n      ✓ Factory can register providers (1 ms)\n      ✓ Factory creates provider instances correctly (11 ms)\n      ✓ Factory handles unknown providers (43 ms)\n    Provider Availability\n      ✓ OpenAI provider checks API key configuration (11 ms)\n      ✓ Anthropic provider checks API key configuration (10 ms)\n      ✓ Ollama provider checks server availability (2628 ms)\n    Error Handling\n      ✓ Providers handle rate limiting (4 ms)\n    Configuration\n      ✓ Providers accept custom configuration (1 ms)\n  Integration Tests\n    Live API Tests\n      ○ skipped OpenAI provider can generate text\n      ○ skipped Anthropic provider can generate text\n      ○ skipped Ollama provider can generate text\n\nFAIL tests/vectorService.test.js (9.286 s)\n  Vector Service\n    Service Configuration\n      ✓ Has correct collection names (6 ms)\n      ✓ Has correct default vector size (2 ms)\n      ✓ Collection configurations are valid (4 ms)\n    Embedding Creation\n      ✓ Creates fallback embedding when provider unavailable (5 ms)\n      ✓ Simple hash function produces consistent results (15 ms)\n      ✓ Different texts produce different hashes\n      ✓ Fallback embeddings are different for different texts (8 ms)\n    Service Availability\n      ✓ Returns false when not initialized and connection fails (5 ms)\n      ✕ Handles initialization errors gracefully (7522 ms)\n    Data Processing Methods\n      ✓ CV embedding payload structure is correct (2 ms)\n      ✓ Job embedding payload structure is correct (1 ms)\n    Error Handling\n      ✓ Handles embedding creation errors gracefully (11 ms)\n      ✓ Handles storage errors gracefully (1 ms)\n    Batch Processing\n      ✓ Batch processing returns expected structure (2 ms)\n      ✓ Batch processing handles different data types (4 ms)\n\n  ● Vector Service › Service Availability › Handles initialization errors gracefully\n\n    thrown: \"Exceeded timeout of 10000 ms for a test.\n    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout.\"\n\n       96 |     });\n       97 |\n    >  98 |     test('Handles initialization errors gracefully', async () => {\n          |     ^\n       99 |       // Set invalid URL to trigger connection error\n      100 |       process.env.QDRANT_URL = 'http://nonexistent:6333';\n      101 |\n\n      at test (tests/vectorService.test.js:98:5)\n      at describe (tests/vectorService.test.js:81:3)\n      at Object.describe (tests/vectorService.test.js:3:1)\n\nA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.\nTest Suites: 1 failed, 2 passed, 3 total\nTests:       1 failed, 3 skipped, 53 passed, 57 total\nSnapshots:   0 total\nTime:        10.247 s, estimated 13 s\nRan all test suites.\n",
+      "exitCode": 1
+    },
+    {
+      "name": "Integration Tests",
+      "status": "failed",
+      "duration": 400,
+      "output": "\n> ai-hrms-2025@1.3.0 test:integration\n> jest --testPathPattern=integration\n\n",
+      "errorOutput": "testPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n",
+      "exitCode": 1
+    },
+    {
+      "name": "TestSprite Custom Tests",
+      "status": "passed",
+      "duration": 29130,
+      "output": "",
+      "errorOutput": "PASS tests/testsprite.integration.test.js\n  AI-HRMS-2025 Integration Tests\n    🏥 Health Check & Basic Functionality\n      ✓ Health endpoint should return OK status (19 ms)\n      ✓ Health endpoint should include expected features (5 ms)\n      ✓ Server should include security headers (4 ms)\n      ✓ CORS should be enabled (4 ms)\n    📁 Static Assets\n      ✓ CSS file should be accessible (87 ms)\n      ✓ JavaScript files should be accessible (5 ms)\n    🔐 API Routes Structure\n      ✓ Auth routes should be registered (5 ms)\n      ✓ Employee routes should be registered (5 ms)\n      ✓ Leave management routes should be registered (5 ms)\n      ✓ ATS routes should be registered (7 ms)\n      ✓ Copilot routes should be registered (6 ms)\n      ✓ Analytics routes should be registered (5 ms)\n    📊 Request/Response Handling\n      ✓ Server should handle JSON requests (4 ms)\n      ✓ Server should handle large payloads (18 ms)\n    🔍 Error Handling\n      ✓ Server should handle 404 routes gracefully (3 ms)\n      ✓ Server should handle malformed JSON (4 ms)\n    ⚡ Performance Tests\n      ✓ Health endpoint should respond quickly (4 ms)\n      ✓ Server should handle concurrent requests (27 ms)\n    🔒 Security Tests\n      ✓ Server should prevent XSS in query parameters (3 ms)\n      ✓ Server should handle SQL injection attempts (3 ms)\n    📦 Middleware Tests\n      ✓ Request logging should be active (2 ms)\n      ✓ CORS middleware should set appropriate headers (4 ms)\n      ✓ Helmet security middleware should be active (4 ms)\n    📈 Monitoring & Diagnostics\n      ✓ Server uptime should be tracked (3 ms)\n      ✓ Environment information should be available (2 ms)\n      ✓ Server should provide timestamp information (4 ms)\n\nTest Suites: 1 passed, 1 total\nTests:       26 passed, 26 total\nSnapshots:   0 total\nTime:        0.769 s, estimated 2 s\nRan all test suites matching tests/testsprite.integration.test.js.\nJest did not exit one second after the test run has completed.\n\n'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.\n",
+      "exitCode": 0
+    },
+    {
+      "name": "API Tests",
+      "status": "passed",
+      "duration": 58,
+      "output": "{\"status\":\"OK\",\"message\":\"AI-HRMS-2025 Test Server\",\"timestamp\":\"2025-09-21T17:34:14.880Z\",\"uptime\":45.78310294,\"environment\":\"test\",\"features\":[\"Auth\",\"Database\",\"Leave Management\",\"AI ATS\",\"HR Copilot\"]}",
+      "errorOutput": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   205  100   205    0     0  26924      0 --:--:-- --:--:-- --:--:-- 29285\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  3  1096    0     0  100    38      0  14470 --:--:-- --:--:-- --:--:-- 19000\ncurl: (22) The requested URL returned error: 400\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0    46    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (22) The requested URL returned error: 404\n",
+      "exitCode": 0
+    },
+    {
+      "name": "Security Tests",
+      "status": "passed",
+      "duration": 34,
+      "output": "{\"status\":\"OK\",\"message\":\"AI-HRMS-2025 Test Server\",\"timestamp\":\"2025-09-21T17:34:14.928Z\",\"uptime\":45.831012059,\"environment\":\"test\",\"features\":[\"Auth\",\"Database\",\"Leave Management\",\"AI ATS\",\"HR Copilot\"]}",
+      "errorOutput": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100   206  100   206    0     0   105k      0 --:--:-- --:--:-- --:--:--  201k\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r 41    77    0     0  100    32      0  12500 --:--:-- --:--:-- --:--:-- 16000\ncurl: (22) The requested URL returned error: 404\n",
+      "exitCode": 0
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "implementation",
+      "priority": "high",
+      "title": "Failed Test Suites",
+      "description": "2 test suite(s) failed. Review and fix implementations.",
+      "action": "Check individual test outputs for specific issues",
+      "tests": [
+        "Unit Tests",
+        "Integration Tests"
+      ]
+    },
+    {
+      "type": "development",
+      "priority": "medium",
+      "title": "Missing Implementations",
+      "description": "Several planned features are not yet implemented",
+      "action": "Prioritize implementing core features",
+      "missing": [
+        "react-frontend",
+        "ai-services",
+        "vector-database",
+        "user-management",
+        "employee-crud",
+        "analytics-engine",
+        "report-generation"
+      ]
+    },
+    {
+      "type": "security",
+      "priority": "medium",
+      "title": "Security Enhancements",
+      "description": "Implement additional security measures",
+      "action": "Add authentication, input validation, and rate limiting",
+      "items": [
+        "JWT authentication middleware",
+        "Input validation and sanitization",
+        "Rate limiting for API endpoints",
+        "CSRF protection"
+      ]
+    },
+    {
+      "type": "performance",
+      "priority": "low",
+      "title": "Performance Optimizations",
+      "description": "Optimize application performance",
+      "action": "Implement caching and monitoring",
+      "items": [
+        "Add Redis caching",
+        "Implement API response caching",
+        "Add performance monitoring",
+        "Optimize database queries"
+      ]
+    }
+  ],
+  "coverage": null,
+  "configuration": {
+    "enabled_tests": [
+      "unit",
+      "integration",
+      "api",
+      "performance",
+      "security"
+    ],
+    "implementation_status": {
+      "completed": [
+        "express-server",
+        "database-models",
+        "hierarchy-system",
+        "health-endpoint",
+        "logging",
+        "cors-helmet",
+        "static-assets",
+        "ejs-templating"
+      ],
+      "partial": [
+        "api-routes",
+        "authentication",
+        "database-connection"
+      ],
+      "missing": [
+        "react-frontend",
+        "ai-services",
+        "vector-database",
+        "user-management",
+        "employee-crud",
+        "analytics-engine",
+        "report-generation"
+      ]
+    }
+  }
+}

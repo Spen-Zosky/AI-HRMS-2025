@@ -6,19 +6,19 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Appartiene a un utente
       Employee.belongsTo(models.User, {
-        foreignKey: 'userId',
+        foreignKey: 'user_id',
         as: 'user'
       });
 
       // Può avere un manager (self-referencing)
       Employee.belongsTo(models.Employee, {
-        foreignKey: 'managerId',
+        foreignKey: 'manager_id',
         as: 'manager'
       });
 
       // Può gestire altri dipendenti
       Employee.hasMany(models.Employee, {
-        foreignKey: 'managerId',
+        foreignKey: 'manager_id',
         as: 'subordinates'
       });
 
@@ -42,7 +42,7 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    userId: {
+    user_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
@@ -50,7 +50,7 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    managerId: {
+    manager_id: {
       type: DataTypes.UUID,
       allowNull: true, // CEO non ha manager
       references: {
@@ -58,7 +58,7 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    departmentId: {
+    department_id: {
       type: DataTypes.UUID,
       allowNull: true // Per ora nullable, poi creeremo Department model
     },
@@ -66,7 +66,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    startDate: {
+    start_date: {
       type: DataTypes.DATEONLY,
       allowNull: false
     },
@@ -80,7 +80,7 @@ module.exports = (sequelize) => {
       defaultValue: 'active'
     },
     // Leave balances (from specs)
-    vacationBalance: {
+    vacation_balance: {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
       defaultValue: 25.00,
@@ -88,12 +88,20 @@ module.exports = (sequelize) => {
         min: 0
       }
     },
-    sickBalance: {
+    sick_balance: {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
       defaultValue: 10.00,
       validate: {
         min: 0
+      }
+    },
+    organization_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'organizations',
+        key: 'organization_id'
       }
     },
     tenant_id: {

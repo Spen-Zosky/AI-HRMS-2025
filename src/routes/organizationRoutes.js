@@ -4,6 +4,14 @@ const { Organization, OrganizationMember, User } = require('../../models');
 const { authenticateToken } = require('../middleware/auth');
 const { addTenantContext, requireTenant, createTenantQuery, validateUserTenant } = require('../middleware/tenantIsolation');
 const { checkPermission, getTargetUser } = require('../services/authorizationService');
+const {
+  getOrganizations,
+  getOrganizationById,
+  createOrganization,
+  updateOrganization,
+  deleteOrganization,
+  getOrganizationStats
+} = require('../controllers/organizationController');
 const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 
@@ -489,5 +497,27 @@ router.get('/stats', authenticateToken, requireTenant, async (req, res) => {
     });
   }
 });
+
+/**
+ * Additional SysAdmin routes using the organization controller
+ */
+
+// GET /api/organizations - List all organizations (SysAdmin only)
+router.get('/', authenticateToken, getOrganizations);
+
+// GET /api/organizations/:id - Get organization by ID
+router.get('/:id', authenticateToken, getOrganizationById);
+
+// POST /api/organizations/admin - Create organization (SysAdmin only)
+router.post('/admin', authenticateToken, createOrganization);
+
+// PUT /api/organizations/:id - Update organization
+router.put('/:id', authenticateToken, updateOrganization);
+
+// DELETE /api/organizations/:id - Delete organization (SysAdmin only)
+router.delete('/:id', authenticateToken, deleteOrganization);
+
+// GET /api/organizations/:id/stats - Get organization statistics
+router.get('/:id/stats', authenticateToken, getOrganizationStats);
 
 module.exports = router;

@@ -32,14 +32,30 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Verifica password
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return res.status(401).json({
-                error: 'Credenziali non valide',
-                code: 'INVALID_CREDENTIALS'
+        // Check if account is locked
+        if (user.isAccountLocked()) {
+            return res.status(423).json({
+                error: 'Account temporaneamente bloccato per troppi tentativi falliti',
+                code: 'ACCOUNT_LOCKED',
+                retryAfter: 15 * 60 // 15 minutes in seconds
             });
         }
+
+        // Verifica password using model method
+        const isValidPassword = await user.comparePassword(password);
+        if (!isValidPassword) {
+            // Increment failed login attempts
+            await user.incrementFailedLoginAttempts();
+
+            return res.status(401).json({
+                error: 'Credenziali non valide',
+                code: 'INVALID_CREDENTIALS',
+                failedAttempts: user.failed_login_attempts
+            });
+        }
+
+        // Reset failed login attempts on successful login
+        await user.resetFailedLoginAttempts();
 
         // Crea token
         const tokenResponse = createTokenResponse({

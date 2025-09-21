@@ -1,0 +1,63 @@
+{
+  "mcpServers": {
+    "project-filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/enzo/AI-HRMS-2025"
+      ],
+      "env": {},
+      "description": "Project-specific file system access"
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {},
+      "description": "Project knowledge management"
+    },
+    "git": {
+      "command": "/home/enzo/.local/mcp-servers/git-server/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_git"
+      ],
+      "env": {},
+      "description": "Git operations for project repository",
+      "cwd": "/home/enzo/AI-HRMS-2025"
+    },
+    "fetch": {
+      "command": "/home/enzo/.local/mcp-servers/fetch-server/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_fetch"
+      ],
+      "env": {},
+      "description": "HTTP requests and web content fetching"
+    },
+    "time": {
+      "command": "/home/enzo/.local/mcp-servers/time-server/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_time"
+      ],
+      "env": {},
+      "description": "Time zone operations and scheduling"
+    },
+
+    "TestSprite": {
+
+      "command": "npx",
+
+      "args": ["@testsprite/testsprite-mcp@latest"],
+
+      "env": {
+
+        "API_KEY": "your-api-key"
+
+      }
+  }
+}

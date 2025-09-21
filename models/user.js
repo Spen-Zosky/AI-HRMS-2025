@@ -1,5 +1,6 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
   class User extends Model {
@@ -121,6 +122,46 @@ module.exports = (sequelize) => {
     getDisplayId() {
       return `USR-${this.id.substring(0, 8).toUpperCase()}`;
     }
+
+    // Authentication methods
+    async comparePassword(candidatePassword) {
+      return bcrypt.compare(candidatePassword, this.password);
+    }
+
+    async hashPassword(password) {
+      const salt = await bcrypt.genSalt(12);
+      return bcrypt.hash(password, salt);
+    }
+
+    // Security tracking methods
+    async incrementFailedLoginAttempts() {
+      this.failed_login_attempts = (this.failed_login_attempts || 0) + 1;
+      this.last_failed_login = new Date();
+      await this.save();
+    }
+
+    async resetFailedLoginAttempts() {
+      this.failed_login_attempts = 0;
+      this.last_failed_login = null;
+      this.last_successful_login = new Date();
+      await this.save();
+    }
+
+    isAccountLocked() {
+      const maxAttempts = 5;
+      const lockoutTime = 15 * 60 * 1000; // 15 minutes
+
+      if (!this.failed_login_attempts || this.failed_login_attempts < maxAttempts) {
+        return false;
+      }
+
+      if (!this.last_failed_login) {
+        return false;
+      }
+
+      const timeSinceLastFailed = Date.now() - new Date(this.last_failed_login).getTime();
+      return timeSinceLastFailed < lockoutTime;
+    }
   }
 
   User.init({
@@ -226,6 +267,23 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(500),
       allowNull: true,
       comment: 'URL to user profile picture'
+    },
+    // Security tracking fields
+    failed_login_attempts: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: 'Number of failed login attempts'
+    },
+    last_failed_login: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Timestamp of last failed login attempt'
+    },
+    last_successful_login: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Timestamp of last successful login'
     }
   }, {
     sequelize,
@@ -318,10 +376,21 @@ module.exports = (sequelize) => {
           user.phone = user.phone.replace(/[^\d\+\-\(\)\s]/g, '').trim();
         }
       },
-      beforeCreate: (user) => {
+      beforeCreate: async (user) => {
         // Set hire_date to today if not provided for active users
         if (!user.hire_date && user.status === 'active') {
           user.hire_date = new Date();
+        }
+
+        // Hash password if it's being set
+        if (user.password && user.changed('password')) {
+          user.password = await user.hashPassword(user.password);
+        }
+      },
+      beforeUpdate: async (user) => {
+        // Hash password if it's being changed
+        if (user.password && user.changed('password')) {
+          user.password = await user.hashPassword(user.password);
         }
       }
     }
