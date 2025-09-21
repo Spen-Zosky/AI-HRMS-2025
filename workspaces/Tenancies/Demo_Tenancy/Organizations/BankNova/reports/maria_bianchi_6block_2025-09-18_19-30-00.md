@@ -1,6 +1,6 @@
 # Maria Bianchi - Complete User Status Report (6-Block Structure)
 
-**AI-HRMS-2025 Report Engine v1.2.0**
+**AI-HRMS-2025 Report Engine v1.3.0**
 **Generated:** September 18, 2025 19:30:00 UTC
 **Report Type:** Current User Status Full Report
 **Generation Time:** 130ms
@@ -228,7 +228,7 @@ Maria Bianchi serves as Chief Executive Officer at BankNova, a large banking and
 ---
 
 **Report Generation Metadata:**
-- **Engine Version:** AI-HRMS-2025 v1.2.0
+- **Engine Version:** AI-HRMS-2025 v1.3.0
 - **Template Version:** 6-Block Structure v1.0
 - **Material Design Compliance:** 100% ✅
 - **Performance:** 130ms generation time

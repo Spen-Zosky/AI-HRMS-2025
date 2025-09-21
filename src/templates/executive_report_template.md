@@ -1,7 +1,7 @@
 # Executive Report Template
 ## AI-HRMS-2025 Database-Driven Report System
 
-**Template Version:** 1.2.0
+**Template Version:** 1.3.0
 **Template ID:** `executive_report_template`
 **Created:** September 18, 2025
 **Status:** Production Ready
@@ -646,7 +646,7 @@ sequenceDiagram
 ## 🔧 Template Metadata
 
 ### Version Control
-- **Template Version:** 1.2.0
+- **Template Version:** 1.3.0
 - **Schema Version:** 2.0
 - **Last Updated:** {{template.last_updated}}
 - **Next Review:** {{template.next_review}}
