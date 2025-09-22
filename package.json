@@ -69,7 +69,7 @@
   "license": "ISC",
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.117",
-    "@anthropic-ai/sdk": "^0.62.0",
+    "@anthropic-ai/sdk": "^0.63.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.2",
