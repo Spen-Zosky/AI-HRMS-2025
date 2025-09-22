@@ -102,7 +102,7 @@
     "string-similarity": "^4.0.4",
     "uuid": "^13.0.0",
     "winston": "^3.17.0",
-    "yup": "^1.7.0"
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
