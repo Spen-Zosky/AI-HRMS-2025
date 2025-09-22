@@ -1,0 +1,247 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## **MANDATORY PROFESSIONAL BEHAVIOR REQUIREMENTS**
+
+**BEFORE ANY CODE CHANGES - ALWAYS AND FOLLOW:**
+
+1. **MUST** consult /AI-HRMS-2025/.claude/commands/sys-warning.md for strict development rules
+2. **MUST** reference docs/*.md for project-wide documentation and source of truth
+3. **MUST** follow the comprehensive database guide for field naming standards
+4. **MUST** implement multi-tenant protection
+5. **NEVER** break existing functionality
+6. **ALWAYS** update your knowledge base by reading every doc contained in the project dir/subdir
+7. **ALWAYS** understand complete system architecture before changes
+8. **ALWAYS** update and align complete system architecture after changes with a very granular review and update loop
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+AI-HRMS-2025 is a next-generation AI-powered Human Resource Management System built with Node.js, Express, PostgreSQL, Sequelize ORM, and comprehensive MCP (Model Context Protocol) integration. The system implements a **traditional web application architecture** with Express.js + EJS templates and extensive MCP server ecosystem for enhanced development capabilities.
+
+**Current Implementation Status:**
+- ✅ Database models and migrations (6 hierarchy system tables)
+- ✅ Express.js server with EJS templates and static assets
+- ✅ Comprehensive MCP integration (17 servers configured)
+- ✅ API authentication with Vercel and Notion MCP servers
+- ✅ Complete documentation and project structure
+- 🚧 API implementation in progress
+- ❌ Modern SPA frontend not implemented (traditional web app approach)
+- ❌ Full HRMS database schema incomplete
+
+## Development Commands
+
+### Available Commands
+```bash
+# Install dependencies
+npm install
+
+# Start development server (Express.js + EJS)
+npm run dev
+
+# Start production server
+npm start
+
+# Database operations
+npx sequelize-cli db:migrate
+```
+
+### ⚠️ Commands Not Yet Available
+```bash
+# These commands are documented but not implemented:
+# npm run build (no React build setup)
+# npm run frontend:build (no webpack configuration)
+# npm test (no test suite implemented)
+```
+
+### Database Operations
+```bash
+# Run all migrations
+npx sequelize-cli db:migrate
+
+# Undo last migration
+npx sequelize-cli db:migrate:undo
+
+# Create new migration
+npx sequelize-cli migration:generate --name migration-name
+
+# Run all seeders
+npx sequelize-cli db:seed:all
+
+# Undo all seeders
+npx sequelize-cli db:seed:undo
+```
+
+### Testing
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test:watch
+
+# Run with coverage
+npm test:coverage
+
+# Run integration tests
+npm test:integration
+
+# Test AI providers specifically
+npm run test:ai
+```
+
+## Architecture Overview
+
+### Multi-Tenant SaaS Architecture
+The system implements a three-tier multi-tenant architecture:
+- **TENANTS** → **ORGANIZATIONS** → **USERS**
+- Complete tenant isolation at database and application levels
+- Organization-scoped data access with proper middleware validation
+
+### Database Architecture
+- **PostgreSQL** with Sequelize ORM v6.37.7
+- **6 hierarchy system tables** currently implemented (not 39 as originally planned)
+- **Hierarchy models**: contextualPermission, dynamicRole, hierarchyDefinition, hierarchyNode, hierarchyRelationship, permissionInheritance
+- Models located in `/models/` directory (root level, not src/models/)
+- Database configuration in `config/database.js` with connection pooling
+- **Status**: Core HRMS tables (users, employees, organizations) need implementation
+
+### MCP (Model Context Protocol) Integration (IMPLEMENTED)
+The system features comprehensive MCP server integration for enhanced development:
+- **17 MCP servers** configured across 6 categories
+- **API-authenticated servers**: Vercel API (Y4eo***Ji), Notion API (ntn_W68***On), TestSprite
+- **Local Python servers**: Git, Fetch, Time operations
+- **NPX-based servers**: Memory, Filesystem, Database management, Browser automation
+- **Integrated services**: Hugging Face, IDE diagnostics
+- **Status**: Complete MCP ecosystem ready for development acceleration
+
+### Core Application Structure (ACTUAL)
+```
+Current implementation:
+├── config/              # Database configuration
+├── models/              # Sequelize models (6 hierarchy tables)
+├── migrations/          # Database migrations (1 file)
+├── views/               # EJS templates (server-side rendering)
+├── public/              # Static assets (CSS, JS, images)
+├── scripts/             # Utility scripts
+└── server.js            # Express.js application
+
+Planned structure (not implemented):
+src/
+├── controllers/         # Business logic handlers
+├── routes/             # Express route definitions
+├── services/           # Business logic and integrations
+├── middleware/         # Express middleware
+└── utils/              # Utilities
+```
+
+### Planned Services Architecture (NOT IMPLEMENTED)
+
+**AI Document Processing Pipeline (PLANNED):**
+- CV/resume parsing capabilities
+- Named entity recognition and structured data extraction
+- Multi-format support: PDF, DOCX, TXT
+- Skills matching integration
+
+**Skills Management System (PLANNED):**
+- Skills classification from WEF, O*NET, and ESCO
+- Multilingual support
+- Job role mappings
+- **Status**: No skills data or management system implemented
+
+**Vector Database Integration (PLANNED):**
+- Qdrant integration for semantic search
+- AI provider embedding generation
+- **Status**: No vector database implementation found
+
+## Environment Configuration
+
+### Required Environment Variables
+```bash
+# Database (Required)
+DATABASE_URL=postgresql://username:password@localhost:5432/ai_hrms_2025
+
+# JWT Security (Required)
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=24h
+
+# Server (Optional)
+PORT=3000
+NODE_ENV=development
+```
+
+### MCP Server Configuration (CONFIGURED)
+MCP servers are configured with authentication keys in `.mcp.json`:
+```bash
+# Vercel API (Configured)
+VERCEL_API_KEY=Y4eotVT0pIASif0BxMvnf9Ji
+
+# Notion API (Configured)
+NOTION_TOKEN=ntn_W68905009941ll26C3wCxg4q9pIfETXg72vZgxFcgA1cOn
+
+# TestSprite API (Configured)
+API_KEY=sk-user-N0MfmwUokT9T9n-FaRlnmcv--Kh43LC0X0yz4OcJ51QeLs2EPj0FEior3beoBa5rZRifCv5lPOoaRqhSkl3qx32Eo72HXUnieGV-1aq8IBUMT83XjHb3jbVfr494QxwxfMs
+```
+
+### AI Provider Configuration (Optional - Future Implementation)
+```bash
+# OpenAI (Planned)
+OPENAI_API_KEY=your-key
+OPENAI_MODEL=gpt-4
+
+# Anthropic (Planned)
+ANTHROPIC_API_KEY=your-key
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+
+# Ollama (Planned)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1
+
+# Qdrant Vector DB (Planned)
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=your-key
+```
+
+## Critical Development Notes
+
+### Database Field Naming Convention
+**MANDATORY**: All database fields must use table prefixes:
+- `user_*` for users table (user_id, user_email, etc.)
+- `emp_*` for employees table (emp_id, emp_department, etc.)
+- `org_*` for organizations table (org_id, org_name, etc.)
+
+### Multi-Tenant Data Access
+- All database operations must include organization scoping
+- Use middleware for automatic tenant isolation
+- Never query across organizations without explicit permission checks
+
+### AI Service Error Handling
+- AI services are designed to fail gracefully
+- Always provide fallback functionality when AI providers are unavailable
+- Log AI provider errors but don't fail entire operations
+
+### File Upload Processing
+- Uploads stored in `uploads/` directory
+- Supports PDF, DOCX, TXT formats
+- Maximum file size: 10MB (configurable via MAX_FILE_SIZE)
+- Use `multer` middleware for file handling
+
+### Logging Strategy
+- Winston logger configured in `src/utils/logger.js`
+- Log levels: error, warn, info, debug
+- All HTTP requests automatically logged with IP tracking
+- AI provider interactions logged separately for debugging
+
+### Frontend Implementation (CURRENT)
+- **Express.js + EJS templates** (server-side rendering)
+- **Custom CSS** (~2,000+ lines in /public/css/style.css)
+- **Vanilla JavaScript** in /public/js/ directory
+- **No React, Material-UI, or Webpack** (contrary to original claims)
+- **Status**: Traditional web application, not modern SPA
+
+## Testing Architecture (PLANNED)
+- **Status**: No test suite implemented
+- **Planned**: Jest testing framework with supertest
+- **Planned**: Coverage reporting and API connectivity tests
+- **Current**: No test files found in the project

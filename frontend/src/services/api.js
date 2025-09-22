@@ -49,12 +49,12 @@ export const employeeAPI = {
 };
 
 export const leaveAPI = {
-  getAll: () => api.get('/leave'),
-  getById: (id) => api.get(`/leave/${id}`),
-  create: (leave) => api.post('/leave', leave),
-  update: (id, leave) => api.put(`/leave/${id}`, leave),
-  approve: (id) => api.patch(`/leave/${id}/approve`),
-  reject: (id) => api.patch(`/leave/${id}/reject`),
+  getAll: () => api.get('/leave/requests'),
+  getById: (id) => api.get(`/leave/requests/${id}`),
+  create: (leave) => api.post('/leave/requests', leave),
+  update: (id, leave) => api.put(`/leave/requests/${id}`, leave),
+  approve: (id) => api.put(`/leave/requests/${id}/approve`),
+  reject: (id, data) => api.put(`/leave/requests/${id}/reject`, data),
 };
 
 export const atsAPI = {
@@ -78,6 +78,13 @@ export const copilotAPI = {
   chat: (message) => api.post('/copilot/chat', { message }),
   generateReport: (type) => api.post('/copilot/report', { type }),
   getInsights: () => api.get('/copilot/insights'),
+};
+
+export const dashboardAPI = {
+  getStats: () => api.get('/dashboard/stats'),
+  getRecentLeaves: (limit = 5) => api.get(`/dashboard/recent-leaves?limit=${limit}`),
+  getSkillsGaps: (limit = 10) => api.get(`/dashboard/skills-gaps?limit=${limit}`),
+  getDashboardData: () => api.get('/dashboard/data'),
 };
 
 export default api;

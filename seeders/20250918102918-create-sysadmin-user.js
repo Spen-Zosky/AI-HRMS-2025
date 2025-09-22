@@ -15,7 +15,7 @@ module.exports = {
       id: sysAdminId,
       first_name: 'SysAdmin',
       last_name: 'Platform',
-      email: 'spen-zosky@gmail.com',
+      email: 'spen.zosky@gmail.com',
       password: hashedPassword,
       role: 'sysadmin',
       is_sysadmin: true,
@@ -28,7 +28,7 @@ module.exports = {
     }], {});
 
     console.log('✅ SysAdmin user created successfully');
-    console.log('   Email: spen-zosky@gmail.com');
+    console.log('   Email: spen.zosky@gmail.com');
     console.log('   Password: P1s3ll0sky');
     console.log('   Role: sysadmin (Platform Super Administrator)');
   },
@@ -36,7 +36,7 @@ module.exports = {
   async down (queryInterface, Sequelize) {
     // Remove SysAdmin user
     await queryInterface.bulkDelete('users', {
-      email: 'spen-zosky@gmail.com'
+      email: 'spen.zosky@gmail.com'
     }, {});
   }
 };

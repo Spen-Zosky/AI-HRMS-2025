@@ -13,6 +13,31 @@ The AI-HRMS-2025 frontend is built with React 19+ and Material-UI, providing a m
 - **React Hook Form 7.62.0**: Form state management
 - **Emotion**: CSS-in-JS styling solution
 
+### Internationalization (i18n)
+- **i18next 24.0.5**: Internationalization framework
+- **react-i18next 16.1.0**: React bindings for i18next
+- **i18next-browser-languagedetector 8.0.2**: Browser language detection
+- **i18next-http-backend 3.0.2**: HTTP backend for loading translations
+
+**Supported Languages:**
+- 🇮🇹 **Italian** (it.json) - 168 lines, most complete
+- 🇫🇷 **French** (fr.json) - 105 lines
+- 🇩🇪 **German** (de.json) - 105 lines
+- 🇪🇸 **Spanish** (es.json) - 105 lines
+
+**Translation Coverage:**
+- Authentication flows
+- Navigation and menu items
+- Common UI elements and actions
+- Dashboard statistics
+- API error messages
+- Form validation messages
+- Employee management (Italian only)
+- Leave management (Italian only)
+- ATS system (Italian only)
+- Skills management (Italian only)
+- HR Copilot interface (Italian only)
+
 ### Build Tools
 - **Webpack 5.101.3**: Module bundler
 - **Babel**: JavaScript transpilation

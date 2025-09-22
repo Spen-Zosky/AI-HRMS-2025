@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -20,16 +20,22 @@ import {
   Tabs,
   IconButton,
   Avatar,
-  Divider,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+} from '@mui/material';
 import {
   Add,
   CheckCircle,
   Cancel,
   Pending,
   CalendarToday,
-  Person,
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import { leaveAPI } from '../services/api';
@@ -40,6 +46,8 @@ const Leave = () => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [formData, setFormData] = useState({
     employeeId: '',
     leaveType: '',
@@ -49,94 +57,37 @@ const Leave = () => {
     status: 'pending',
   });
 
-  // Mock data for demonstration
-  const mockLeaveRequests = [
-    {
-      id: 1,
-      employeeName: 'John Smith',
-      employeeId: 'EMP001',
-      leaveType: 'Annual Leave',
-      startDate: '2024-10-15',
-      endDate: '2024-10-19',
-      days: 5,
-      reason: 'Family vacation',
-      status: 'pending',
-      appliedDate: '2024-09-20',
-      avatar: 'JS',
-    },
-    {
-      id: 2,
-      employeeName: 'Sarah Johnson',
-      employeeId: 'EMP002',
-      leaveType: 'Sick Leave',
-      startDate: '2024-09-25',
-      endDate: '2024-09-26',
-      days: 2,
-      reason: 'Medical appointment',
-      status: 'approved',
-      appliedDate: '2024-09-22',
-      avatar: 'SJ',
-    },
-    {
-      id: 3,
-      employeeName: 'Mike Wilson',
-      employeeId: 'EMP003',
-      leaveType: 'Personal Leave',
-      startDate: '2024-10-01',
-      endDate: '2024-10-03',
-      days: 3,
-      reason: 'Personal matters',
-      status: 'pending',
-      appliedDate: '2024-09-18',
-      avatar: 'MW',
-    },
-    {
-      id: 4,
-      employeeName: 'Anna Brown',
-      employeeId: 'EMP004',
-      leaveType: 'Annual Leave',
-      startDate: '2024-11-10',
-      endDate: '2024-11-20',
-      days: 10,
-      reason: 'Extended vacation',
-      status: 'rejected',
-      appliedDate: '2024-09-15',
-      avatar: 'AB',
-    },
-    {
-      id: 5,
-      employeeName: 'David Lee',
-      employeeId: 'EMP005',
-      leaveType: 'Maternity/Paternity',
-      startDate: '2024-12-01',
-      endDate: '2025-02-28',
-      days: 90,
-      reason: 'Paternity leave',
-      status: 'approved',
-      appliedDate: '2024-09-10',
-      avatar: 'DL',
-    },
-  ];
+  // Error state for better UX
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadLeaveRequests();
-  }, []);
-
-  const loadLeaveRequests = async () => {
+  const loadLeaveRequests = useCallback(async () => {
     try {
       setLoading(true);
-      // In real implementation, uncomment this:
-      // const response = await leaveAPI.getAll();
-      // setLeaveRequests(response.data);
+      setError(null);
 
-      // Mock data for demonstration
-      setLeaveRequests(mockLeaveRequests);
+      const response = await leaveAPI.getAll();
+      console.log('Leave API Response:', response.data);
+
+      // Handle the response format from the backend
+      if (response.data.success && response.data.leaveRequests) {
+        setLeaveRequests(response.data.leaveRequests);
+      } else {
+        // Fallback to empty array if format is unexpected
+        setLeaveRequests([]);
+      }
     } catch (error) {
       console.error('Error loading leave requests:', error);
+      setError('Failed to load leave requests. Please try again.');
+      // Set empty array on error to prevent crashes
+      setLeaveRequests([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadLeaveRequests();
+  }, [loadLeaveRequests]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -152,15 +103,24 @@ const Leave = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Transform formData to match backend API expectations
+      const requestData = {
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        type: formData.leaveType.toLowerCase().replace(/ leave/i, '').replace('maternity/paternity', 'maternity'),
+        reason: formData.reason
+      };
+
       if (selectedRequest) {
-        await leaveAPI.update(selectedRequest.id, formData);
+        await leaveAPI.update(selectedRequest.id, requestData);
       } else {
-        await leaveAPI.create(formData);
+        await leaveAPI.create(requestData);
       }
       loadLeaveRequests();
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving leave request:', error);
+      setError('Failed to save leave request. Please try again.');
     }
   };
 
@@ -170,15 +130,23 @@ const Leave = () => {
       loadLeaveRequests();
     } catch (error) {
       console.error('Error approving leave request:', error);
+      setError('Failed to approve leave request. Please try again.');
     }
   };
 
   const handleReject = async (id) => {
-    try {
-      await leaveAPI.reject(id);
-      loadLeaveRequests();
-    } catch (error) {
-      console.error('Error rejecting leave request:', error);
+    if (window.confirm('Are you sure you want to reject this leave request?')) {
+      try {
+        // For reject, we need to provide a reason
+        const reason = prompt('Please provide a reason for rejection:');
+        if (reason) {
+          await leaveAPI.reject(id, { reason });
+          loadLeaveRequests();
+        }
+      } catch (error) {
+        console.error('Error rejecting leave request:', error);
+        setError('Failed to reject leave request. Please try again.');
+      }
     }
   };
 
@@ -221,90 +189,6 @@ const Leave = () => {
     return true;
   });
 
-  const columns = [
-    {
-      field: 'employee',
-      headerName: 'Employee',
-      width: 200,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>
-            {params.row.avatar}
-          </Avatar>
-          <Box>
-            <Typography variant="body2" fontWeight={500}>
-              {params.row.employeeName}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {params.row.employeeId}
-            </Typography>
-          </Box>
-        </Box>
-      ),
-    },
-    { field: 'leaveType', headerName: 'Type', width: 130 },
-    {
-      field: 'startDate',
-      headerName: 'Start Date',
-      width: 120,
-      renderCell: (params) => format(parseISO(params.value), 'MMM dd, yyyy'),
-    },
-    {
-      field: 'endDate',
-      headerName: 'End Date',
-      width: 120,
-      renderCell: (params) => format(parseISO(params.value), 'MMM dd, yyyy'),
-    },
-    {
-      field: 'days',
-      headerName: 'Days',
-      width: 80,
-      align: 'center',
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      width: 120,
-      renderCell: (params) => (
-        <Chip
-          icon={getStatusIcon(params.value)}
-          label={params.value}
-          color={getStatusColor(params.value)}
-          size="small"
-          variant="outlined"
-        />
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      renderCell: (params) => (
-        <Box>
-          {params.row.status === 'pending' && (
-            <>
-              <IconButton
-                size="small"
-                color="success"
-                onClick={() => handleApprove(params.row.id)}
-              >
-                <CheckCircle fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleReject(params.row.id)}
-              >
-                <Cancel fontSize="small" />
-              </IconButton>
-            </>
-          )}
-        </Box>
-      ),
-      sortable: false,
-      filterable: false,
-    },
-  ];
 
   return (
     <Box sx={{ p: 3 }}>
@@ -413,19 +297,90 @@ const Leave = () => {
         </Box>
 
         <CardContent sx={{ p: 0 }}>
-          <DataGrid
-            rows={filteredRequests}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10, 25, 50]}
-            loading={loading}
-            disableSelectionOnClick
-            sx={{
-              border: 'none',
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f5f5f5',
-                fontWeight: 600,
-              },
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableCell></TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Employee</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Start Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>End Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Days</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                      Loading leave requests...
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'error.main' }}>
+                      {error}
+                      <Button onClick={loadLeaveRequests} sx={{ ml: 2 }}>
+                        Retry
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredRequests.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                      No leave requests found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredRequests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((request) => (
+                    <TableRow key={request.id} hover>
+                      <TableCell>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>
+                          {request.avatar}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>{request.employeeName}</TableCell>
+                      <TableCell>{request.leaveType}</TableCell>
+                      <TableCell>{request.startDate}</TableCell>
+                      <TableCell>{request.endDate}</TableCell>
+                      <TableCell>{request.days}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={request.status}
+                          color={request.status === 'approved' ? 'success' : request.status === 'rejected' ? 'error' : 'warning'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {request.status === 'pending' && (
+                          <Box>
+                            <IconButton size="small" onClick={() => handleApprove(request.id)}>
+                              <CheckCircle fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => handleReject(request.id)}>
+                              <Cancel fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredRequests.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={(event, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(event) => {
+              setRowsPerPage(parseInt(event.target.value, 10));
+              setPage(0);
             }}
           />
         </CardContent>

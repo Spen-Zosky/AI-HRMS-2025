@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Drawer,
   List,
@@ -19,18 +20,21 @@ import {
   ChatBubble,
 } from '@mui/icons-material';
 
-const menuItems = [
-  { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
-  { text: 'Employees', icon: <People />, path: '/employees' },
-  { text: 'Leave Management', icon: <CalendarToday />, path: '/leave' },
-  { text: 'ATS', icon: <Work />, path: '/ats' },
-  { text: 'Skills Management', icon: <Psychology />, path: '/skills' },
-  { text: 'HR Copilot', icon: <ChatBubble />, path: '/copilot' },
+const getMenuItems = (t) => [
+  { text: t('nav.dashboard'), icon: <Dashboard />, path: '/dashboard' },
+  { text: t('nav.employees'), icon: <People />, path: '/employees' },
+  { text: t('nav.leave'), icon: <CalendarToday />, path: '/leave' },
+  { text: t('nav.ats'), icon: <Work />, path: '/ats' },
+  { text: t('nav.skills'), icon: <Psychology />, path: '/skills' },
+  { text: t('nav.copilot'), icon: <ChatBubble />, path: '/copilot' },
 ];
 
 const Sidebar = ({ open, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const menuItems = getMenuItems(t);
 
   const handleItemClick = (path) => {
     navigate(path);
@@ -60,7 +64,7 @@ const Sidebar = ({ open, onClose }) => {
     >
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" color="primary" fontWeight={600}>
-          Navigation
+          {t('nav.navigation')}
         </Typography>
       </Box>
       <Divider />

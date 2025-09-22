@@ -6,6 +6,10 @@ const path = require('path');
 const logger = require('./src/utils/logger');
 const { connectDB } = require('./config/database');
 
+// Import i18n services and middleware
+const i18nService = require('./src/services/i18nService');
+const { i18nMiddleware, localizedResponse, validateLanguage } = require('./src/middleware/i18nMiddleware');
+
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
@@ -17,6 +21,9 @@ const vectorRoutes = require('./src/routes/vectorRoutes');
 const organizationRoutes = require('./src/routes/organizationRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const templateRoutes = require('./src/routes/templateRoutes');
+const languageRoutes = require('./src/routes/languageRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,15 +39,23 @@ app.use((req, res, next) => {
     next();
 });
 
+// Internationalization middleware
+app.use(validateLanguage);
+app.use(i18nMiddleware);
+app.use(localizedResponse);
+
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+    const healthMessage = await req.t('system.health.message') || 'AI-HRMS-2025 con HR Copilot';
     res.json({
         status: 'OK',
-        message: 'AI-HRMS-2025 con HR Copilot',
+        message: healthMessage,
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: process.env.NODE_ENV,
-        features: ['Auth', 'Database', 'Leave Management', 'AI ATS', 'HR Copilot']
+        language: req.language || 'en',
+        locale: req.language ? i18nService.getLocaleCode(req.language) : 'en-US',
+        features: ['Auth', 'Database', 'Leave Management', 'AI ATS', 'HR Copilot', 'Multilingual Support']
     });
 });
 
@@ -55,6 +70,9 @@ app.use('/api/vector', vectorRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/languages', languageRoutes);
+app.use('/api', templateRoutes);
 
 // Serve static files from frontend build
 app.use(express.static(path.join(__dirname, 'frontend/dist')));
@@ -67,16 +85,21 @@ app.get(/^(?!\/api).*/, (req, res) => {
 // Start server with database connection
 const startServer = async () => {
     try {
-        await connectDB();
-        
+        const db = await connectDB();
+
+        // Initialize i18n service with database
+        await i18nService.initialize(db);
+
         app.listen(PORT, () => {
             logger.info(`🚀 AI-HRMS-2025 Server avviato su porta ${PORT}`);
             console.log(`🗃️  Database: PostgreSQL connected`);
+            console.log(`🌍 i18n: Multilingual support initialized`);
             console.log(`🌐 Health: http://localhost:${PORT}/health`);
             console.log(`🔐 Auth: http://localhost:${PORT}/api/auth`);
             console.log(`🌴 Leave: http://localhost:${PORT}/api/leave`);
             console.log(`🤖 ATS: http://localhost:${PORT}/api/ats`);
             console.log(`🧠 Copilot: http://localhost:${PORT}/api/copilot`);
+            console.log(`📊 Dashboard: http://localhost:${PORT}/api/dashboard`);
         });
     } catch (error) {
         logger.error('Failed to start server:', error);

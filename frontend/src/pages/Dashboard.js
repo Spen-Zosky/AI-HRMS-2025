@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Grid,
@@ -14,7 +14,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   People,
@@ -27,6 +28,7 @@ import {
   Cancel,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { dashboardAPI } from '../services/api';
 
 const StatCard = ({ title, value, icon, color, subtitle }) => (
   <Card sx={{ height: '100%' }}>
@@ -66,24 +68,57 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState({
     stats: {
-      totalEmployees: 247,
-      activeLeaveRequests: 12,
-      openPositions: 8,
-      skillsGaps: 15,
+      totalEmployees: 0,
+      activeLeaveRequests: 0,
+      openPositions: 0,
+      skillsGaps: 0,
     },
-    recentLeaveRequests: [
-      { id: 1, employee: 'John Smith', type: 'Annual Leave', status: 'pending', days: 5 },
-      { id: 2, employee: 'Sarah Johnson', type: 'Sick Leave', status: 'approved', days: 2 },
-      { id: 3, employee: 'Mike Wilson', type: 'Personal Leave', status: 'pending', days: 3 },
-      { id: 4, employee: 'Anna Brown', type: 'Annual Leave', status: 'rejected', days: 10 },
-    ],
-    topSkillsGaps: [
-      { skill: 'Machine Learning', employees: 45, progress: 25 },
-      { skill: 'Cloud Architecture', employees: 38, progress: 60 },
-      { skill: 'Data Science', employees: 33, progress: 40 },
-      { skill: 'DevOps', employees: 28, progress: 70 },
-    ],
+    recentLeaveRequests: [],
+    topSkillsGaps: [],
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load dashboard data from API
+      const [statsResponse, leavesResponse, skillsResponse] = await Promise.all([
+        dashboardAPI.getStats(),
+        dashboardAPI.getRecentLeaves(5),
+        dashboardAPI.getSkillsGaps(4)
+      ]);
+
+      setDashboardData({
+        stats: statsResponse.data,
+        recentLeaveRequests: leavesResponse.data.recentLeaves || [],
+        topSkillsGaps: skillsResponse.data.skillsGaps || [],
+      });
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      setError('Failed to load dashboard data. Please try again.');
+
+      // Set empty data structure on error instead of mock data
+      setDashboardData({
+        stats: {
+          totalEmployees: 0,
+          activeLeaveRequests: 0,
+          openPositions: 0,
+          skillsGaps: 0,
+        },
+        recentLeaveRequests: [],
+        topSkillsGaps: [],
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -103,14 +138,43 @@ const Dashboard = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress />
+        <Typography variant="body1" sx={{ ml: 2 }}>
+          Loading dashboard data...
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" fontWeight={600} gutterBottom>
-        Welcome back, {user?.firstName}!
+        Welcome back, {user?.firstName || user?.first_name}!
       </Typography>
       <Typography variant="body1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
         Here's your HR dashboard overview for today
       </Typography>
+
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 3 }}
+          action={
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={loadDashboardData}
+            >
+              <TrendingUp />
+            </IconButton>
+          }
+        >
+          {error}
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>

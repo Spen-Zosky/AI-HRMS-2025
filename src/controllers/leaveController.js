@@ -1,6 +1,7 @@
 const { LeaveRequest, Employee, User } = require('../../models');
 const { Op } = require('sequelize');
 const { checkPermission, getTargetUser } = require('../services/authorizationService');
+const i18nService = require('../services/i18nService');
 const logger = require('../utils/logger');
 
 // Calcola giorni lavorativi tra due date
@@ -27,7 +28,7 @@ const createLeaveRequest = async (req, res) => {
         // Validazioni base
         if (!startDate || !endDate || !type) {
             return res.status(400).json({
-                error: 'startDate, endDate e type sono richiesti',
+                error: await req.t('validation.required'),
                 required: ['startDate', 'endDate', 'type']
             });
         }
@@ -37,13 +38,13 @@ const createLeaveRequest = async (req, res) => {
         
         if (start >= end) {
             return res.status(400).json({
-                error: 'Data fine deve essere successiva alla data inizio'
+                error: await req.t('validation.date_range')
             });
         }
 
         if (start < new Date()) {
             return res.status(400).json({
-                error: 'Non è possibile richiedere ferie per date passate'
+                error: await req.t('validation.past_date')
             });
         }
 
@@ -206,7 +207,7 @@ const getLeaveRequests = async (req, res) => {
             if (!employee) {
                 return res.status(404).json({ error: 'Profilo dipendente non trovato' });
             }
-            whereClause.employee_id = employee.id;
+            whereClause.employeeId = employee.id;
         } else if (authResult.permissionLevel <= 20) { // READ_TEAM/WRITE_TEAM
             const managerEmployee = await Employee.findOne({ where: { userId: requestor.id } });
             const subordinates = await Employee.findAll({
@@ -217,15 +218,15 @@ const getLeaveRequests = async (req, res) => {
             const employeeIds = subordinates.map(emp => emp.id);
             if (managerEmployee) employeeIds.push(managerEmployee.id);
 
-            whereClause.employee_id = { [Op.in]: employeeIds };
+            whereClause.employeeId = { [Op.in]: employeeIds };
         }
         // Higher permission levels (HR, Admin, SysAdmin) see all
 
         // Filtri aggiuntivi
         if (status) whereClause.status = status;
-        if (employeeId && authResult.permissionLevel > 1) whereClause.employee_id = employeeId;
-        if (startDate) whereClause.start_date = { [Op.gte]: startDate };
-        if (endDate) whereClause.end_date = { [Op.lte]: endDate };
+        if (employeeId && authResult.permissionLevel > 1) whereClause.employeeId = employeeId;
+        if (startDate) whereClause.startDate = { [Op.gte]: startDate };
+        if (endDate) whereClause.endDate = { [Op.lte]: endDate };
 
         const leaveRequests = await LeaveRequest.findAll({
             where: whereClause,
@@ -233,22 +234,34 @@ const getLeaveRequests = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
+        // Format data for frontend compatibility (matching mock data structure)
+        const formattedLeaveRequests = leaveRequests.map(req => ({
+            id: req.id,
+            employeeName: req.employee ? `${req.employee.user.first_name} ${req.employee.user.last_name}` : 'Unknown Employee',
+            employeeId: req.employee ? `EMP${req.employee.id.toString().padStart(3, '0')}` : 'N/A',
+            leaveType: req.type === 'vacation' ? 'Annual Leave' :
+                      req.type === 'sick' ? 'Sick Leave' :
+                      req.type === 'personal' ? 'Personal Leave' :
+                      req.type === 'maternity' ? 'Maternity/Paternity' :
+                      req.type.charAt(0).toUpperCase() + req.type.slice(1) + ' Leave',
+            startDate: req.start_date,
+            endDate: req.end_date,
+            days: req.days_requested,
+            reason: req.reason || 'No reason provided',
+            status: req.status,
+            appliedDate: req.createdAt ? req.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            avatar: req.employee && req.employee.user ?
+                   `${req.employee.user.first_name.charAt(0)}${req.employee.user.last_name.charAt(0)}` : 'N/A'
+        }));
+
         res.json({
-            leaveRequests: leaveRequests.map(req => ({
-                id: req.id,
-                employee: req.employee ? {
-                    name: `${req.employee.user.first_name} ${req.employee.user.last_name}`,
-                    email: req.employee.user.email,
-                    position: req.employee.position
-                } : null,
-                startDate: req.start_date,
-                endDate: req.end_date,
-                type: req.type,
-                status: req.status,
-                daysRequested: req.days_requested,
-                reason: req.reason,
-                createdAt: req.createdAt
-            }))
+            success: true,
+            leaveRequests: formattedLeaveRequests,
+            pagination: {
+                total: formattedLeaveRequests.length,
+                page: 1,
+                limit: 100
+            }
         });
 
     } catch (error) {

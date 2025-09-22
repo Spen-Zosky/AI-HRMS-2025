@@ -1,0 +1,34 @@
+# Global owners
+* @Spen-Zosky
+
+# Security and sensitive files
+.github/workflows/* @Spen-Zosky
+.github/dependabot.yml @Spen-Zosky
+SECURITY.md @Spen-Zosky
+.gitignore @Spen-Zosky
+
+# Database and migrations
+migrations/* @Spen-Zosky
+models/* @Spen-Zosky
+config/database.js @Spen-Zosky
+
+# AI services and core functionality
+src/services/aiService*.js @Spen-Zosky
+src/services/providers/* @Spen-Zosky
+src/services/predictiveAnalytics.js @Spen-Zosky
+src/services/enhancedCopilot.js @Spen-Zosky
+
+# Documentation
+README.md @Spen-Zosky
+CONTRIBUTING.md @Spen-Zosky
+CHANGELOG.md @Spen-Zosky
+docs/* @Spen-Zosky
+
+# Package management
+package.json @Spen-Zosky
+package-lock.json @Spen-Zosky
+
+# Configuration files
+.env.example @Spen-Zosky
+server.js @Spen-Zosky
+webpack.config.js @Spen-Zosky

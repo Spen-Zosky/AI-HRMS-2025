@@ -24,15 +24,239 @@ module.exports = (sequelize) => {
 
       // Può avere richieste di ferie
       Employee.hasMany(models.LeaveRequest, {
-        foreignKey: 'leave_emp_id',
+        foreignKey: 'employee_id',
         as: 'leaveRequests'
       });
 
       // Employee belongs to an organization
       Employee.belongsTo(models.Organization, {
-        foreignKey: 'tenant_id',
+        foreignKey: 'organization_id',
+        targetKey: 'organization_id',
         as: 'organization'
       });
+    }
+
+    // Enhanced instance methods for simplified queries
+    async getFullUserData() {
+      const userDataWithMembership = await this.getUser({
+        include: [
+          {
+            model: this.sequelize.models.OrganizationMember,
+            as: 'organizationMemberships',
+            where: { organization_id: this.organization_id },
+            required: false
+          }
+        ]
+      });
+      return userDataWithMembership;
+    }
+
+    async getCompleteEmployeeInfo() {
+      return await Employee.findByPk(this.id, {
+        include: [
+          {
+            model: this.sequelize.models.User,
+            as: 'user',
+            attributes: ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'avatar']
+          },
+          {
+            model: this.sequelize.models.Employee,
+            as: 'manager',
+            include: [{
+              model: this.sequelize.models.User,
+              as: 'user',
+              attributes: ['first_name', 'last_name', 'email']
+            }]
+          },
+          {
+            model: this.sequelize.models.Employee,
+            as: 'subordinates',
+            include: [{
+              model: this.sequelize.models.User,
+              as: 'user',
+              attributes: ['first_name', 'last_name', 'email']
+            }]
+          },
+          {
+            model: this.sequelize.models.Organization,
+            as: 'organization',
+            include: [{
+              model: this.sequelize.models.Tenant,
+              as: 'tenant',
+              attributes: ['tenant_name', 'tenant_slug']
+            }]
+          }
+        ]
+      });
+    }
+
+    async getTeamMembers() {
+      if (!this.manager_id) {
+        // If this employee is a manager, get their subordinates
+        return await Employee.findAll({
+          where: { manager_id: this.id },
+          include: [{
+            model: this.sequelize.models.User,
+            as: 'user',
+            attributes: ['first_name', 'last_name', 'email', 'avatar']
+          }]
+        });
+      } else {
+        // If this employee has a manager, get their peers
+        return await Employee.findAll({
+          where: {
+            manager_id: this.manager_id,
+            id: { [this.sequelize.Sequelize.Op.ne]: this.id }
+          },
+          include: [{
+            model: this.sequelize.models.User,
+            as: 'user',
+            attributes: ['first_name', 'last_name', 'email', 'avatar']
+          }]
+        });
+      }
+    }
+
+    async getLeaveRequestsWithDetails() {
+      return await this.getLeaveRequests({
+        include: [
+          {
+            model: this.sequelize.models.Employee,
+            as: 'approver',
+            include: [{
+              model: this.sequelize.models.User,
+              as: 'user',
+              attributes: ['first_name', 'last_name']
+            }]
+          }
+        ],
+        order: [['created_at', 'DESC']]
+      });
+    }
+
+    // Convenience getters and business logic methods
+    getDisplayName() {
+      return this.user ? `${this.user.first_name} ${this.user.last_name}` : 'Unknown Employee';
+    }
+
+    getEmployeeNumber() {
+      return `EMP-${this.id.substring(0, 8).toUpperCase()}`;
+    }
+
+    isManager() {
+      return this.subordinates && this.subordinates.length > 0;
+    }
+
+    async getDirectReportsCount() {
+      return await Employee.count({
+        where: { manager_id: this.id }
+      });
+    }
+
+    getTotalLeaveBalance() {
+      return parseFloat(this.vacation_balance) + parseFloat(this.sick_balance);
+    }
+
+    canTakeLeave(days, leaveType = 'vacation') {
+      const balanceField = leaveType === 'sick' ? 'sick_balance' : 'vacation_balance';
+      return parseFloat(this[balanceField]) >= days;
+    }
+
+    async updateLeaveBalance(days, leaveType = 'vacation', operation = 'deduct') {
+      const balanceField = leaveType === 'sick' ? 'sick_balance' : 'vacation_balance';
+      const currentBalance = parseFloat(this[balanceField]);
+
+      let newBalance;
+      if (operation === 'deduct') {
+        newBalance = Math.max(0, currentBalance - days);
+      } else {
+        newBalance = currentBalance + days;
+      }
+
+      await this.update({ [balanceField]: newBalance });
+      return newBalance;
+    }
+
+    isActiveEmployee() {
+      return this.status === 'active' && !this.deleted_at;
+    }
+
+    getOrganizationContext() {
+      return {
+        organization_id: this.organization_id,
+        tenant_id: this.organization?.tenant_id || this.tenant_id
+      };
+    }
+
+    // Static methods for common queries
+    static async findByUserEmail(email, organizationId = null) {
+      const whereClause = organizationId ? { organization_id: organizationId } : {};
+
+      return await Employee.findOne({
+        where: whereClause,
+        include: [{
+          model: this.sequelize.models.User,
+          as: 'user',
+          where: { email: email }
+        }]
+      });
+    }
+
+    static async findByOrganizationWithUsers(organizationId, includeInactive = false) {
+      const whereClause = { organization_id: organizationId };
+      if (!includeInactive) {
+        whereClause.status = 'active';
+      }
+
+      return await Employee.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: this.sequelize.models.User,
+            as: 'user',
+            attributes: ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'avatar']
+          },
+          {
+            model: this.sequelize.models.Employee,
+            as: 'manager',
+            include: [{
+              model: this.sequelize.models.User,
+              as: 'user',
+              attributes: ['first_name', 'last_name']
+            }]
+          }
+        ],
+        order: [['start_date', 'ASC']]
+      });
+    }
+
+    static async getOrganizationStats(organizationId) {
+      const totalEmployees = await Employee.count({
+        where: { organization_id: organizationId }
+      });
+
+      const activeEmployees = await Employee.count({
+        where: {
+          organization_id: organizationId,
+          status: 'active'
+        }
+      });
+
+      const managers = await Employee.count({
+        where: { organization_id: organizationId },
+        include: [{
+          model: Employee,
+          as: 'subordinates',
+          required: true
+        }]
+      });
+
+      return {
+        total_employees: totalEmployees,
+        active_employees: activeEmployees,
+        inactive_employees: totalEmployees - activeEmployees,
+        managers_count: managers
+      };
     }
   }
   

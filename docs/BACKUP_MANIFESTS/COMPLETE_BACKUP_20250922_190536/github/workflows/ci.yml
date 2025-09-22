@@ -1,0 +1,317 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '14'
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint --if-present
+      continue-on-error: true
+
+    - name: Check code formatting
+      run: npm run format:check --if-present
+      continue-on-error: true
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  test:
+    runs-on: ubuntu-latest
+    name: Tests
+
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_hrms_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Setup test environment
+      run: |
+        cp .env.example .env
+        echo "NODE_ENV=test" >> .env
+        echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_hrms_test" >> .env
+        echo "JWT_SECRET=test-secret-key-for-ci-pipeline-min-32-chars-long" >> .env
+        echo "JWT_EXPIRES_IN=24h" >> .env
+
+    - name: Run database migrations
+      run: npx sequelize-cli db:migrate --env test
+
+    - name: Run unit tests
+      run: npm test
+      env:
+        NODE_ENV: test
+
+    - name: Run test coverage
+      run: npm run test:coverage --if-present
+      env:
+        NODE_ENV: test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: success()
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build frontend
+      run: npm run frontend:build
+
+    - name: Check bundle size
+      run: |
+        if [ -f "frontend/dist/bundle.js" ]; then
+          BUNDLE_SIZE=$(stat -c%s frontend/dist/bundle.js)
+          echo "Bundle size: $BUNDLE_SIZE bytes"
+          # Warn if bundle is larger than 2MB
+          if [ $BUNDLE_SIZE -gt 2097152 ]; then
+            echo "⚠️ Warning: Bundle size is larger than 2MB"
+          fi
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist/
+        retention-days: 7
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: [test, build-frontend]
+
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_hrms_integration
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Download frontend build
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist/
+
+    - name: Setup integration test environment
+      run: |
+        cp .env.example .env
+        echo "NODE_ENV=test" >> .env
+        echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_hrms_integration" >> .env
+        echo "JWT_SECRET=integration-test-secret-key-min-32-chars" >> .env
+        echo "JWT_EXPIRES_IN=24h" >> .env
+
+    - name: Run database setup
+      run: |
+        npx sequelize-cli db:migrate --env test
+        npx sequelize-cli db:seed:all --env test
+
+    - name: Run integration tests
+      run: npm run test:integration --if-present
+      env:
+        NODE_ENV: test
+
+    - name: Test API endpoints
+      run: |
+        # Start server in background
+        npm start &
+        SERVER_PID=$!
+
+        # Wait for server to start
+        sleep 10
+
+        # Test health endpoint
+        curl -f http://localhost:3000/health || exit 1
+
+        # Stop server
+        kill $SERVER_PID
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    needs: [lint-and-format, security-scan, test, build-frontend, integration-tests]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build production bundle
+      run: npm run frontend:build
+
+    - name: Deploy to staging
+      run: echo "🚀 Deploying to staging environment..."
+      # Add actual deployment steps here
+
+    - name: Run smoke tests
+      run: echo "🧪 Running smoke tests on staging..."
+      # Add smoke test steps here
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    needs: [lint-and-format, security-scan, test, build-frontend, integration-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build production bundle
+      run: npm run frontend:build
+
+    - name: Deploy to production
+      run: echo "🚀 Deploying to production environment..."
+      # Add actual deployment steps here
+
+    - name: Run production smoke tests
+      run: echo "🧪 Running production smoke tests..."
+      # Add production smoke test steps here
+
+    - name: Create release
+      if: success()
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.sha }}
+        release_name: Release ${{ github.sha }}
+        body: |
+          Automated release from main branch
+
+          Changes in this release:
+          ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false

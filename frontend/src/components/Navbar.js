@@ -19,9 +19,12 @@ import {
   Settings,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleProfileMenuOpen = (event) => {
@@ -69,6 +72,8 @@ const Navbar = ({ onMenuClick }) => {
             </Badge>
           </IconButton>
 
+          <LanguageSwitcher variant="icon" />
+
           <IconButton
             onClick={handleProfileMenuOpen}
             color="inherit"
@@ -100,16 +105,16 @@ const Navbar = ({ onMenuClick }) => {
           >
             <MenuItem>
               <AccountCircle sx={{ mr: 2 }} />
-              Profile
+              {t('nav.profile')}
             </MenuItem>
             <MenuItem>
               <Settings sx={{ mr: 2 }} />
-              Settings
+              {t('nav.settings')}
             </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
               <Logout sx={{ mr: 2 }} />
-              Logout
+              {t('nav.logout')}
             </MenuItem>
           </Menu>
         </Box>

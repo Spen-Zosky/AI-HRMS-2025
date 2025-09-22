@@ -1,0 +1,168 @@
+{
+  "auth": {
+    "login": {
+      "title": "Accedi ad AI-HRMS",
+      "email_label": "Indirizzo Email",
+      "password_label": "Password",
+      "submit_button": "Accedi",
+      "forgot_password": "Password Dimenticata?",
+      "remember_me": "Ricordami"
+    },
+    "logout": {
+      "confirm": "Sei sicuro di voler uscire?"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "employees": "Dipendenti",
+    "leave": "Gestione Congedi",
+    "ats": "Tracciamento Candidati",
+    "skills": "Gestione Competenze",
+    "copilot": "HR Copilot",
+    "profile": "Profilo",
+    "settings": "Impostazioni",
+    "logout": "Esci",
+    "notifications": "Notifiche",
+    "navigation": "Navigazione"
+  },
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "search": "Cerca",
+    "loading": "Caricamento...",
+    "add": "Aggiungi",
+    "view": "Visualizza",
+    "download": "Scarica",
+    "upload": "Carica",
+    "export": "Esporta",
+    "import": "Importa",
+    "refresh": "Aggiorna",
+    "close": "Chiudi",
+    "back": "Indietro",
+    "next": "Avanti",
+    "previous": "Precedente",
+    "submit": "Invia",
+    "reset": "Reimposta",
+    "confirm": "Conferma",
+    "actions": "Azioni",
+    "status": "Stato",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefono",
+    "date": "Data",
+    "time": "Ora",
+    "notes": "Note",
+    "description": "Descrizione"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bentornato, {{username}}!",
+    "overview": "Panoramica",
+    "stats": {
+      "total_employees": "Totale Dipendenti",
+      "pending_leave": "Richieste Congedo in Sospeso",
+      "open_positions": "Posizioni Aperte",
+      "new_applications": "Nuove Candidature"
+    }
+  },
+  "employees": {
+    "title": "Gestione Dipendenti",
+    "add_employee": "Aggiungi Dipendente",
+    "employee_list": "Elenco Dipendenti",
+    "employee_details": "Dettagli Dipendente",
+    "personal_info": "Informazioni Personali",
+    "contact_info": "Informazioni di Contatto",
+    "employment_info": "Informazioni Lavorative",
+    "first_name": "Nome",
+    "last_name": "Cognome",
+    "employee_id": "ID Dipendente",
+    "department": "Dipartimento",
+    "position": "Posizione",
+    "hire_date": "Data Assunzione",
+    "salary": "Stipendio",
+    "manager": "Responsabile"
+  },
+  "leave": {
+    "title": "Gestione Congedi",
+    "request_leave": "Richiedi Congedo",
+    "leave_history": "Storico Congedi",
+    "leave_balance": "Bilancio Congedi",
+    "leave_type": "Tipo Congedo",
+    "start_date": "Data Inizio",
+    "end_date": "Data Fine",
+    "reason": "Motivo",
+    "approve": "Approva",
+    "reject": "Rifiuta",
+    "pending": "In Sospeso",
+    "approved": "Approvato",
+    "rejected": "Rifiutato"
+  },
+  "ats": {
+    "title": "Sistema di Tracciamento Candidati",
+    "job_postings": "Annunci di Lavoro",
+    "applications": "Candidature",
+    "candidates": "Candidati",
+    "interviews": "Colloqui",
+    "create_job": "Crea Annuncio",
+    "job_title": "Titolo Lavoro",
+    "job_description": "Descrizione Lavoro",
+    "requirements": "Requisiti",
+    "application_deadline": "Scadenza Candidatura",
+    "schedule_interview": "Programma Colloquio"
+  },
+  "skills": {
+    "title": "Gestione Competenze",
+    "skill_assessment": "Valutazione Competenze",
+    "skill_gaps": "Gap Competenze",
+    "training_programs": "Programmi Formativi",
+    "skill_categories": "Categorie Competenze",
+    "technical_skills": "Competenze Tecniche",
+    "soft_skills": "Competenze Trasversali",
+    "certifications": "Certificazioni"
+  },
+  "copilot": {
+    "title": "HR Copilot",
+    "chat_placeholder": "Chiedimi qualsiasi cosa sulle HR...",
+    "suggestions": "Suggerimenti",
+    "analytics": "Analisi",
+    "reports": "Report",
+    "insights": "Approfondimenti"
+  },
+  "api": {
+    "error": {
+      "unauthorized": "Non sei autorizzato a eseguire questa azione",
+      "not_found": "La risorsa richiesta non è stata trovata",
+      "validation": "Controlla i tuoi dati e riprova",
+      "server": "Si è verificato un errore interno del server. Riprova più tardi.",
+      "network": "Errore di rete. Controlla la tua connessione."
+    }
+  },
+  "success": {
+    "saved": "Modifiche salvate con successo",
+    "deleted": "Elemento eliminato con successo",
+    "created": "Elemento creato con successo",
+    "updated": "Elemento aggiornato con successo"
+  },
+  "validation": {
+    "required": "Questo campo è obbligatorio",
+    "email": "Inserisci un indirizzo email valido",
+    "phone": "Inserisci un numero di telefono valido",
+    "date": "Inserisci una data valida",
+    "min_length": "Minimo {{count}} caratteri richiesti",
+    "max_length": "Massimo {{count}} caratteri consentiti",
+    "date_range": "La data di fine deve essere successiva alla data di inizio",
+    "past_date": "Non è possibile richiedere congedi per date passate"
+  },
+  "language": {
+    "select": "Seleziona Lingua",
+    "current": "Lingua Corrente",
+    "change": "Cambia Lingua"
+  },
+  "system": {
+    "health": {
+      "message": "AI-HRMS-2025 con HR Copilot"
+    }
+  }
+}

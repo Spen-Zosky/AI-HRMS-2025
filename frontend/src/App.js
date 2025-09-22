@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, ThemeProvider, createTheme, CircularProgress } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
@@ -11,14 +12,46 @@ import ATS from './pages/ATS';
 import Skills from './pages/Skills';
 import Copilot from './pages/Copilot';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import api from './services/api';
+
+// Import i18n configuration
+import './i18n';
+
+// Create Material-UI theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
+
+// Loading component
+const LoadingSpinner = () => {
+  const { t } = useTranslation();
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      flexDirection="column"
+      gap={2}
+    >
+      <CircularProgress />
+      <div>{t('common.loading')}</div>
+    </Box>
+  );
+};
 
 function AppContent() {
   const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!user) {
@@ -61,9 +94,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <Suspense fallback={<LoadingSpinner />}>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </Suspense>
+    </ThemeProvider>
   );
 }
 

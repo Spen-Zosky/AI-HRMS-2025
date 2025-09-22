@@ -1,0 +1,105 @@
+{
+  "auth": {
+    "login": {
+      "title": "Se connecter à AI-HRMS",
+      "email_label": "Adresse e-mail",
+      "password_label": "Mot de passe",
+      "submit_button": "Se connecter",
+      "forgot_password": "Mot de passe oublié?",
+      "remember_me": "Se souvenir de moi"
+    },
+    "logout": {
+      "confirm": "Êtes-vous sûr de vouloir vous déconnecter?"
+    }
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "employees": "Employés",
+    "leave": "Gestion des congés",
+    "ats": "Suivi des candidats",
+    "skills": "Gestion des compétences",
+    "copilot": "RH Copilot",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "notifications": "Notifications",
+    "navigation": "Navigation"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "add": "Ajouter",
+    "view": "Voir",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "export": "Exporter",
+    "import": "Importer",
+    "refresh": "Actualiser",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "reset": "Réinitialiser",
+    "confirm": "Confirmer",
+    "actions": "Actions",
+    "status": "Statut",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "date": "Date",
+    "time": "Heure",
+    "notes": "Notes",
+    "description": "Description"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bon retour, {{username}}!",
+    "overview": "Vue d'ensemble",
+    "stats": {
+      "total_employees": "Total des employés",
+      "pending_leave": "Demandes de congé en attente",
+      "open_positions": "Postes ouverts",
+      "new_applications": "Nouvelles candidatures"
+    }
+  },
+  "api": {
+    "error": {
+      "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
+      "not_found": "La ressource demandée n'a pas été trouvée",
+      "validation": "Veuillez vérifier votre saisie et réessayer",
+      "server": "Une erreur interne du serveur s'est produite. Veuillez réessayer plus tard.",
+      "network": "Erreur de réseau. Veuillez vérifier votre connexion."
+    }
+  },
+  "success": {
+    "saved": "Modifications enregistrées avec succès",
+    "deleted": "Élément supprimé avec succès",
+    "created": "Élément créé avec succès",
+    "updated": "Élément mis à jour avec succès"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "email": "Veuillez saisir une adresse e-mail valide",
+    "phone": "Veuillez saisir un numéro de téléphone valide",
+    "date": "Veuillez saisir une date valide",
+    "min_length": "Minimum {{count}} caractères requis",
+    "max_length": "Maximum {{count}} caractères autorisés",
+    "date_range": "La date de fin doit être postérieure à la date de début",
+    "past_date": "Impossible de demander un congé pour des dates passées"
+  },
+  "language": {
+    "select": "Sélectionner la langue",
+    "current": "Langue actuelle",
+    "change": "Changer de langue"
+  },
+  "system": {
+    "health": {
+      "message": "AI-HRMS-2025 avec RH Copilot"
+    }
+  }
+}

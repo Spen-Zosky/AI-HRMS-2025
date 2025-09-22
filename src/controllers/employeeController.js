@@ -1,5 +1,6 @@
 const { User, Employee, Organization } = require('../../models');
 const { checkPermission } = require('../services/authorizationService');
+const i18nService = require('../services/i18nService');
 const logger = require('../utils/logger');
 const { Op } = require('sequelize');
 
@@ -34,7 +35,7 @@ const getEmployees = async (req, res) => {
       });
 
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'INSUFFICIENT_PERMISSIONS',
         reason: authResult.reason
       });
@@ -108,49 +109,41 @@ const getEmployees = async (req, res) => {
       limit
     });
 
+    // Format data for frontend compatibility (matching mock data structure)
+    const formattedEmployees = employees.map(emp => ({
+      id: emp.id,
+      name: `${emp.user.first_name} ${emp.user.last_name}`,
+      email: emp.user.email,
+      department: emp.organization?.name || 'Unassigned', // Use organization name as department for now
+      position: emp.position,
+      startDate: emp.start_date,
+      status: emp.status.charAt(0).toUpperCase() + emp.status.slice(1), // Capitalize status
+      salary: emp.salary,
+      vacationBalance: emp.vacation_balance,
+      sickBalance: emp.sick_balance,
+      phone: emp.user.phone,
+      manager: emp.manager ? {
+        id: emp.manager.id,
+        name: `${emp.manager.user.first_name} ${emp.manager.user.last_name}`,
+        email: emp.manager.user.email
+      } : null
+    }));
+
     res.json({
       success: true,
-      data: {
-        employees: employees.map(emp => ({
-          id: emp.id,
-          user: {
-            id: emp.user.id,
-            firstName: emp.user.first_name,
-            lastName: emp.user.last_name,
-            email: emp.user.email,
-            phone: emp.user.phone,
-            isActive: emp.user.is_active
-          },
-          position: emp.position,
-          startDate: emp.start_date,
-          salary: emp.salary,
-          status: emp.status,
-          vacationBalance: emp.vacation_balance,
-          sickBalance: emp.sick_balance,
-          manager: emp.manager ? {
-            id: emp.manager.id,
-            name: `${emp.manager.user.first_name} ${emp.manager.user.last_name}`,
-            email: emp.manager.user.email
-          } : null,
-          organization: emp.organization ? {
-            name: emp.organization.name,
-            slug: emp.organization.slug
-          } : null,
-          createdAt: emp.created_at
-        })),
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total: count,
-          pages: Math.ceil(count / limit)
-        }
+      employees: formattedEmployees, // Frontend expects 'employees' array directly
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: count,
+        pages: Math.ceil(count / limit)
       }
     });
 
   } catch (error) {
     logger.error('Error retrieving employees:', error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: await req.t('api.error.server'),
       code: 'INTERNAL_ERROR'
     });
   }
@@ -194,7 +187,7 @@ const getEmployeeById = async (req, res) => {
 
     if (!employee) {
       return res.status(404).json({
-        error: 'Employee not found',
+        error: await req.t('api.error.not_found'),
         code: 'EMPLOYEE_NOT_FOUND'
       });
     }
@@ -202,7 +195,7 @@ const getEmployeeById = async (req, res) => {
     // Multi-tenant security check
     if (!requestor.isSysAdmin() && employee.tenant_id !== requestor.tenant_id) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'CROSS_TENANT_ACCESS_DENIED'
       });
     }
@@ -218,7 +211,7 @@ const getEmployeeById = async (req, res) => {
 
     if (!authResult.authorized) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'INSUFFICIENT_PERMISSIONS',
         reason: authResult.reason
       });
@@ -245,7 +238,7 @@ const getEmployeeById = async (req, res) => {
   } catch (error) {
     logger.error('Error retrieving employee:', error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: await req.t('api.error.server'),
       code: 'INTERNAL_ERROR'
     });
   }
@@ -279,7 +272,7 @@ const createEmployee = async (req, res) => {
 
     if (!authResult.authorized) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'INSUFFICIENT_PERMISSIONS',
         reason: authResult.reason
       });
@@ -384,14 +377,14 @@ const createEmployee = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Employee created successfully',
+      message: await req.t('success.created'),
       data: createdEmployee
     });
 
   } catch (error) {
     logger.error('Error creating employee:', error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: await req.t('api.error.server'),
       code: 'INTERNAL_ERROR'
     });
   }
@@ -409,7 +402,7 @@ const updateEmployee = async (req, res) => {
     const employee = await Employee.findByPk(id);
     if (!employee) {
       return res.status(404).json({
-        error: 'Employee not found',
+        error: await req.t('api.error.not_found'),
         code: 'EMPLOYEE_NOT_FOUND'
       });
     }
@@ -417,7 +410,7 @@ const updateEmployee = async (req, res) => {
     // Multi-tenant security check
     if (!requestor.isSysAdmin() && employee.tenant_id !== requestor.tenant_id) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'CROSS_TENANT_ACCESS_DENIED'
       });
     }
@@ -433,7 +426,7 @@ const updateEmployee = async (req, res) => {
 
     if (!authResult.authorized) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'INSUFFICIENT_PERMISSIONS',
         reason: authResult.reason
       });
@@ -461,14 +454,14 @@ const updateEmployee = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Employee updated successfully',
+      message: await req.t('success.updated'),
       data: updatedEmployee
     });
 
   } catch (error) {
     logger.error('Error updating employee:', error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: await req.t('api.error.server'),
       code: 'INTERNAL_ERROR'
     });
   }
@@ -485,7 +478,7 @@ const deleteEmployee = async (req, res) => {
     const employee = await Employee.findByPk(id);
     if (!employee) {
       return res.status(404).json({
-        error: 'Employee not found',
+        error: await req.t('api.error.not_found'),
         code: 'EMPLOYEE_NOT_FOUND'
       });
     }
@@ -493,7 +486,7 @@ const deleteEmployee = async (req, res) => {
     // Multi-tenant security check
     if (!requestor.isSysAdmin() && employee.tenant_id !== requestor.tenant_id) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'CROSS_TENANT_ACCESS_DENIED'
       });
     }
@@ -509,7 +502,7 @@ const deleteEmployee = async (req, res) => {
 
     if (!authResult.authorized) {
       return res.status(403).json({
-        error: 'Access denied',
+        error: await req.t('api.error.unauthorized'),
         code: 'INSUFFICIENT_PERMISSIONS',
         reason: authResult.reason
       });
@@ -525,13 +518,13 @@ const deleteEmployee = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Employee deleted successfully'
+      message: await req.t('success.deleted')
     });
 
   } catch (error) {
     logger.error('Error deleting employee:', error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: await req.t('api.error.server'),
       code: 'INTERNAL_ERROR'
     });
   }

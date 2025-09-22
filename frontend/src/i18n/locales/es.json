@@ -1,0 +1,105 @@
+{
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión en AI-HRMS",
+      "email_label": "Dirección de correo",
+      "password_label": "Contraseña",
+      "submit_button": "Iniciar sesión",
+      "forgot_password": "¿Olvidaste tu contraseña?",
+      "remember_me": "Recordarme"
+    },
+    "logout": {
+      "confirm": "¿Estás seguro de que quieres cerrar sesión?"
+    }
+  },
+  "nav": {
+    "dashboard": "Panel de control",
+    "employees": "Empleados",
+    "leave": "Gestión de permisos",
+    "ats": "Seguimiento de candidatos",
+    "skills": "Gestión de habilidades",
+    "copilot": "HR Copilot",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "notifications": "Notificaciones",
+    "navigation": "Navegación"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "loading": "Cargando...",
+    "add": "Añadir",
+    "view": "Ver",
+    "download": "Descargar",
+    "upload": "Subir",
+    "export": "Exportar",
+    "import": "Importar",
+    "refresh": "Actualizar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "reset": "Restablecer",
+    "confirm": "Confirmar",
+    "actions": "Acciones",
+    "status": "Estado",
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "date": "Fecha",
+    "time": "Hora",
+    "notes": "Notas",
+    "description": "Descripción"
+  },
+  "dashboard": {
+    "title": "Panel de control",
+    "welcome": "¡Bienvenido de nuevo, {{username}}!",
+    "overview": "Resumen",
+    "stats": {
+      "total_employees": "Total de empleados",
+      "pending_leave": "Solicitudes de permiso pendientes",
+      "open_positions": "Posiciones abiertas",
+      "new_applications": "Nuevas solicitudes"
+    }
+  },
+  "api": {
+    "error": {
+      "unauthorized": "No estás autorizado para realizar esta acción",
+      "not_found": "El recurso solicitado no fue encontrado",
+      "validation": "Por favor revisa tu entrada e intenta nuevamente",
+      "server": "Ocurrió un error interno del servidor. Por favor intenta más tarde.",
+      "network": "Error de red. Por favor revisa tu conexión."
+    }
+  },
+  "success": {
+    "saved": "Cambios guardados exitosamente",
+    "deleted": "Elemento eliminado exitosamente",
+    "created": "Elemento creado exitosamente",
+    "updated": "Elemento actualizado exitosamente"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email": "Por favor ingresa una dirección de email válida",
+    "phone": "Por favor ingresa un número de teléfono válido",
+    "date": "Por favor ingresa una fecha válida",
+    "min_length": "Mínimo {{count}} caracteres requeridos",
+    "max_length": "Máximo {{count}} caracteres permitidos",
+    "date_range": "La fecha de fin debe ser posterior a la fecha de inicio",
+    "past_date": "No se pueden solicitar permisos para fechas pasadas"
+  },
+  "language": {
+    "select": "Seleccionar idioma",
+    "current": "Idioma actual",
+    "change": "Cambiar idioma"
+  },
+  "system": {
+    "health": {
+      "message": "AI-HRMS-2025 con HR Copilot"
+    }
+  }
+}

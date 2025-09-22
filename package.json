@@ -1,6 +1,6 @@
 {
   "name": "ai-hrms-2025",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "Enterprise-grade AI-powered Human Resource Management System with predictive analytics, multi-tenant architecture, and advanced recruitment tools",
   "main": "server.js",
   "directories": {
@@ -12,7 +12,11 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:integration": "jest --testPathPattern=integration",
-    "test:ai": "node test-ai-providers.js",
+    "test:ai": "jest --testPathPattern=ai",
+    "test:templates": "jest --testPathPattern=template",
+    "test:templates:performance": "jest tests/templatePerformance.test.js --verbose",
+    "test:templates:runner": "node tests/templateRunner.js",
+    "test:testsprite": "node tests/testsprite.runner.js",
     "lint": "echo 'Linting not configured yet - please add ESLint' && exit 0",
     "lint:fix": "echo 'Lint fix not configured yet - please add ESLint' && exit 0",
     "format": "echo 'Formatting not configured yet - please add Prettier' && exit 0",
@@ -22,12 +26,23 @@
     "frontend:dev": "webpack serve --mode development",
     "frontend:build": "webpack --mode production",
     "build": "npm run frontend:build",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:integration": "jest --testPathPattern=integration",
-    "test:ai": "jest --testPathPattern=ai",
-    "test:testsprite": "node tests/testsprite.runner.js"
+    "env:migrate": "node scripts/migrate-environments.js",
+    "env:setup": "node scripts/quick-env-setup.js",
+    "env:validate": "node scripts/validate-env-setup.js",
+    "project:monitor": "node scripts/project-management/progress-monitor.js",
+    "project:sprint": "node scripts/project-management/sprint-tracker.js",
+    "project:dashboard": "node scripts/project-management/project-dashboard.js",
+    "project:status": "npm run project:monitor && npm run project:dashboard",
+    "dev:setup": "node scripts/dev-setup/initialize-development.js",
+    "dev:validate": "node scripts/dev-setup/validate-environment.js",
+    "service:init": "node scripts/service-data/init-service-infrastructure.js",
+    "service:sync-skills": "node scripts/service-data/populate-skills-taxonomy.js",
+    "service:sync-jobs": "node scripts/service-data/populate-job-framework.js",
+    "service:ai-enhance": "node scripts/service-data/ai-enhancement.js",
+    "service:quality-check": "node scripts/service-data/data-quality-check.js",
+    "seed:templates": "node scripts/seed-template-data.js",
+    "seed:templates:undo": "node scripts/seed-template-data.js undo",
+    "seed:templates:status": "node scripts/seed-template-data.js status"
   },
   "keywords": [
     "hr",
@@ -77,6 +92,10 @@
     "fast-csv": "^5.0.5",
     "form-data": "^4.0.4",
     "helmet": "^8.1.0",
+    "i18n": "^0.15.1",
+    "i18next": "^25.5.2",
+    "i18next-fs-backend": "^2.6.0",
+    "i18next-http-middleware": "^3.8.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
@@ -126,7 +145,9 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/tests/jest.setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/jest.setup.js"
+    ],
     "testMatch": [
       "**/__tests__/**/*.js",
       "**/?(*.)+(spec|test).js"
@@ -137,7 +158,11 @@
       "!src/utils/logger.js"
     ],
     "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
     "testTimeout": 30000,
     "verbose": true
   }

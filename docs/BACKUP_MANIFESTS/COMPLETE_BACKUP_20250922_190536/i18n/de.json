@@ -1,0 +1,105 @@
+{
+  "auth": {
+    "login": {
+      "title": "Bei AI-HRMS anmelden",
+      "email_label": "E-Mail-Adresse",
+      "password_label": "Passwort",
+      "submit_button": "Anmelden",
+      "forgot_password": "Passwort vergessen?",
+      "remember_me": "Angemeldet bleiben"
+    },
+    "logout": {
+      "confirm": "Sind Sie sicher, dass Sie sich abmelden möchten?"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "employees": "Mitarbeiter",
+    "leave": "Urlaubsverwaltung",
+    "ats": "Bewerbermanagement",
+    "skills": "Kompetenzmanagement",
+    "copilot": "HR Copilot",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "notifications": "Benachrichtigungen",
+    "navigation": "Navigation"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "loading": "Laden...",
+    "add": "Hinzufügen",
+    "view": "Ansehen",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "refresh": "Aktualisieren",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "submit": "Senden",
+    "reset": "Zurücksetzen",
+    "confirm": "Bestätigen",
+    "actions": "Aktionen",
+    "status": "Status",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "date": "Datum",
+    "time": "Zeit",
+    "notes": "Notizen",
+    "description": "Beschreibung"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Willkommen zurück, {{username}}!",
+    "overview": "Übersicht",
+    "stats": {
+      "total_employees": "Gesamte Mitarbeiter",
+      "pending_leave": "Ausstehende Urlaubsanträge",
+      "open_positions": "Offene Stellen",
+      "new_applications": "Neue Bewerbungen"
+    }
+  },
+  "api": {
+    "error": {
+      "unauthorized": "Sie sind nicht berechtigt, diese Aktion auszuführen",
+      "not_found": "Die angeforderte Ressource wurde nicht gefunden",
+      "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut",
+      "server": "Ein interner Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+      "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung."
+    }
+  },
+  "success": {
+    "saved": "Änderungen erfolgreich gespeichert",
+    "deleted": "Element erfolgreich gelöscht",
+    "created": "Element erfolgreich erstellt",
+    "updated": "Element erfolgreich aktualisiert"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "phone": "Bitte geben Sie eine gültige Telefonnummer ein",
+    "date": "Bitte geben Sie ein gültiges Datum ein",
+    "min_length": "Mindestens {{count}} Zeichen erforderlich",
+    "max_length": "Maximal {{count}} Zeichen erlaubt",
+    "date_range": "Enddatum muss nach dem Startdatum liegen",
+    "past_date": "Urlaub kann nicht für vergangene Termine beantragt werden"
+  },
+  "language": {
+    "select": "Sprache auswählen",
+    "current": "Aktuelle Sprache",
+    "change": "Sprache wechseln"
+  },
+  "system": {
+    "health": {
+      "message": "AI-HRMS-2025 mit HR Copilot"
+    }
+  }
+}

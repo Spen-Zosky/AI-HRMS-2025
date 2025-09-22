@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -19,13 +19,21 @@ import {
   InputLabel,
   Select,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Paper,
+} from '@mui/material';
 import {
   Add,
   Edit,
   Delete,
   Search,
-  FilterList,
   Download,
 } from '@mui/icons-material';
 import { employeeAPI } from '../services/api';
@@ -37,6 +45,8 @@ const Employees = () => {
   const [filterDepartment, setFilterDepartment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -48,89 +58,37 @@ const Employees = () => {
     phone: '',
   });
 
-  // Mock data for demonstration
-  const mockEmployees = [
-    {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Smith',
-      email: 'john.smith@company.com',
-      department: 'Engineering',
-      position: 'Senior Developer',
-      salary: 85000,
-      startDate: '2022-03-15',
-      phone: '+1-555-0123',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      email: 'sarah.johnson@company.com',
-      department: 'Marketing',
-      position: 'Marketing Manager',
-      salary: 72000,
-      startDate: '2021-08-20',
-      phone: '+1-555-0124',
-      status: 'Active',
-    },
-    {
-      id: 3,
-      firstName: 'Mike',
-      lastName: 'Wilson',
-      email: 'mike.wilson@company.com',
-      department: 'Sales',
-      position: 'Sales Representative',
-      salary: 58000,
-      startDate: '2023-01-10',
-      phone: '+1-555-0125',
-      status: 'Active',
-    },
-    {
-      id: 4,
-      firstName: 'Anna',
-      lastName: 'Brown',
-      email: 'anna.brown@company.com',
-      department: 'HR',
-      position: 'HR Specialist',
-      salary: 65000,
-      startDate: '2022-11-05',
-      phone: '+1-555-0126',
-      status: 'Active',
-    },
-    {
-      id: 5,
-      firstName: 'David',
-      lastName: 'Lee',
-      email: 'david.lee@company.com',
-      department: 'Engineering',
-      position: 'DevOps Engineer',
-      salary: 90000,
-      startDate: '2021-06-12',
-      phone: '+1-555-0127',
-      status: 'Active',
-    },
-  ];
+  // Error state for better UX
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadEmployees();
-  }, []);
-
-  const loadEmployees = async () => {
+  const loadEmployees = useCallback(async () => {
     try {
       setLoading(true);
-      // In real implementation, uncomment this:
-      // const response = await employeeAPI.getAll();
-      // setEmployees(response.data);
+      setError(null);
 
-      // Mock data for demonstration
-      setEmployees(mockEmployees);
+      const response = await employeeAPI.getAll();
+      console.log('Employee API Response:', response.data);
+
+      // Handle the response format from the backend
+      if (response.data.success && response.data.employees) {
+        setEmployees(response.data.employees);
+      } else {
+        // Fallback to empty array if format is unexpected
+        setEmployees([]);
+      }
     } catch (error) {
       console.error('Error loading employees:', error);
+      setError('Failed to load employees. Please try again.');
+      // Set empty array on error to prevent crashes
+      setEmployees([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadEmployees();
+  }, [loadEmployees]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -188,10 +146,18 @@ const Employees = () => {
     });
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
-      employee.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -200,60 +166,11 @@ const Employees = () => {
     return matchesSearch && matchesDepartment;
   });
 
-  const columns = [
-    {
-      field: 'avatar',
-      headerName: '',
-      width: 60,
-      renderCell: (params) => (
-        <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>
-          {params.row.firstName[0]}{params.row.lastName[0]}
-        </Avatar>
-      ),
-      sortable: false,
-      filterable: false,
-    },
-    { field: 'firstName', headerName: 'First Name', width: 130 },
-    { field: 'lastName', headerName: 'Last Name', width: 130 },
-    { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'department', headerName: 'Department', width: 130 },
-    { field: 'position', headerName: 'Position', width: 160 },
-    {
-      field: 'salary',
-      headerName: 'Salary',
-      width: 120,
-      renderCell: (params) => `$${params.value.toLocaleString()}`,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      width: 100,
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          color={params.value === 'Active' ? 'success' : 'default'}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 120,
-      renderCell: (params) => (
-        <Box>
-          <IconButton size="small" onClick={() => handleEdit(params.row)}>
-            <Edit fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => handleDelete(params.row.id)}>
-            <Delete fontSize="small" />
-          </IconButton>
-        </Box>
-      ),
-      sortable: false,
-      filterable: false,
-    },
-  ];
+  const paginatedEmployees = filteredEmployees.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -310,25 +227,89 @@ const Employees = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent sx={{ p: 0 }}>
-          <DataGrid
-            rows={filteredEmployees}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10, 25, 50]}
-            loading={loading}
-            disableSelectionOnClick
-            sx={{
-              border: 'none',
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f5f5f5',
-                fontWeight: 600,
-              },
-            }}
-          />
-        </CardContent>
-      </Card>
+      <Paper>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell></TableCell>
+                <TableCell sx={{ fontWeight: 600 }} colSpan={2}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Department</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Position</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Salary</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    Loading employees...
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'error.main' }}>
+                    {error}
+                    <Button onClick={loadEmployees} sx={{ ml: 2 }}>
+                      Retry
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ) : paginatedEmployees.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    No employees found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedEmployees.map((employee) => (
+                  <TableRow key={employee.id} hover>
+                    <TableCell>
+                      <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>
+                        {employee.name ? employee.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'N/A'}
+                      </Avatar>
+                    </TableCell>
+                    <TableCell colSpan={2}>{employee.name}</TableCell>
+                    <TableCell>{employee.email}</TableCell>
+                    <TableCell>{employee.department}</TableCell>
+                    <TableCell>{employee.position}</TableCell>
+                    <TableCell>{employee.salary ? `$${employee.salary.toLocaleString()}` : 'Not disclosed'}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={employee.status}
+                        color={employee.status === 'Active' ? 'success' : 'default'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <IconButton size="small" onClick={() => handleEdit(employee)}>
+                          <Edit fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => handleDelete(employee.id)}>
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredEmployees.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
 
       {/* Employee Form Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>

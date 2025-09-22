@@ -11,11 +11,11 @@ module.exports = {
         allowNull: false
       },
       hierarchy_org_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'organizations',
-          key: 'org_id'
+          key: 'organization_id'
         },
         onDelete: 'CASCADE'
       },
