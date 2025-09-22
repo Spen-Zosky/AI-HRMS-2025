@@ -53,7 +53,7 @@
   "author": "AI-HRMS-2025 Development Team",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/claude-code": "^1.0.117",
+    "@anthropic-ai/claude-code": "^1.0.120",
     "@anthropic-ai/sdk": "^0.62.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
