@@ -79,7 +79,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'LeaveRequest',
-    tableName: 'leave_requests',
+    tableName: 'lve_leave_requests',
     timestamps: true,
     underscored: true
   });

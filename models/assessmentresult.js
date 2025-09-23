@@ -83,7 +83,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'AssessmentResult',
-    tableName: 'assessment_results',
+    tableName: 'asm_assessment_results',
     underscored: true,
     timestamps: true
   });
