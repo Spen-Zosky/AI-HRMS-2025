@@ -56,7 +56,7 @@ module.exports = (sequelize) => {
     }
 
     isActive() {
-      return this.is_active && this.status === 'active';
+      return this.is_active;
     }
 
     isEmployee() {
@@ -99,13 +99,6 @@ module.exports = (sequelize) => {
       return this.isSysAdmin();
     }
 
-    getDaysEmployed() {
-      if (!this.hire_date) return null;
-      const now = new Date();
-      const hireDate = new Date(this.hire_date);
-      const diffTime = Math.abs(now - hireDate);
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
 
     getAge() {
       if (!this.birth_date) return null;
@@ -115,9 +108,6 @@ module.exports = (sequelize) => {
       return Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
     }
 
-    getEmployeeDisplayId() {
-      return this.employee_id || `EMP-${this.id.substring(0, 8).toUpperCase()}`;
-    }
 
     getDisplayId() {
       return `USR-${this.id.substring(0, 8).toUpperCase()}`;
@@ -169,7 +159,8 @@ module.exports = (sequelize) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
+      field: 'usr_id'
     },
     first_name: {
       type: DataTypes.STRING(255),
@@ -177,7 +168,8 @@ module.exports = (sequelize) => {
       validate: {
         notEmpty: true,
         len: [1, 255]
-      }
+      },
+      field: 'usr_first_name'
     },
     last_name: {
       type: DataTypes.STRING(255),
@@ -185,7 +177,8 @@ module.exports = (sequelize) => {
       validate: {
         notEmpty: true,
         len: [1, 255]
-      }
+      },
+      field: 'usr_last_name'
     },
     email: {
       type: DataTypes.STRING(255),
@@ -193,123 +186,115 @@ module.exports = (sequelize) => {
       unique: true,
       validate: {
         isEmail: true
-      }
+      },
+      field: 'usr_email'
     },
     password: {
       type: DataTypes.STRING(255),
       allowNull: false,
       validate: {
         len: [8, 255]
-      }
+      },
+      field: 'usr_password_hash'
     },
     role: {
       type: DataTypes.ENUM('employee', 'manager', 'hr', 'admin', 'sysadmin'),
       allowNull: false,
-      defaultValue: 'employee'
-    },
-    employee_id: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: 'Organization-specific employee identifier'
-    },
-    hire_date: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      comment: 'Date when user was hired in the organization'
-    },
-    status: {
-      type: DataTypes.ENUM('active', 'inactive', 'terminated', 'on_leave'),
-      allowNull: false,
-      defaultValue: 'active',
-      comment: 'Employment status within the organization'
+      defaultValue: 'employee',
+      field: 'usr_role'
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true
+      defaultValue: true,
+      field: 'usr_is_active'
     },
     is_sysadmin: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
-      comment: 'Platform-level super administrator with full cross-tenant permissions'
+      comment: 'Platform-level super administrator with full cross-tenant permissions',
+      field: 'usr_is_system_admin'
     },
     tenant_id: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: 'organizations',
-        key: 'organization_id'
-      }
+        model: 'org_organizations',
+        key: 'org_id'
+      },
+      field: 'usr_tenant_id'
     },
     // New fields added by migration
     birth_date: {
       type: DataTypes.DATEONLY,
       allowNull: true,
-      comment: 'User birth date for age verification and compliance'
+      comment: 'User birth date for age verification and compliance',
+      field: 'usr_birth_date'
     },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true,
-      comment: 'User phone number for contact purposes'
+      comment: 'User phone number for contact purposes',
+      field: 'usr_phone_number'
     },
     address: {
       type: DataTypes.TEXT,
       allowNull: true,
-      comment: 'User residential address'
+      comment: 'User residential address',
+      field: 'usr_address'
     },
     emergency_contact: {
       type: DataTypes.TEXT,
       allowNull: true,
-      comment: 'Emergency contact information'
+      comment: 'Emergency contact information',
+      field: 'usr_emergency_contact_info'
     },
     profile_picture_url: {
       type: DataTypes.STRING(500),
       allowNull: true,
-      comment: 'URL to user profile picture'
+      comment: 'URL to user profile picture',
+      field: 'usr_profile_picture_url'
     },
     // Security tracking fields
     failed_login_attempts: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
-      comment: 'Number of failed login attempts'
+      comment: 'Number of failed login attempts',
+      field: 'usr_failed_login_count'
     },
     last_failed_login: {
       type: DataTypes.DATE,
       allowNull: true,
-      comment: 'Timestamp of last failed login attempt'
+      comment: 'Timestamp of last failed login attempt',
+      field: 'usr_last_failed_login_at'
     },
     last_successful_login: {
       type: DataTypes.DATE,
       allowNull: true,
-      comment: 'Timestamp of last successful login'
+      comment: 'Timestamp of last successful login',
+      field: 'usr_last_successful_login_at'
     }
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'users',
+    tableName: 'sys_users',
     timestamps: true,
+    createdAt: 'usr_created_at',
+    updatedAt: 'usr_updated_at',
+    deletedAt: 'usr_deleted_at',
     paranoid: true, // Soft delete
     underscored: true,
     scopes: {
       active: {
         where: {
-          is_active: true,
-          status: 'active'
+          is_active: true
         }
       },
       inactive: {
         where: {
-          [sequelize.Sequelize.Op.or]: [
-            { is_active: false },
-            { status: ['inactive', 'terminated'] }
-          ]
-        }
-      },
-      onLeave: {
-        where: {
-          status: 'on_leave'
+          is_active: false
         }
       },
       byRole(role) {
@@ -347,41 +332,17 @@ module.exports = (sequelize) => {
           ]
         }
       },
-      byStatus(status) {
-        return {
-          where: {
-            status: status
-          }
-        };
-      },
-      recentlyHired(days = 30) {
-        return {
-          where: {
-            hire_date: {
-              [sequelize.Sequelize.Op.gte]: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-            }
-          }
-        };
-      }
     },
     hooks: {
       beforeValidate: (user) => {
         if (user.email) {
           user.email = user.email.toLowerCase().trim();
         }
-        if (user.employee_id) {
-          user.employee_id = user.employee_id.toUpperCase().trim();
-        }
         if (user.phone) {
           user.phone = user.phone.replace(/[^\d\+\-\(\)\s]/g, '').trim();
         }
       },
       beforeCreate: async (user) => {
-        // Set hire_date to today if not provided for active users
-        if (!user.hire_date && user.status === 'active') {
-          user.hire_date = new Date();
-        }
-
         // Hash password if it's being set
         if (user.password && user.changed('password')) {
           user.password = await user.hashPassword(user.password);
