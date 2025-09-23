@@ -559,7 +559,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'HierarchyNode',
-    tableName: 'hierarchy_nodes',
+    tableName: 'hir_hierarchy_nodes',
     timestamps: true,
     underscored: true,
     scopes: {

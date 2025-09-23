@@ -313,7 +313,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OrganizationJobRole',
-    tableName: 'organization_job_roles',
+    tableName: 'org_job_roles',
     timestamps: true,
     underscored: true,
     indexes: [

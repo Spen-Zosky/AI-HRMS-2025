@@ -208,7 +208,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'TenantMember',
-    tableName: 'tenant_members',
+    tableName: 'sys_tenant_members',
     underscored: true,
     timestamps: true,
     paranoid: false,

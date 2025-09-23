@@ -223,7 +223,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OrganizationSkill',
-    tableName: 'organization_skills',
+    tableName: 'org_skills',
     timestamps: true,
     underscored: true,
     indexes: [

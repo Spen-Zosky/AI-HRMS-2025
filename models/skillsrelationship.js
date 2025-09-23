@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SkillsRelationship',
-    tableName: 'skills_relationships',
+    tableName: 'skl_skills_relationships',
     underscored: true,
     timestamps: false
   });

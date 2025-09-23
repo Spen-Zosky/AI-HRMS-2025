@@ -29,11 +29,11 @@ const addTenantContext = async (req, res, next) => {
       if (subdomain && subdomain !== 'www' && subdomain !== process.env.MAIN_DOMAIN) {
         const org = await Organization.findOne({
           where: { slug: subdomain },
-          attributes: ['organization_id', 'name', 'is_active']
+          attributes: ['org_id', 'org_name', 'org_is_active']
         });
 
-        if (org && org.is_active) {
-          tenantId = org.organization_id;
+        if (org && org.org_is_active) {
+          tenantId = org.org_id;
         }
       }
     }
@@ -49,9 +49,9 @@ const addTenantContext = async (req, res, next) => {
         include: [{
           model: Organization,
           as: 'organization',
-          where: { is_active: true }
+          where: { org_is_active: true }
         }],
-        order: [['is_primary', 'DESC'], ['created_at', 'ASC']]
+        order: [['created_at', 'ASC']]
       });
 
       if (membership) {
@@ -62,7 +62,7 @@ const addTenantContext = async (req, res, next) => {
     // 4. From tenant_id in user record (fallback)
     else if (req.user && req.user.tenant_id) {
       const org = await Organization.findByPk(req.user.tenant_id);
-      if (org && org.is_active) {
+      if (org && org.org_is_active) {
         tenantId = req.user.tenant_id;
       }
     }
@@ -75,19 +75,19 @@ const addTenantContext = async (req, res, next) => {
     if (tenantId) {
       const tenant = await Organization.findByPk(tenantId, {
         attributes: [
-          'organization_id', 'name', 'slug', 'domain', 'industry', 'size',
-          'timezone', 'currency', 'settings', 'subscription_plan', 'subscription_status'
+          'org_id', 'org_name', 'org_slug', 'org_domain', 'org_industry', 'org_employee_count_range',
+          'org_primary_timezone', 'org_primary_currency_code', 'org_settings', 'org_subscription_plan', 'org_subscription_status'
         ]
       });
 
-      if (tenant && tenant.subscription_status === 'active') {
+      if (tenant && tenant.org_subscription_status === 'active') {
         req.tenant = tenant;
 
         // Add tenant info to logger context
         req.logContext = {
           ...req.logContext,
           tenant_id: tenantId,
-          tenant_name: tenant.name
+          tenant_name: tenant.org_name
         };
       } else {
         // Tenant exists but not active

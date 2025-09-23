@@ -1,405 +1,183 @@
-# AI-HRMS-2025 ⚡
+# Supabase CLI
 
-> **Enterprise-Grade AI-Powered Human Resource Management System with Hierarchical Multi-Tenant Architecture**
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-[![Development Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](./docs/DEVELOPMENT.md "Project development progress tracker")
-[![Version](https://img.shields.io/badge/Version-1.3.1-brightgreen.svg)](https://github.com/Spen-Zosky/AI-HRMS-2025/releases/tag/v1.3.1)
-[![Release](https://img.shields.io/badge/Latest%20Release-v1.3.1-brightgreen.svg)](https://github.com/Spen-Zosky/AI-HRMS-2025/releases/latest)
-[![GitHub](https://img.shields.io/badge/Repository-AI--HRMS--2025-black.svg?logo=github)](https://github.com/Spen-Zosky/AI-HRMS-2025)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen.svg)](https://nodejs.org/)
-[![Backend](https://img.shields.io/badge/Backend-Express%20%2B%20Sequelize-blue.svg)](https://expressjs.com/)
-[![Environment](https://img.shields.io/badge/Environment-Hierarchical%20Config-purple.svg)](/environments/README.md)
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-**AI-HRMS-2025** is a next-generation Human Resource Management System that combines advanced artificial intelligence, predictive analytics, and modern web technologies to revolutionize HR operations for enterprise and mid-market organizations.
+This repository contains all the functionality for Supabase CLI.
 
-## 📊 **Verified Implementation Status**
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-**Database Architecture (COMPREHENSIVE):**
-- **37 Sequelize models** with 8,800+ lines of code
-- Multi-tenant architecture with organization/tenant isolation
-- Advanced hierarchy system with dynamic roles
-- Comprehensive skills taxonomy and assessment framework
-- Complete internationalization model support
+## Getting started
 
-**Frontend Implementation (PROFESSIONAL):**
-- **4-language i18n support** (Italian 168 lines, French/German/Spanish 105 lines each)
-- Modern React 19.1.1 with Material-UI 7.3.2
-- Complete i18next internationalization stack
-- Professional component architecture
+### Install the CLI
 
-**Current Development Focus:**
-- API controller implementation for 37 database models
-- Database schema migrations and deployment
-- Frontend-backend integration
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
-## 🎯 **Current Implementation Status (v1.3.1)**
-
-### **✅ What's Implemented**
-
-**🏗️ Backend Foundation (Complete)**
-- ✅ Express.js server with comprehensive middleware setup
-- ✅ Sequelize ORM with PostgreSQL integration
-- ✅ Complete database models (employees, organizations, users, etc.)
-- ✅ Multi-tenant architecture with strict data isolation
-- ✅ Authentication routes and security middleware
-- ✅ API routes structure with controllers
-
-**🔒 Hierarchical Environment System (NEW - Complete)**
-- ✅ Secure multi-level configuration management (Platform → Tenant → Organization → User)
-- ✅ Environment isolation and role-based access control
-- ✅ Migration scripts for existing configurations
-- ✅ Development environment quick setup
-- ✅ Comprehensive validation and security middleware
-- ✅ Template-based configuration system
-
-**🤖 MCP & Development Ecosystem (Complete)**
-- ✅ Model Context Protocol configuration (.mcp.json) - 17 servers
-- ✅ API-authenticated servers: Vercel, Notion, TestSprite, Hugging Face
-- ✅ Local Python servers: Git, Fetch, Time operations
-- ✅ Comprehensive development tools integration
-- ✅ 100% functional server connectivity verified
-
-**🗄️ Database Architecture (Complete)**
-- ✅ Multi-tenant hierarchy system (6 models)
-- ✅ Complete skills taxonomy with internationalization
-- ✅ Assessment framework and job role mappings
-- ✅ Security fields migration for enhanced authentication
-- ✅ 33 enterprise tables with proper relationships
-
-**📋 Documentation & Structure (v1.3.1)**
-- ✅ Comprehensive documentation restructure (docs/01_CONFIG through docs/12_DOCS)
-- ✅ Consolidated development guides and architecture documentation
-- ✅ Project-wide CLAUDE.md with strict development standards
-- ✅ Complete API documentation and development workflows
-- ✅ Legacy documentation archived for reference
-
-**🧪 Testing Infrastructure (Complete)**
-- ✅ TestSprite integration for automated testing
-- ✅ Jest test framework configuration
-- ✅ Test reports and coverage setup
-
-### **🚧 In Progress**
-
-**🎨 Frontend Development**
-- 🔄 React 19 + Material-UI components
-- 🔄 Responsive dashboard interfaces
-- 🔄 Role-based UI customization
-
-**🔗 API Implementation**
-- 🔄 Employee management endpoints
-- 🔄 Leave management system
-- 🔄 Applicant tracking system (ATS)
-- 🔄 AI-powered recruitment tools
-
-**🤖 AI Integration**
-- 🔄 OpenAI GPT integration for HR insights
-- 🔄 Anthropic Claude for document analysis
-- 🔄 Local Ollama support for privacy-focused AI
-
-## 🚀 **Quick Start**
-
-### **Prerequisites**
-- Node.js 18+
-- PostgreSQL 12+
-- Git
-
-### **1. Clone & Install**
 ```bash
-git clone https://github.com/Spen-Zosky/AI-HRMS-2025.git
-cd AI-HRMS-2025
-npm install
+npm i supabase --save-dev
 ```
 
-### **2. Environment Setup**
+To install the beta release channel:
+
 ```bash
-# Quick development environment setup
-npm run env:setup
-
-# OR migrate existing .env file
-npm run env:migrate
-
-# Validate environment configuration
-npm run env:validate
+npm i supabase@beta --save-dev
 ```
 
-### **3. Database Setup**
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
+
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
+
 ```bash
-# Create PostgreSQL database
-createdb ai_hrms_2025
-
-# Run migrations
-npx sequelize-cli db:migrate
+supabase bootstrap
 ```
 
-### **4. Start Development**
+Or using npx:
+
 ```bash
-npm run dev
+npx supabase bootstrap
 ```
 
-🎉 **Access at**: `http://localhost:3000`
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-## 🏛️ **Architecture Overview**
+## Docs
 
-### **Multi-Tenant SaaS Architecture**
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+
+## Breaking changes
+
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
+
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+
+## Developing
+
+To run from source:
+
+```sh
+# Go >= 1.22
+go run . help
 ```
-Platform Level (System-wide)
-├── Tenant Level (Subscription & Billing)
-│   ├── Organization Level (Company-specific)
-│   │   ├── Department Level (Team-specific)
-│   │   └── User Level (Role-specific)
-│   └── Organization Level (Another company)
-└── Tenant Level (Another subscription)
-```
-
-### **Key Features**
-
-**🔐 Security First**
-- JWT-based authentication with refresh tokens
-- Role-based access control (RBAC)
-- Multi-factor authentication support
-- Data encryption at rest and in transit
-- Audit logging and compliance tracking
-
-**🌐 Multi-Tenant Design**
-- Complete data isolation between tenants
-- Hierarchical environment configuration
-- Dynamic scaling per organization
-- Subscription-based feature control
-
-**🤖 AI-Powered Insights**
-- Predictive analytics for employee retention
-- AI-assisted recruitment and candidate matching
-- Natural language processing for resume parsing
-- Automated performance review insights
-
-**📊 Comprehensive HR Management**
-- Employee lifecycle management
-- Advanced leave management system
-- Performance evaluation framework
-- Skills assessment and development tracking
-- Recruitment and applicant tracking (ATS)
-
-## 🛠️ **Development Commands**
-
-### **Core Development**
-```bash
-npm run dev          # Start development server
-npm start            # Start production server
-npm run build        # Build frontend assets
-```
-
-### **Environment Management**
-```bash
-npm run env:migrate   # Migrate existing .env to hierarchical structure
-npm run env:setup     # Quick setup for development environment
-npm run env:validate  # Validate hierarchical environment configuration
-```
-
-### **Testing**
-```bash
-npm test                # Run all tests
-npm run test:watch      # Run tests in watch mode
-npm run test:coverage   # Generate test coverage report
-npm run test:integration # Run integration tests
-npm run test:ai         # Run AI provider tests
-npm run test:testsprite # Run TestSprite tests
-```
-
-### **Database Management**
-```bash
-npx sequelize-cli db:migrate        # Run migrations
-npx sequelize-cli db:migrate:undo   # Undo last migration
-npx sequelize-cli seed:all          # Run all seeders
-```
-
-## 📁 **Project Structure**
-
-```
-AI-HRMS-2025/
-├── 📄 Core Configuration
-│   ├── server.js                 # Express server entry point
-│   ├── package.json             # Dependencies and scripts
-│   └── CLAUDE.md               # Development guidelines
-├── 🗄️ Database Layer
-│   ├── models/                  # Sequelize models (33 tables)
-│   ├── migrations/             # Database migrations
-│   └── config/database.js      # Database configuration
-├── 🔧 Backend Services
-│   ├── src/
-│   │   ├── controllers/        # Business logic controllers
-│   │   ├── routes/            # API route definitions
-│   │   ├── services/          # Reusable business services
-│   │   └── middleware/        # Express middleware
-├── 🌍 Environment System
-│   ├── environments/
-│   │   ├── platform/          # Platform-level configs
-│   │   ├── tenants/           # Tenant-specific configs
-│   │   └── templates/         # Configuration templates
-│   └── scripts/               # Environment management scripts
-├── 🎨 Frontend (React)
-│   ├── src/frontend/          # React components
-│   ├── public/               # Static assets
-│   └── config/webpack.config.js # Build configuration
-├── 🧪 Testing
-│   ├── tests/                # Jest test files
-│   └── testsprite.config.js  # TestSprite configuration
-└── 📚 Documentation
-    ├── docs/                 # Comprehensive documentation
-    │   ├── 01_CONFIG/        # Configuration guides
-    │   ├── 02_DATABASE/      # Database architecture
-    │   ├── 03_FRONTEND/      # Frontend development
-    │   ├── 04_BACKEND/       # Backend development
-    │   ├── 05_SECURITY/      # Security documentation
-    │   ├── 06_ARCH/          # Architecture guides
-    │   ├── 07_BUSINESS/      # Business logic
-    │   ├── 08_AI/            # AI integration
-    │   ├── 09_DEV_TOOLS/     # Development tools
-    │   ├── 10_TESTING/       # Testing strategies
-    │   ├── 11_DEPLOYMENT/    # Deployment guides
-    │   └── 12_DOCS/          # Documentation guides
-    └── ARCHIVE/              # Legacy documentation
-```
-
-## 🔒 **Security & Compliance**
-
-### **Data Protection**
-- GDPR compliance framework
-- SOC 2 Type II preparation
-- HIPAA compliance for healthcare clients
-- Role-based data access controls
-- Automated data retention policies
-
-### **Security Features**
-- Multi-factor authentication (MFA)
-- Single Sign-On (SSO) support
-- IP whitelisting and geofencing
-- Real-time security monitoring
-- Automated threat detection
-
-## 🤖 **AI & Machine Learning**
-
-### **Supported AI Providers**
-- **OpenAI**: GPT-4 for conversational AI and insights
-- **Anthropic**: Claude for document analysis and compliance
-- **Ollama**: Local AI deployment for enhanced privacy
-- **Hugging Face**: Open-source model integration
-
-### **AI-Powered Features**
-- Resume parsing and candidate scoring
-- Predictive employee retention analytics
-- Automated performance review summaries
-- Intelligent recruitment matching
-- Natural language policy queries
-
-## 🌐 **Multi-Tenant Features**
-
-### **Tenant Isolation**
-- Complete database isolation
-- Separate configuration management
-- Independent feature flags
-- Subscription-based access control
-
-### **Organization Management**
-- Hierarchical organization structure
-- Department and team management
-- Custom role definitions
-- Cross-organization reporting (with permissions)
-
-## 📊 **Reporting & Analytics**
-
-### **Standard Reports**
-- Employee demographics and statistics
-- Leave utilization and trends
-- Performance review analytics
-- Recruitment pipeline metrics
-- Compensation analysis
-
-### **Custom Dashboards**
-- Executive-level KPI dashboards
-- Manager team performance views
-- HR operational dashboards
-- Employee self-service portals
-
-## 🔧 **Integration Capabilities**
-
-### **Directory Services**
-- Active Directory / LDAP
-- Google Workspace
-- Azure Active Directory
-- SAML 2.0 SSO providers
-
-### **Third-Party HR Tools**
-- Slack HR Bot integration
-- Microsoft Teams notifications
-- Calendar synchronization
-- Email automation systems
-
-### **Payroll Systems**
-- Generic payroll API integration
-- Custom connector framework
-- Benefits administration sync
-- Time tracking integration
-
-## 🚀 **Deployment Options**
-
-### **Cloud Deployment**
-- Docker containerization ready
-- Kubernetes deployment manifests
-- AWS/Azure/GCP compatibility
-- Auto-scaling configuration
-
-### **On-Premises**
-- Self-hosted deployment guides
-- Network security configuration
-- Database backup strategies
-- High availability setup
-
-## 🛣️ **Roadmap**
-
-### **Q1 2025**
-- [ ] Complete frontend implementation
-- [ ] API endpoints finalization
-- [ ] AI integration testing
-- [ ] Security audit
-
-### **Q2 2025**
-- [ ] Beta customer onboarding
-- [ ] Performance optimization
-- [ ] Mobile application
-- [ ] Advanced analytics
-
-### **Q3 2025**
-- [ ] Enterprise features
-- [ ] Compliance certifications
-- [ ] International expansion
-- [ ] API marketplace
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see our [Contributing Guide](docs/12_DOCS/CONTRIBUTING.md) for details.
-
-### **Development Setup**
-1. Fork the repository
-2. Create a feature branch
-3. Set up development environment with `npm run env:setup`
-4. Make your changes
-5. Run tests with `npm test`
-6. Submit a pull request
-
-## 📄 **License**
-
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 **Support & Documentation**
-
-- **📚 Documentation**: [./docs/README.md](docs/README.md)
-- **🏗️ Architecture**: [./docs/06_ARCH/](docs/06_ARCH/)
-- **🔧 Development**: [./CLAUDE.md](CLAUDE.md)
-- **🌍 Environment**: [./environments/README.md](environments/README.md)
-- **🐛 Issues**: [GitHub Issues](https://github.com/Spen-Zosky/AI-HRMS-2025/issues)
-
----
-
-**Built with ❤️ by the AI-HRMS-2025 Development Team**
-
-*Transforming Human Resources through AI and Innovation*

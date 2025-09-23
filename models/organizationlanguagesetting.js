@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
       comment: 'Fallback language if translation not available'
     }
   }, {
-    tableName: 'organization_language_settings',
+    tableName: 'org_language_settings',
     underscored: true,
     indexes: [
       {

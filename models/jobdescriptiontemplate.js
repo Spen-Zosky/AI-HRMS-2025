@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'JobDescriptionTemplate',
-    tableName: 'job_description_templates',
+    tableName: 'tpl_job_description_templates',
     underscored: true,
     timestamps: true
   });

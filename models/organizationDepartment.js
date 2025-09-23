@@ -314,7 +314,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OrganizationDepartment',
-    tableName: 'organization_departments',
+    tableName: 'org_departments',
     timestamps: true,
     underscored: true,
     indexes: [

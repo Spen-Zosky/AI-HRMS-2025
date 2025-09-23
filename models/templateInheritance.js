@@ -307,7 +307,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'TemplateInheritance',
-    tableName: 'template_inheritance',
+    tableName: 'tpl_template_inheritance',
     timestamps: true,
     underscored: true,
     indexes: [

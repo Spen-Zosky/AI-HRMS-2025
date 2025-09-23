@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'JobFamily',
-    tableName: 'job_families',
+    tableName: 'job_job_families',
     underscored: true,
     timestamps: true
   });
