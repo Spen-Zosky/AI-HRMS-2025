@@ -99,7 +99,8 @@ module.exports = (sequelize) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
+      field: 'org_id'
     },
     tenant_id: {
       type: DataTypes.UUID,
@@ -107,7 +108,8 @@ module.exports = (sequelize) => {
       references: {
         model: 'tenants',
         key: 'tenant_id'
-      }
+      },
+      field: 'org_tenant_id'
     },
     name: {
       type: DataTypes.STRING(255),
@@ -115,7 +117,8 @@ module.exports = (sequelize) => {
       validate: {
         notEmpty: true,
         len: [2, 255]
-      }
+      },
+      field: 'org_name'
     },
     slug: {
       type: DataTypes.STRING(100),
@@ -125,7 +128,8 @@ module.exports = (sequelize) => {
         isLowercase: true,
         isAlphanumeric: true,
         len: [2, 100]
-      }
+      },
+      field: 'org_slug'
     },
     domain: {
       type: DataTypes.STRING(255),
@@ -135,21 +139,25 @@ module.exports = (sequelize) => {
           require_protocol: false,
           require_host: true
         }
-      }
+      },
+      field: 'org_domain'
     },
     industry: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: true,
+      field: 'org_industry'
     },
     size: {
       type: DataTypes.ENUM('startup', 'small', 'medium', 'large', 'enterprise'),
       allowNull: false,
-      defaultValue: 'small'
+      defaultValue: 'small',
+      field: 'org_employee_count_range'
     },
     country: {
       type: DataTypes.STRING(10),
       allowNull: true,
-      comment: 'ISO country code'
+      comment: 'ISO country code',
+      field: 'org_country'
     },
     timezone: {
       type: DataTypes.STRING(50),
@@ -157,7 +165,8 @@ module.exports = (sequelize) => {
       defaultValue: 'UTC',
       validate: {
         len: [1, 50]
-      }
+      },
+      field: 'org_primary_timezone'
     },
     currency: {
       type: DataTypes.STRING(3),
@@ -166,31 +175,37 @@ module.exports = (sequelize) => {
       validate: {
         len: [3, 3],
         isUppercase: true
-      }
+      },
+      field: 'org_primary_currency_code'
     },
     subscription_plan: {
       type: DataTypes.ENUM('trial', 'starter', 'professional', 'enterprise'),
       allowNull: false,
-      defaultValue: 'trial'
+      defaultValue: 'trial',
+      field: 'org_subscription_plan'
     },
     subscription_status: {
       type: DataTypes.ENUM('trial', 'active', 'cancelled', 'expired', 'suspended'),
       allowNull: false,
-      defaultValue: 'trial'
+      defaultValue: 'trial',
+      field: 'org_subscription_status'
     },
     trial_ends_at: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
+      field: 'org_trial_ends_at'
     },
     subscription_ends_at: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
+      field: 'org_subscription_ends_at'
     },
     settings: {
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: {},
-      comment: 'Organization-specific settings'
+      comment: 'Organization-specific settings',
+      field: 'org_settings'
     },
     features_enabled: {
       type: DataTypes.JSONB,
@@ -202,7 +217,8 @@ module.exports = (sequelize) => {
         custom_fields: false,
         advanced_reporting: false
       },
-      comment: 'Organization-level feature flags'
+      comment: 'Organization-level feature flags',
+      field: 'org_features_enabled'
     },
     max_employees: {
       type: DataTypes.INTEGER,
@@ -212,25 +228,30 @@ module.exports = (sequelize) => {
         min: 1,
         max: 10000
       },
-      comment: 'Maximum employees allowed in this organization'
+      comment: 'Maximum employees allowed in this organization',
+      field: 'org_max_employees'
     },
     api_key: {
       type: DataTypes.STRING(255),
       allowNull: true,
       unique: true,
-      comment: 'API key for organization-specific integrations'
+      comment: 'API key for organization-specific integrations',
+      field: 'org_api_key'
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true
+      defaultValue: true,
+      field: 'org_is_active'
     }
   }, {
     sequelize,
     modelName: 'Organization',
-    tableName: 'organizations',
+    tableName: 'org_organizations',
     underscored: true,
     timestamps: true,
+    createdAt: 'org_created_at',
+    updatedAt: 'org_updated_at',
     paranoid: false,
     indexes: [
       {
