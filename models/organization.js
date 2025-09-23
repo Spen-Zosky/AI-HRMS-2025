@@ -51,7 +51,7 @@ module.exports = (sequelize) => {
 
     // Instance methods
     isActive() {
-      return this.is_active;
+      return this.org_is_active;
     }
 
     getMemberCount() {
@@ -68,29 +68,29 @@ module.exports = (sequelize) => {
 
     canAddMoreEmployees() {
       const currentCount = this.getMemberCount();
-      return currentCount < this.max_employees;
+      return currentCount < this.org_max_employees;
     }
 
     hasFeature(feature) {
-      return this.features_enabled?.[feature] === true;
+      return this.org_features_enabled?.[feature] === true;
     }
 
     getTimezone() {
-      return this.timezone || this.tenant?.timezone || 'UTC';
+      return this.org_primary_timezone || this.tenant?.tnt_timezone || 'UTC';
     }
 
     getCurrency() {
-      return this.currency || this.tenant?.currency || 'EUR';
+      return this.org_primary_currency_code || this.tenant?.tnt_currency || 'EUR';
     }
 
     getFullDomain() {
-      if (this.domain) return this.domain;
-      if (this.tenant?.domain) return `${this.slug}.${this.tenant.domain}`;
-      return `${this.slug}.${this.tenant?.tenant_slug || 'system'}.hrms.com`;
+      if (this.org_domain) return this.org_domain;
+      if (this.tenant?.tnt_domain) return `${this.org_slug}.${this.tenant.tnt_domain}`;
+      return `${this.org_slug}.${this.tenant?.tnt_slug || 'system'}.hrms.com`;
     }
 
     getDisplayId() {
-      return `ORG-${this.organization_id.substring(0, 8).toUpperCase()}`;
+      return `ORG-${this.org_id.substring(0, 8).toUpperCase()}`;
     }
   }
 
