@@ -29,6 +29,8 @@
     "env:migrate": "node scripts/migrate-environments.js",
     "env:setup": "node scripts/quick-env-setup.js",
     "env:validate": "node scripts/validate-env-setup.js",
+    "supabase:use": "./scripts/switch-to-supabase.sh",
+    "local:use": "./scripts/switch-to-local.sh",
     "project:monitor": "node scripts/project-management/progress-monitor.js",
     "project:sprint": "node scripts/project-management/sprint-tracker.js",
     "project:dashboard": "node scripts/project-management/project-dashboard.js",

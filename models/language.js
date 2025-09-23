@@ -72,7 +72,7 @@ module.exports = (sequelize) => {
       comment: 'Display order in language selection UI'
     }
   }, {
-    tableName: 'languages',
+    tableName: 'mst_languages',
     underscored: true,
     indexes: [
       {

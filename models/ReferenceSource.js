@@ -152,7 +152,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'ReferenceSource',
-    tableName: 'reference_sources',
+    tableName: 'ref_reference_sources',
     timestamps: true,
     underscored: true,
     createdAt: 'created_at',

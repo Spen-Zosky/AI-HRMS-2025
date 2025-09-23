@@ -521,7 +521,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'HierarchyRelationship',
-    tableName: 'hierarchy_relationships',
+    tableName: 'hir_hierarchy_relationships',
     timestamps: true,
     underscored: true,
     scopes: {

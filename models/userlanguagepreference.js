@@ -49,7 +49,7 @@ module.exports = (sequelize) => {
       comment: 'Override default number format'
     }
   }, {
-    tableName: 'user_language_preferences',
+    tableName: 'i18n_user_language_preferences',
     underscored: true,
     indexes: [
       {

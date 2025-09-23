@@ -62,7 +62,7 @@ module.exports = (sequelize) => {
       allowNull: true
     }
   }, {
-    tableName: 'translations',
+    tableName: 'i18n_translations',
     underscored: true,
     indexes: [
       {

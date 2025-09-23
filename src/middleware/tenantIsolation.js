@@ -49,9 +49,9 @@ const addTenantContext = async (req, res, next) => {
         include: [{
           model: Organization,
           as: 'organization',
-          where: { is_active: true }
+          where: { org_is_active: true }
         }],
-        order: [['is_primary', 'DESC'], ['created_at', 'ASC']]
+        order: [['created_at', 'ASC']]
       });
 
       if (membership) {

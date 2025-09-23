@@ -582,7 +582,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'DynamicRole',
-    tableName: 'dynamic_roles',
+    tableName: 'sys_dynamic_roles',
     timestamps: true,
     underscored: true,
     scopes: {
