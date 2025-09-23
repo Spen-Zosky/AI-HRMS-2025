@@ -339,7 +339,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'Employee',
-    tableName: 'employees',
+    tableName: 'emp_employees',
     timestamps: true,
     paranoid: true,
     underscored: true,
