@@ -68,7 +68,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OrganizationMember',
-    tableName: 'organization_members',
+    tableName: 'org_organization_members',
     underscored: true,
     timestamps: true
   });
