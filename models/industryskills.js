@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'IndustrySkills',
-    tableName: 'industry_skills',
+    tableName: 'skl_industry_skills',
     underscored: true,
     timestamps: true
   });
