@@ -77,7 +77,7 @@ const getEmployees = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'first_name', 'last_name', 'email', 'phone', 'is_active'],
+          // Use model field mappings
           required: true
         },
         {
@@ -85,15 +85,15 @@ const getEmployees = async (req, res) => {
           as: 'manager',
           include: [{
             model: User,
-            as: 'user',
-            attributes: ['first_name', 'last_name', 'email']
+            as: 'user'
+            // Use model field mappings
           }],
           required: false
         },
         {
           model: Organization,
           as: 'organization',
-          attributes: ['name', 'slug'],
+          // Use model field mappings
           required: false
         }
       ],

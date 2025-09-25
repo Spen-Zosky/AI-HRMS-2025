@@ -21,8 +21,7 @@ class EmployeeService {
       include: [
         {
           model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'avatar', 'is_active']
+          as: 'user'
         },
         {
           model: Organization,
@@ -196,8 +195,7 @@ class EmployeeService {
         where: { manager_id: empId },
         include: [{
           model: User,
-          as: 'user',
-          attributes: ['first_name', 'last_name', 'email', 'avatar']
+          as: 'user'
         }]
       });
 

@@ -445,8 +445,8 @@ async function getTargetUser(identifier, identifierType = 'email') {
         whereClause[identifierType] = identifier;
 
         return await User.findOne({
-            where: whereClause,
-            attributes: ['id', 'email', 'first_name', 'last_name', 'role', 'tenant_id', 'is_active']
+            where: whereClause
+            // Use model field mappings
         });
     } catch (error) {
         logger.error('Target user lookup failed', { error: error.message, identifier });

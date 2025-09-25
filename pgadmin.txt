@@ -1,0 +1,51 @@
+# PostgreSQL Configuration for AI-HRMS-2025
+# Local Development Database
+
+# PostgreSQL Connection Settings
+PGHOST="127.0.0.1"
+PGPORT="5432"
+PGDATABASE="ai_hrms_2025"
+PGSUPERUSER="spen.zosky@gmail.com"
+PGSUPERPASS="P1s3ll0sky"
+
+# PostgreSQL Readonly User (for reporting/analytics)
+PGREADONLY="hrms_readonly"
+PGREADONLYPASS="readonly_password"
+
+# pgAdmin Configuration
+PGADMIN_DEFAULT_EMAIL="admin@aihrms.local"
+PGADMIN_DEFAULT_PASSWORD="pgadmin_secure_password"
+PGADMIN_LISTEN_PORT="5050"
+
+# OmniDB Configuration
+OMNIDB_PORT="8081"
+
+# Metabase Configuration
+MB_DB_TYPE="postgres"
+MB_DB_DBNAME="ai_hrms_2025"
+MB_DB_PORT="5432"
+MB_DB_USER="hrms_readonly"
+MB_DB_PASS="readonly_password"
+MB_DB_HOST="127.0.0.1"
+METABASE_PORT="3000"
+
+# SSL/TLS Configuration
+PGSSL="disable"
+PGSSLMODE="disable"
+PGSSLCERT=""
+PGSSLKEY=""
+PGSSLROOTCERT=""
+
+# Connection Pool Settings
+PGMAXCONNECTIONS="100"
+PGPOOLSIZE="20"
+
+# Notes:
+# - hrms_user is the application database user (not superuser)
+# - For production, use Supabase connection instead
+# - Production Supabase host: aws-1-eu-north-1.pooler.supabase.com:6543
+# - Create hrms_readonly user for read-only operations:
+#   CREATE USER hrms_readonly WITH PASSWORD 'readonly_password';
+#   GRANT CONNECT ON DATABASE ai_hrms_2025 TO hrms_readonly;
+#   GRANT USAGE ON SCHEMA public TO hrms_readonly;
+#   GRANT SELECT ON ALL TABLES IN SCHEMA public TO hrms_readonly;

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Auth Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.sysadmin {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .status.normal {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Session Authentication Testing</h1>
+    
+    <div class="status" id="currentStatus">
+        <strong>Current Status:</strong> <span id="statusText">Loading...</span>
+    </div>
+
+    <!-- Session Status -->
+    <div class="section">
+        <h2>1. Get Session Status</h2>
+        <button onclick="getStatus()">Check Session Status</button>
+        <div class="response" id="statusResponse"></div>
+    </div>
+
+    <!-- Logout Sysadmin -->
+    <div class="section">
+        <h2>2. Logout from Sysadmin (Switch to Normal Mode)</h2>
+        <button onclick="logoutSysadmin()">Logout from Sysadmin</button>
+        <div class="response" id="logoutResponse"></div>
+    </div>
+
+    <!-- Login Normal User -->
+    <div class="section">
+        <h2>3. Login as Normal User</h2>
+        <select id="userSelect" style="padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 300px;">
+            <option value="">Loading users...</option>
+        </select>
+        <input type="password" id="password" placeholder="Password" value="password123">
+        <button onclick="loginNormal()">Login</button>
+        <button onclick="loadUsers()" style="background-color: #6c757d;">Refresh Users</button>
+        <div class="response" id="loginResponse"></div>
+    </div>
+
+    <!-- Re-login Sysadmin -->
+    <div class="section">
+        <h2>4. Re-login as Sysadmin</h2>
+        <button onclick="reloginSysadmin()">Restore Sysadmin Mode</button>
+        <div class="response" id="reloginResponse"></div>
+    </div>
+
+    <!-- Logout Normal -->
+    <div class="section">
+        <h2>5. Logout from Normal User</h2>
+        <button onclick="logoutNormal()">Logout Normal User</button>
+        <div class="response" id="logoutNormalResponse"></div>
+    </div>
+
+    <!-- Get Sysadmin Config -->
+    <div class="section">
+        <h2>6. Get Sysadmin Configuration</h2>
+        <button onclick="getSysadminConfig()">Get Sysadmin Config</button>
+        <div class="response" id="configResponse"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+
+        async function makeRequest(url, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' // Important for cookies
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, error: error.message };
+            }
+        }
+
+        function updateStatus(mode, user) {
+            const statusDiv = document.getElementById('currentStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (mode === 'sysadmin') {
+                statusDiv.className = 'status sysadmin';
+                statusText.textContent = `SYSADMIN MODE - ${user || 'spen.zosky@gmail.com'}`;
+            } else if (mode === 'normal') {
+                statusDiv.className = 'status normal';
+                statusText.textContent = user ? `NORMAL MODE - ${user}` : 'NORMAL MODE - Not logged in';
+            }
+        }
+
+        async function getStatus() {
+            const result = await makeRequest(`${API_BASE}/api/session/status`);
+            document.getElementById('statusResponse').textContent = JSON.stringify(result.data, null, 2);
+            
+            if (result.ok && result.data.success) {
+                updateStatus(result.data.mode, result.data.user?.email);
+            }
+        }
+
+        async function logoutSysadmin() {
+            const result = await makeRequest(`${API_BASE}/api/session/sysadmin/logout`, 'POST');
+            document.getElementById('logoutResponse').textContent = JSON.stringify(result.data, null, 2);
+            await getStatus();
+        }
+
+        async function loadUsers() {
+            const select = document.getElementById('userSelect');
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            const result = await makeRequest(`${API_BASE}/api/session/users`);
+
+            if (result.ok && result.data.success) {
+                if (result.data.users.length === 0) {
+                    select.innerHTML = '<option value="">No users found - Create users first</option>';
+                } else {
+                    select.innerHTML = result.data.users.map(u =>
+                        `<option value="${u.email}">${u.name} (${u.role}) - ${u.email}</option>`
+                    ).join('');
+                }
+            } else {
+                select.innerHTML = '<option value="">Error loading users</option>';
+            }
+        }
+
+        async function loginNormal() {
+            const email = document.getElementById('userSelect').value;
+            const password = document.getElementById('password').value;
+
+            if (!email) {
+                document.getElementById('loginResponse').textContent = 'Please select a user first';
+                return;
+            }
+
+            const result = await makeRequest(`${API_BASE}/api/session/login`, 'POST', { email, password });
+            document.getElementById('loginResponse').textContent = JSON.stringify(result.data, null, 2);
+            await getStatus();
+        }
+
+        async function reloginSysadmin() {
+            const result = await makeRequest(`${API_BASE}/api/session/sysadmin/relogin`, 'POST');
+            document.getElementById('reloginResponse').textContent = JSON.stringify(result.data, null, 2);
+            await getStatus();
+        }
+
+        async function logoutNormal() {
+            const result = await makeRequest(`${API_BASE}/api/session/logout`, 'POST');
+            document.getElementById('logoutNormalResponse').textContent = JSON.stringify(result.data, null, 2);
+            await getStatus();
+        }
+
+        async function getSysadminConfig() {
+            const result = await makeRequest(`${API_BASE}/api/session/sysadmin/config`);
+            document.getElementById('configResponse').textContent = JSON.stringify(result.data, null, 2);
+        }
+
+        // Auto-load status and users on page load
+        window.addEventListener('load', async () => {
+            await getStatus();
+            await loadUsers();
+        });
+    </script>
+</body>
+</html>

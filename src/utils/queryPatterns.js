@@ -64,7 +64,7 @@ class QueryPatterns {
       {
         model: User,
         as: 'user',
-        attributes: ['id', 'first_name', 'last_name', 'email', 'avatar']
+        attributes: ['id', 'first_name', 'last_name', 'email', 'profile_picture_url']
       },
       {
         model: Employee,
@@ -82,7 +82,7 @@ class QueryPatterns {
         include: [{
           model: User,
           as: 'user',
-          attributes: ['first_name', 'last_name', 'email', 'avatar']
+          attributes: ['first_name', 'last_name', 'email', 'profile_picture_url']
         }],
         required: false
       }
@@ -95,7 +95,7 @@ class QueryPatterns {
       {
         model: User,
         as: 'user',
-        attributes: ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'avatar', 'is_active']
+        attributes: ['id', 'email', 'first_name', 'last_name', 'phone', 'profile_picture_url', 'is_active']
       },
       {
         model: Employee,
@@ -106,7 +106,7 @@ class QueryPatterns {
       {
         model: Organization,
         as: 'organization',
-        attributes: ['organization_id', 'name', 'slug']
+        // Use model field mappings - organization_id maps to org_id
       }
     ];
   }
@@ -266,7 +266,7 @@ class QueryPatterns {
         {
           model: User,
           as: 'user',
-          attributes: ['first_name', 'last_name', 'email', 'avatar']
+          attributes: ['first_name', 'last_name', 'email', 'profile_picture_url']
         }
       ]
     };

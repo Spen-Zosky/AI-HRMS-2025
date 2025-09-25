@@ -196,8 +196,8 @@ const getLeaveRequests = async (req, res) => {
             as: 'employee',
             include: [{
                 model: User,
-                as: 'user',
-                attributes: ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
+                as: 'user'
+                // Use model field mappings
             }]
         }];
 
@@ -211,8 +211,8 @@ const getLeaveRequests = async (req, res) => {
         } else if (authResult.permissionLevel <= 20) { // READ_TEAM/WRITE_TEAM
             const managerEmployee = await Employee.findOne({ where: { userId: requestor.id } });
             const subordinates = await Employee.findAll({
-                where: { managerId: managerEmployee?.id },
-                attributes: ['id']
+                where: { managerId: managerEmployee?.id }
+                // Use model field mappings
             });
 
             const employeeIds = subordinates.map(emp => emp.id);
@@ -482,8 +482,8 @@ const getLeaveBalance = async (req, res) => {
         const employee = await Employee.findByPk(targetEmployeeId, {
             include: [{
                 model: User,
-                as: 'user',
-                attributes: ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
+                as: 'user'
+                // Use model field mappings
             }]
         });
 

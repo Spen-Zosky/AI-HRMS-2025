@@ -53,7 +53,7 @@ const getOrganizations = async (req, res) => {
         {
           model: Tenant,
           as: 'tenant',
-          attributes: ['tenant_name', 'tenant_slug'],
+          // Use model field mappings
           required: false
         },
         {
@@ -147,8 +147,8 @@ const getOrganizationById = async (req, res) => {
           as: 'members',
           include: [{
             model: User,
-            as: 'user',
-            attributes: ['id', 'first_name', 'last_name', 'email', 'role']
+            as: 'user'
+            // Use model field mappings
           }]
         }
       ]

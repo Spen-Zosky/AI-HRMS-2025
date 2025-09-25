@@ -28,8 +28,8 @@ const addTenantContext = async (req, res, next) => {
       const subdomain = req.headers.host.split('.')[0];
       if (subdomain && subdomain !== 'www' && subdomain !== process.env.MAIN_DOMAIN) {
         const org = await Organization.findOne({
-          where: { slug: subdomain },
-          attributes: ['org_id', 'org_name', 'org_is_active']
+          where: { slug: subdomain }
+          // Use model field mappings
         });
 
         if (org && org.org_is_active) {
@@ -73,12 +73,8 @@ const addTenantContext = async (req, res, next) => {
 
     // Load tenant information if tenant ID is available
     if (tenantId) {
-      const tenant = await Organization.findByPk(tenantId, {
-        attributes: [
-          'org_id', 'org_name', 'org_slug', 'org_domain', 'org_industry', 'org_employee_count_range',
-          'org_primary_timezone', 'org_primary_currency_code', 'org_settings', 'org_subscription_plan', 'org_subscription_status'
-        ]
-      });
+      const tenant = await Organization.findByPk(tenantId);
+      // Use model field mappings
 
       if (tenant && tenant.org_subscription_status === 'active') {
         req.tenant = tenant;

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const logger = require('./src/utils/logger');
 const { connectDB } = require('./config/database');
@@ -9,6 +10,10 @@ const { connectDB } = require('./config/database');
 // Import i18n services and middleware
 const i18nService = require('./src/services/i18nService');
 const { i18nMiddleware, localizedResponse, validateLanguage } = require('./src/middleware/i18nMiddleware');
+
+// Import session authentication
+const { initializeSession, attachSysadminContext, logSessionActivity } = require('./src/middleware/sessionAuth');
+const sessionAuthRoutes = require('./src/routes/sessionAuthRoutes');
 
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
@@ -29,9 +34,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet());
-app.use(cors());
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for testing
+}));
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
+
+// Session authentication middleware (auto-login as sysadmin)
+app.use(initializeSession);
+app.use(attachSysadminContext);
+app.use(logSessionActivity('API_REQUEST'));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -60,6 +76,7 @@ app.get('/health', async (req, res) => {
 });
 
 // API Routes
+app.use('/api/session', sessionAuthRoutes); // Session authentication routes (sysadmin toggle)
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/leave', leaveRoutes);
@@ -73,6 +90,11 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api', templateRoutes);
+
+// Serve test HTML file directly
+app.get('/test-session-auth.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-session-auth.html'));
+});
 
 // Serve static files from frontend build
 app.use(express.static(path.join(__dirname, 'frontend/dist')));

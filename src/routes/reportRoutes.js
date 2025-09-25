@@ -383,7 +383,6 @@ router.post('/hrm-create-folder', authenticateToken, requireRole('hr', 'admin'),
         // Complete user lookup with proper associations using corrected field names
         const users = await User.findAll({
             where: searchConditions,
-            attributes: ['id', 'first_name', 'last_name', 'email', 'role', 'is_active', 'employee_id', 'hire_date', 'status', 'birth_date', 'phone', 'address', 'emergency_contact', 'profile_picture_url'],
             include: [
                 {
                     model: OrganizationMember,
@@ -393,16 +392,14 @@ router.post('/hrm-create-folder', authenticateToken, requireRole('hr', 'admin'),
                     include: [
                         {
                             model: Organization,
-                            as: 'organization',
-                            attributes: ['organization_id', 'name', 'slug', 'domain', 'industry', 'size']
+                            as: 'organization'
                         }
                     ]
                 },
                 {
                     model: Employee,
                     as: 'employeeProfile',
-                    required: false,
-                    attributes: ['id', 'position', 'startDate', 'salary', 'status', 'vacationBalance', 'sickBalance']
+                    required: false
                 }
             ]
         });

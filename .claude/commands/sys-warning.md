@@ -36,12 +36,6 @@ These rules are **NON-NEGOTIABLE** and must be followed without exception.
 
 #### **3. DATABASE FIELD NAMING STANDARDS**
 - **ALWAYS** use "talking" field names with table prefixes:
-  - `user_*` for users table fields
-  - `org_*` for organizations table fields
-  - `emp_*` for employees table fields
-  - `dept_*` for departments table fields
-  - `leave_*` for leave management fields
-  - `audit_*` for audit trail fields
 - **NEVER** use ambiguous field names like `id`, `name`, `status`
 - **ALWAYS** make field names self-explanatory
 
@@ -72,8 +66,7 @@ These rules are **NON-NEGOTIABLE** and must be followed without exception.
 #### **8. DOCUMENTATION REQUIREMENTS**
 - **ALWAYS** update documentation when making changes
 - **NEVER** leave undocumented modifications
-- **ALWAYS** maintain source of truth files
-- **NEVER** assume knowledge without documentation
+- **ALWAYS** maintain and update documentation that can be considered a "source of truth"
 
 ---
 ## 🔒 ABSOLUTE BEHAVIORAL PROHIBITIONS - ZERO TOLERANCE
@@ -109,10 +102,9 @@ These rules are **NON-NEGOTIABLE** and must be followed without exception.
    - ❌ **BANNED**: Making assumptions about current state of any object
 
 ### 3. **DOCUMENTATION COMPLIANCE**
-   - ✅ **REQUIRED**: Consult project documentation for relevant procedures
+   - ✅ **REQUIRED**: Consult project documentation when available
    - ✅ **REQUIRED**: Check configuration files for constraints
    - ✅ **REQUIRED**: Verify against established patterns and standards
-   - ❌ **BANNED**: Ignoring existing documentation
 
 ### 4. **IMPLEMENTATION PLANNING**
    - ✅ **REQUIRED**: Present detailed step-by-step plan
@@ -226,11 +218,11 @@ Waiting for your approval to execute the plan above.
 ## **🎯 REQUIRED SOURCE OF TRUTH FILES**
 
 ### **Must Be Consulted Before Any Changes:**
-1. **Database Complete Guide** - Comprehensive database structure, schema, and naming standards
+1. **Database Complete** - Comprehensive database structure, schema, and naming standards
 2. **Organization Environment System** - Multi-tenant environment protection system
-3. **Platform Architecture Guide** - Complete technical specifications and API documentation
-4. **Development Progress Tracker** - Current implementation status and guidelines
-5. **Project Structure Guide** - File organization and navigation
+3. **Platform Architecture** - Complete technical specifications and API documentation
+4. **Development Progress** - Current implementation status and guidelines
+5. **Project Structure** - File organization and navigation
 
 ---
 

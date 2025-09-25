@@ -14,8 +14,7 @@ const dashboardController = {
           model: User,
           as: 'user',
           where: {
-            is_active: true,
-            status: 'active'
+            is_active: true
           }
         }],
         where: {
@@ -63,21 +62,13 @@ const dashboardController = {
           as: 'employee',
           include: [{
             model: User,
-            as: 'user',
-            attributes: ['first_name', 'last_name']
+            as: 'user'
+            // Use model field mappings
           }]
         }],
         order: [['created_at', 'DESC']],
         limit,
-        attributes: [
-          'id',
-          'start_date',
-          'end_date',
-          'type',
-          'status',
-          'days_requested',
-          'reason'
-        ]
+        // Use model field mappings for LeaveRequest
       });
 
       const formattedLeaves = recentLeaves.map(leave => ({

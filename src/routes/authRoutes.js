@@ -21,8 +21,7 @@ router.post('/login', async (req, res) => {
 
         // Trova utente nel database
         const user = await User.findOne({
-            where: { email: email.toLowerCase() },
-            attributes: ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'is_active', 'is_sysadmin', 'employee_id', 'hire_date', 'status', 'birth_date', 'phone', 'address', 'emergency_contact', 'profile_picture_url']
+            where: { email: email.toLowerCase() }
         });
 
         if (!user || !user.is_active) {
@@ -112,7 +111,6 @@ router.get('/test-users', async (req, res) => {
 
     try {
         const users = await User.findAll({
-            attributes: ['email', 'role', 'first_name', 'last_name', 'birth_date', 'phone', 'employee_id'],
             where: { is_active: true }
         });
 

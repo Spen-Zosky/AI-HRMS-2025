@@ -80,7 +80,6 @@ router.post('/', authenticateToken, async (req, res) => {
       organization_id: organization.organization_id,
       user_id: req.user.id,
       role: 'owner',
-      is_primary: true,
       permissions: {
         admin: true,
         manage_users: true,
@@ -142,11 +141,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.get('/current', authenticateToken, requireTenant, async (req, res) => {
   try {
     const organization = await Organization.findByPk(req.tenantId, {
-      attributes: [
-        'organization_id', 'name', 'slug', 'domain', 'industry', 'size',
-        'country', 'timezone', 'currency', 'settings', 'subscription_plan',
-        'subscription_status', 'trial_ends_at', 'created_at'
-      ],
+      // Use model field mappings for organization attributes
       include: [{
         model: OrganizationMember,
         as: 'members',
@@ -154,9 +149,9 @@ router.get('/current', authenticateToken, requireTenant, async (req, res) => {
         include: [{
           model: User,
           as: 'user',
-          attributes: ['id', 'first_name', 'last_name', 'email', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
+          // Use model field mappings
         }],
-        attributes: ['member_id', 'role', 'department', 'is_primary', 'joined_at'],
+        attributes: ['member_id', 'role', 'department', 'joined_at'],
         limit: 10 // Limit to prevent large responses
       }]
     });
@@ -239,13 +234,7 @@ router.put('/current', authenticateToken, requireTenant, async (req, res) => {
       where: { organization_id: req.tenantId }
     });
 
-    const updatedOrg = await Organization.findByPk(req.tenantId, {
-      attributes: [
-        'organization_id', 'name', 'slug', 'domain', 'industry', 'size',
-        'country', 'timezone', 'currency', 'settings', 'subscription_plan',
-        'subscription_status', 'updated_at'
-      ]
-    });
+    const updatedOrg = await Organization.findByPk(req.tenantId);
 
     logger.info(`Organization updated: ${updatedOrg.name}`, {
       organization_id: req.tenantId,
@@ -292,15 +281,15 @@ router.get('/members', authenticateToken, requireTenant, async (req, res) => {
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'first_name', 'last_name', 'email', 'is_active', 'phone', 'birth_date', 'address', 'emergency_contact', 'profile_picture_url']
+        // Use model field mappings
       }],
       attributes: [
-        'member_id', 'role', 'permissions', 'department', 'is_primary',
+        'member_id', 'role', 'permissions', 'department',
         'joined_at', 'status'
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['is_primary', 'DESC'], ['joined_at', 'ASC']]
+      order: [['joined_at', 'ASC']]
     });
 
     res.json({
