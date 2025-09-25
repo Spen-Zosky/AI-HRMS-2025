@@ -14,7 +14,7 @@ set -euo pipefail
 
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
 
 # Load configuration
 if [[ -f "${SCRIPT_DIR}/supabase-config.env" ]]; then

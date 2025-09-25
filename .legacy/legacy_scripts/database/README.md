@@ -12,7 +12,7 @@ nano supabase-config.env  # Update with your credentials
 
 2. **Run the main sync manager:**
 ```bash
-./supabase-sync.sh
+./.legacy/legacy_scripts/database/supabase-sync.sh
 ```
 
 ## Scripts Overview
@@ -38,27 +38,27 @@ nano supabase-config.env  # Update with your credentials
 
 ```bash
 # Interactive mode
-./supabase-sync.sh
+./.legacy/legacy_scripts/database/supabase-sync.sh
 
 # Direct commands
-./supabase-push.sh --dry-run
-./supabase-pull.sh --preserve-local
-./supabase-backup.sh --source local --type full
-./supabase-validate.sh --check schema
+./.legacy/legacy_scripts/database/supabase-push.sh --dry-run
+./.legacy/legacy_scripts/database/supabase-pull.sh --preserve-local
+./.legacy/legacy_scripts/database/supabase-backup.sh --source local --type full
+./.legacy/legacy_scripts/database/supabase-validate.sh --check schema
 ```
 
 ### Advanced Operations
 
 ```bash
 # Schema-only sync
-./supabase-push.sh --schema-only
+./.legacy/legacy_scripts/database/supabase-push.sh --schema-only
 
 # Specific tables
-./supabase-push.sh --tables "users,employees"
+./.legacy/legacy_scripts/database/supabase-push.sh --tables "users,employees"
 
 # With backup
-./supabase-backup.sh --source supabase --type full
-./supabase-push.sh --force
+./.legacy/legacy_scripts/database/supabase-backup.sh --source supabase --type full
+./.legacy/legacy_scripts/database/supabase-push.sh --force
 ```
 
 ## Safety Features
@@ -117,7 +117,7 @@ LOCAL_DB_PASSWORD="your-local-password"
 ### Development Workflow
 ```bash
 # 1. Pull latest from production
-./supabase-pull.sh --preserve-local
+./.legacy/legacy_scripts/database/supabase-pull.sh --preserve-local
 
 # 2. Make development changes
 # ... work on features ...
@@ -126,26 +126,26 @@ LOCAL_DB_PASSWORD="your-local-password"
 npm test
 
 # 4. Push to staging
-./supabase-push.sh --dry-run
-./supabase-push.sh
+./.legacy/legacy_scripts/database/supabase-push.sh --dry-run
+./.legacy/legacy_scripts/database/supabase-push.sh
 ```
 
 ### Production Deployment
 ```bash
 # 1. Backup production
-./supabase-backup.sh --source supabase --type full
+./.legacy/legacy_scripts/database/supabase-backup.sh --source supabase --type full
 
 # 2. Validate local changes
-./supabase-validate.sh
+./.legacy/legacy_scripts/database/supabase-validate.sh
 
 # 3. Dry run
-./supabase-push.sh --dry-run > deployment_plan.txt
+./.legacy/legacy_scripts/database/supabase-push.sh --dry-run > deployment_plan.txt
 
 # 4. Execute deployment
-./supabase-push.sh --force
+./.legacy/legacy_scripts/database/supabase-push.sh --force
 
 # 5. Validate
-./supabase-validate.sh
+./.legacy/legacy_scripts/database/supabase-validate.sh
 ```
 
 ## Troubleshooting
@@ -160,8 +160,8 @@ npm test
 ### Getting Help
 
 1. Check the logs: `tail -f logs/supabase_sync_*.log`
-2. Run validation: `./supabase-validate.sh --detailed`
-3. Compare schemas: `./supabase-diff.sh --detailed`
+2. Run validation: `./.legacy/legacy_scripts/database/supabase-validate.sh --detailed`
+3. Compare schemas: `./.legacy/legacy_scripts/database/supabase-diff.sh --detailed`
 4. Review comprehensive guide: `docs/07_DEPLOYMENT/SUPABASE_SYNC_GUIDE.md`
 
 ## Security Notes

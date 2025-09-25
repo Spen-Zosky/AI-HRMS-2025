@@ -114,14 +114,14 @@ supabase link --project-ref your-project-ref
 
 3. **Set permissions:**
 ```bash
-chmod +x scripts/supabase-*.sh
+chmod +x .legacy/legacy_scripts/database/supabase-*.sh
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-Edit `scripts/supabase-config.env`:
+Edit `.legacy/legacy_scripts/database/supabase-config.env`:
 
 ```bash
 # Local Database
@@ -305,7 +305,7 @@ For development environments:
 ./supabase-pull.sh --anonymize
 
 # Anonymize existing local data
-./scripts/anonymize-data.sh
+./.legacy/legacy_scripts/database/anonymize-data.sh
 ```
 
 ### Selective Sync
@@ -505,18 +505,18 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
-          cp scripts/supabase-config.env.example scripts/supabase-config.env
-          sed -i "s/your-project-ref/$SUPABASE_PROJECT_REF/" scripts/supabase-config.env
-          sed -i "s/your-supabase-password/$SUPABASE_DB_PASSWORD/" scripts/supabase-config.env
+          cp .legacy/legacy_scripts/database/supabase-config.env.example .legacy/legacy_scripts/database/supabase-config.env
+          sed -i "s/your-project-ref/$SUPABASE_PROJECT_REF/" .legacy/legacy_scripts/database/supabase-config.env
+          sed -i "s/your-supabase-password/$SUPABASE_DB_PASSWORD/" .legacy/legacy_scripts/database/supabase-config.env
 
       - name: Run validation
-        run: ./scripts/supabase-validate.sh
+        run: ./.legacy/legacy_scripts/database/supabase-validate.sh
 
       - name: Sync database
         if: github.ref == 'refs/heads/main'
         run: |
-          ./scripts/supabase-backup.sh --source supabase --type full
-          ./scripts/supabase-push.sh --force
+          ./.legacy/legacy_scripts/database/supabase-backup.sh --source supabase --type full
+          ./.legacy/legacy_scripts/database/supabase-push.sh --force
 ```
 
 ### GitLab CI
@@ -526,9 +526,9 @@ database-sync:
   stage: deploy
   script:
     - apt-get update && apt-get install -y postgresql-client jq
-    - ./scripts/supabase-validate.sh
-    - ./scripts/supabase-push.sh --dry-run
-    - ./scripts/supabase-push.sh
+    - ./.legacy/legacy_scripts/database/supabase-validate.sh
+    - ./.legacy/legacy_scripts/database/supabase-push.sh --dry-run
+    - ./.legacy/legacy_scripts/database/supabase-push.sh
   only:
     - main
   environment:
@@ -581,7 +581,7 @@ tail -f logs/supabase_sync_*.log
 
 ```bash
 # Create monitoring script
-cat > scripts/monitor-sync.sh <<'EOF'
+cat > .legacy/legacy_scripts/database/monitor-sync.sh <<'EOF'
 #!/bin/bash
 # Check sync status
 ./supabase-validate.sh --quiet
@@ -593,7 +593,7 @@ EOF
 
 # Add to cron
 crontab -e
-# Add: 0 */6 * * * /path/to/scripts/monitor-sync.sh
+# Add: 0 */6 * * * /path/to/.legacy/legacy_scripts/database/monitor-sync.sh
 ```
 
 ## Appendix
