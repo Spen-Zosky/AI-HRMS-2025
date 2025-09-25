@@ -97,7 +97,16 @@
       "Bash(docker compose:*)",
       "Bash(sudo docker ps:*)",
       "Bash(netstat:*)",
-      "Bash(ss:*)"
+      "Bash(ss:*)",
+      "Bash(.legacy/legacy_scripts/database/supabase-stage.sh status:*)",
+      "Bash(.legacy/legacy_scripts/database/supabase-stage.sh:*)",
+      "Bash(.legacy/legacy_scripts/database/supabase-safe-push.sh:*)",
+      "Bash(.legacy/legacy_scripts/database/supabase-safe-pull.sh:*)",
+      "Bash(.legacy/legacy_scripts/database/supabase-sync.sh:*)",
+      "mcp__playwright__browser_click",
+      "Read(///**)",
+      "Bash(PORT=3001 node server.js)",
+      "Bash(xargs kill:*)"
     ],
     "deny": [],
     "ask": []

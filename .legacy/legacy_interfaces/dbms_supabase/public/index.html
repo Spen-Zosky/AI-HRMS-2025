@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darling DBMS Console</title>
+    <link rel="stylesheet" href="darling-theme.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="darling-app">
+        <!-- Header -->
+        <header class="darling-header">
+            <div class="darling-logo">
+                <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <path d="M12 8v8M8 12h8"/>
+                </svg>
+                Darling DBMS
+            </div>
+
+            <nav class="darling-nav">
+                <a href="#dashboard" class="darling-nav-item active">Dashboard</a>
+                <a href="#migrations" class="darling-nav-item">Migrations</a>
+                <a href="#seeders" class="darling-nav-item">Seeders</a>
+                <a href="#supabase" class="darling-nav-item">Supabase</a>
+                <a href="#query" class="darling-nav-item">Query</a>
+                <a href="#logs" class="darling-nav-item">Logs</a>
+            </nav>
+
+            <div class="darling-header-actions">
+                <div class="darling-dropdown">
+                    <button class="darling-btn darling-btn-secondary">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 7h16M4 12h16M4 17h16"/>
+                        </svg>
+                    </button>
+                    <div class="darling-dropdown-content">
+                        <div class="darling-dropdown-item">Settings</div>
+                        <div class="darling-dropdown-item">Export Logs</div>
+                        <div class="darling-dropdown-item">Documentation</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="darling-sidebar">
+            <div class="darling-sidebar-section">
+                <h3 class="darling-sidebar-title">Environment</h3>
+                <div class="darling-form-group">
+                    <select class="darling-select" id="environment-select">
+                        <option value="development">Development</option>
+                        <option value="staging">Staging</option>
+                        <option value="production">Production</option>
+                        <option value="local">Local</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="darling-sidebar-section">
+                <h3 class="darling-sidebar-title">Database Operations</h3>
+                <div class="darling-command-group">
+                    <div class="darling-command-item active" data-section="dashboard">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        Overview
+                    </div>
+                    <div class="darling-command-item" data-section="migrations">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                        Migrations
+                    </div>
+                    <div class="darling-command-item" data-section="seeders">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6"/>
+                        </svg>
+                        Seeders
+                    </div>
+                    <div class="darling-command-item" data-section="supabase">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="7.5,4.21 12,6.81 16.5,4.21"/>
+                            <polyline points="7.5,19.79 7.5,14.6 3,12"/>
+                            <polyline points="21,12 16.5,14.6 16.5,19.79"/>
+                        </svg>
+                        Supabase Sync
+                    </div>
+                    <div class="darling-command-item" data-section="query">
+                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        Execute Query
+                    </div>
+                </div>
+            </div>
+
+            <div class="darling-sidebar-section">
+                <h3 class="darling-sidebar-title">Quick Actions</h3>
+                <button class="darling-btn darling-btn-primary darling-mb-sm" style="width: 100%;" id="run-migrations">
+                    Run Migrations
+                </button>
+                <button class="darling-btn darling-btn-secondary darling-mb-sm" style="width: 100%;" id="seed-data">
+                    Seed Data
+                </button>
+                <button class="darling-btn darling-btn-warning" style="width: 100%;" id="refresh-all">
+                    Refresh All
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="darling-main">
+            <div class="darling-content">
+                <!-- Dashboard Overview -->
+                <div class="darling-dashboard">
+                    <!-- Connection Status Widget -->
+                    <div class="darling-widget" id="connection-status-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Connection Status</h3>
+                            <span class="darling-status darling-status-info">Connecting...</span>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Database URL</label>
+                                <div class="darling-code">Loading...</div>
+                            </div>
+                            <div class="darling-flex darling-justify-between darling-text-sm darling-text-secondary">
+                                <span>Active: --</span>
+                                <span>Uptime: --</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Command Execution Widget -->
+                    <div class="darling-widget" id="command-execution-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Command Execution</h3>
+                            <button class="darling-btn darling-btn-secondary darling-btn-sm" id="clear-query">
+                                Clear
+                            </button>
+                        </div>
+                        <div class="darling-widget-content">
+                            <form class="darling-form" id="query-form">
+                                <div class="darling-form-group">
+                                    <label class="darling-label">Command Type</label>
+                                    <select class="darling-select" id="command-type">
+                                        <option value="query">SQL Query</option>
+                                        <option value="migration">Migration</option>
+                                        <option value="seeder">Seeder</option>
+                                    </select>
+                                </div>
+                                <div class="darling-form-group">
+                                    <label class="darling-label">SQL Command</label>
+                                    <div class="darling-code" contenteditable="true" id="sql-editor" style="min-height: 100px;">
+SELECT * FROM employees
+WHERE department = 'Engineering'
+ORDER BY created_at DESC
+LIMIT 10;
+                                    </div>
+                                </div>
+                                <div class="darling-flex darling-gap-sm">
+                                    <button type="submit" class="darling-btn darling-btn-primary">
+                                        <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5,3 19,12 5,21 5,3"/>
+                                        </svg>
+                                        Execute
+                                    </button>
+                                    <button type="button" class="darling-btn darling-btn-secondary" id="validate-query">
+                                        Validate
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Performance Monitoring Widget -->
+                    <div class="darling-widget" id="performance-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Performance Monitor</h3>
+                            <span class="darling-status darling-status-info">Monitoring</span>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label darling-mb-sm">CPU Usage</label>
+                                <div class="darling-progress">
+                                    <div class="darling-progress-bar" style="width: 45%;"></div>
+                                </div>
+                                <div class="darling-text-xs darling-text-secondary darling-flex darling-justify-between">
+                                    <span>45%</span>
+                                    <span>4 cores</span>
+                                </div>
+                            </div>
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label darling-mb-sm">Memory</label>
+                                <div class="darling-progress">
+                                    <div class="darling-progress-bar" style="width: 68%; background: var(--accent-warning);"></div>
+                                </div>
+                                <div class="darling-text-xs darling-text-secondary darling-flex darling-justify-between">
+                                    <span>68%</span>
+                                    <span>8GB / 12GB</span>
+                                </div>
+                            </div>
+                            <div class="darling-form-group">
+                                <label class="darling-label darling-mb-sm">Active Connections</label>
+                                <div class="darling-text-lg darling-text-primary">-- / 200</div>
+                                <div class="darling-text-xs darling-text-secondary">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Widget -->
+                    <div class="darling-widget" id="recent-activity-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Recent Activity</h3>
+                            <button class="darling-btn darling-btn-secondary darling-btn-sm" id="refresh-activity">
+                                <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1,4 1,10 7,10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-code" style="max-height: 200px;">
+Loading recent activity...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Schema Widget -->
+                    <div class="darling-widget" id="schema-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Schema Overview</h3>
+                            <div class="darling-flex darling-gap-sm">
+                                <span class="darling-status darling-status-info">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="darling-widget-content">
+                            <table class="darling-table">
+                                <thead>
+                                    <tr>
+                                        <th>Table</th>
+                                        <th>Rows</th>
+                                        <th>Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="3">Loading schema information...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Migration Status Widget -->
+                    <div class="darling-widget" id="migration-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Migration Status</h3>
+                            <span class="darling-status darling-status-info">Checking...</span>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Current Version</label>
+                                <div class="darling-text-lg darling-text-primary">Loading...</div>
+                            </div>
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Pending Migrations</label>
+                                <div class="darling-text-lg darling-text-info">--</div>
+                            </div>
+                            <div class="darling-flex darling-gap-sm">
+                                <button class="darling-btn darling-btn-primary" id="execute-migrations">
+                                    Run Migrations
+                                </button>
+                                <button class="darling-btn darling-btn-secondary" id="migration-history">
+                                    History
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seeder Management Widget -->
+                    <div class="darling-widget" id="seeder-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Seeder Management</h3>
+                            <span class="darling-status darling-status-info">Loading...</span>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Available Seeders</label>
+                                <select class="darling-select" id="seeder-select" multiple>
+                                    <option>Loading seeders...</option>
+                                </select>
+                            </div>
+                            <div class="darling-flex darling-gap-sm">
+                                <button class="darling-btn darling-btn-success" id="run-seeders">
+                                    Run Selected
+                                </button>
+                                <button class="darling-btn darling-btn-warning" id="run-all-seeders">
+                                    Run All
+                                </button>
+                                <button class="darling-btn darling-btn-error" id="undo-seeders">
+                                    Undo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Logs Widget -->
+                    <div class="darling-widget" id="audit-logs-widget">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Audit Logs</h3>
+                            <button class="darling-btn darling-btn-secondary darling-btn-sm" id="export-logs">
+                                Export
+                            </button>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-code" style="max-height: 200px;">
+Loading audit logs...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Supabase Synchronization Widget -->
+                    <div class="darling-widget" id="supabase-sync-widget" style="display: none;">
+                        <div class="darling-widget-header">
+                            <h3 class="darling-widget-title">Supabase Synchronization</h3>
+                            <span class="darling-status darling-status-info" id="sync-status">Ready</span>
+                        </div>
+                        <div class="darling-widget-content">
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Sync Status</label>
+                                <div class="darling-flex darling-gap-sm darling-items-center">
+                                    <span id="staged-status" class="darling-text-secondary">⚪ Not Staged</span>
+                                    <span>→</span>
+                                    <span id="committed-status" class="darling-text-secondary">⚪ Not Committed</span>
+                                    <span>→</span>
+                                    <span id="pushed-status" class="darling-text-secondary">⚪ Not Pushed</span>
+                                </div>
+                            </div>
+
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Current State</label>
+                                <div class="darling-code" style="min-height: 60px;" id="sync-state-info">
+Loading sync status...
+                                </div>
+                            </div>
+
+                            <div class="darling-form-group darling-mb-md">
+                                <label class="darling-label">Commit Message</label>
+                                <input type="text" class="darling-input" id="commit-message"
+                                       placeholder="Push current HRMS database state with 97 tables"
+                                       value="Push current HRMS database state with 97 tables">
+                            </div>
+
+                            <div class="darling-flex darling-gap-sm darling-items-center darling-mb-md">
+                                <button class="darling-btn darling-btn-primary" id="stage-db">
+                                    <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                        <polyline points="17,21 17,13 7,13 7,21"/>
+                                        <polyline points="7,3 7,8 15,8"/>
+                                    </svg>
+                                    Stage
+                                </button>
+                                <button class="darling-btn darling-btn-secondary" id="commit-changes">
+                                    <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12,6 12,12 16,14"/>
+                                    </svg>
+                                    Commit
+                                </button>
+                                <button class="darling-btn darling-btn-success" id="push-to-supabase">
+                                    <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                        <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                    </svg>
+                                    Push to Supabase
+                                </button>
+                            </div>
+
+                            <div class="darling-flex darling-gap-sm darling-items-center darling-mb-md">
+                                <button class="darling-btn darling-btn-warning darling-btn-sm" id="dry-run-push">
+                                    Dry Run
+                                </button>
+                                <button class="darling-btn darling-btn-info darling-btn-sm" id="pull-from-supabase">
+                                    <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                        <polyline points="12,2.69 20.73,6.96 12,11.23"/>
+                                        <line x1="12" y1="2.69" x2="12" y2="11.23"/>
+                                    </svg>
+                                    Pull from Supabase
+                                </button>
+                                <button class="darling-btn darling-btn-secondary darling-btn-sm" id="refresh-sync-status">
+                                    Refresh
+                                </button>
+                            </div>
+
+                            <div class="darling-form-group">
+                                <label class="darling-label">Output Log</label>
+                                <div class="darling-code" style="max-height: 200px; min-height: 100px;" id="sync-output">
+Ready to execute Supabase synchronization commands...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="darling-footer">
+            <div class="darling-footer-left">
+                <div class="darling-connection-status">
+                    <div class="darling-connection-dot"></div>
+                    <span>Connecting...</span>
+                </div>
+                <span>|</span>
+                <span id="last-sync">Last sync: --</span>
+                <span>|</span>
+                <span id="active-operations">Active operations: 0</span>
+            </div>
+            <div class="darling-footer-right">
+                <span>v1.0.0</span>
+                <span>•</span>
+                <span id="latency">--ms</span>
+                <span>•</span>
+                <span>
+                    <svg class="darling-command-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    system
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="darling-config.js"></script>
+    <script src="api-client.js"></script>
+    <script src="darling-console.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

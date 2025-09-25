@@ -24,35 +24,43 @@ else
     exit 1
 fi
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
-WHITE='\033[1;37m'
-NC='\033[0m' # No Color
+# Load enhanced progress utilities
+source "${SCRIPT_DIR}/supabase-progress-utils.sh"
 
-# Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-    [[ "$LOG_TO_FILE" == "true" ]] && echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] $1" >> "${LOG_DIR}/supabase_sync_$(date +%Y%m%d).log"
+# Load connection resilience system
+source "${SCRIPT_DIR}/supabase-connection-resilience.sh"
+
+# Initialize logging directory
+mkdir -p "${LOG_DIR}"
+
+# File logging function
+log_to_file() {
+    local level="$1"
+    local message="$2"
+    if [[ "$LOG_TO_FILE" == "true" ]]; then
+        echo "[$(date +'%Y-%m-%d %H:%M:%S')] [$level] $message" >> "${LOG_DIR}/supabase_sync_$(date +%Y%m%d).log"
+    fi
 }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-    [[ "$LOG_TO_FILE" == "true" ]] && echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] $1" >> "${LOG_DIR}/supabase_sync_$(date +%Y%m%d).log"
+# Enhanced logging functions that combine visual output with file logging
+sync_log_info() {
+    log_to_file "INFO" "$1"
+    log_info "$1"  # From progress-utils
 }
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-    [[ "$LOG_TO_FILE" == "true" ]] && echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARNING] $1" >> "${LOG_DIR}/supabase_sync_$(date +%Y%m%d).log"
+sync_log_success() {
+    log_to_file "SUCCESS" "$1"
+    log_success "$1"  # From progress-utils
 }
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-    [[ "$LOG_TO_FILE" == "true" ]] && echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "${LOG_DIR}/supabase_sync_$(date +%Y%m%d).log"
+sync_log_warning() {
+    log_to_file "WARNING" "$1"
+    log_warning "$1"  # From progress-utils
+}
+
+sync_log_error() {
+    log_to_file "ERROR" "$1"
+    log_error "$1"  # From progress-utils
 }
 
 # Create necessary directories
@@ -73,58 +81,83 @@ check_prerequisites() {
     command -v jq >/dev/null 2>&1 || missing_tools+=("jq")
 
     if [[ ${#missing_tools[@]} -gt 0 ]]; then
-        log_error "Missing required tools: ${missing_tools[*]}"
+        sync_log_error "Missing required tools: ${missing_tools[*]}"
         echo "Please install the missing tools and try again."
         exit 1
     fi
 
-    # Check database connectivity
-    log_info "Checking database connectivity..."
+    # Initialize connection resilience system
+    init_connection_resilience
 
-    # Check local database
-    if PGPASSWORD="${LOCAL_DB_PASSWORD}" psql -h "${LOCAL_DB_HOST}" -p "${LOCAL_DB_PORT}" -U "${LOCAL_DB_USER}" -d "${LOCAL_DB_NAME}" -c "SELECT 1" >/dev/null 2>&1; then
-        log_success "Local database connection successful"
+    # Register database connections
+    sync_log_info "Registering database connections..."
+    register_connection "local" "${LOCAL_DB_HOST}" "${LOCAL_DB_PORT}" "${LOCAL_DB_USER}" "${LOCAL_DB_NAME}"
+
+    # Register Supabase connection (if configured)
+    if [[ "${SUPABASE_PROJECT_ID}" != "your-project-id" ]]; then
+        register_connection "remote" "${SUPABASE_DB_HOST}" "${SUPABASE_DB_PORT}" "${SUPABASE_DB_USER}" "${SUPABASE_DB_NAME}"
+    fi
+
+    # Test database connectivity with resilience
+    sync_log_info "Testing database connectivity with retry logic..."
+
+    # Test local database connection
+    if connect_with_retry "local" "${LOCAL_DB_HOST}" "${LOCAL_DB_PORT}" "${LOCAL_DB_USER}" "${LOCAL_DB_NAME}" "${LOCAL_DB_PASSWORD}"; then
+        sync_log_success "Local database connection established with resilience"
     else
-        log_error "Cannot connect to local database"
+        sync_log_error "Cannot establish resilient connection to local database"
         return 1
     fi
 
-    # Check Supabase database (if configured)
+    # Test Supabase database connection (if configured)
     if [[ "${SUPABASE_PROJECT_ID}" != "your-project-id" ]]; then
-        if PGPASSWORD="${SUPABASE_DB_PASSWORD}" psql -h "${SUPABASE_DB_HOST}" -p "${SUPABASE_DB_PORT}" -U "${SUPABASE_DB_USER}" -d "${SUPABASE_DB_NAME}" -c "SELECT 1" >/dev/null 2>&1; then
-            log_success "Supabase database connection successful"
+        if connect_with_retry "remote" "${SUPABASE_DB_HOST}" "${SUPABASE_DB_PORT}" "${SUPABASE_DB_USER}" "${SUPABASE_DB_NAME}" "${SUPABASE_DB_PASSWORD}"; then
+            sync_log_success "Supabase database connection established with resilience"
         else
-            log_warning "Cannot connect to Supabase database - some features may not work"
+            sync_log_warning "Cannot establish resilient connection to Supabase database - some features may not work"
         fi
     else
-        log_warning "Supabase not configured - please update supabase-config.env"
+        sync_log_warning "Supabase not configured - please update supabase-config.env"
     fi
+
+    # Show connection status
+    show_connection_status
 }
 
 # Display main menu
 show_menu() {
     clear
-    echo -e "${CYAN}============================================${NC}"
-    echo -e "${CYAN}   AI-HRMS-2025 Supabase Sync Manager${NC}"
-    echo -e "${CYAN}============================================${NC}"
-    echo -e "${WHITE}Environment: ${YELLOW}${ENVIRONMENT}${NC}"
-    echo -e "${WHITE}Local DB: ${GREEN}${LOCAL_DB_NAME}${NC}"
-    echo -e "${WHITE}Supabase: ${GREEN}${SUPABASE_PROJECT_ID}${NC}"
-    echo -e "${CYAN}============================================${NC}"
+    echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${WHITE}           AI-HRMS-2025 Database Sync Manager                  ${CYAN}║${NC}"
+    echo -e "${CYAN}║${WHITE}          Git-like Database Version Control                    ${CYAN}║${NC}"
+    echo -e "${CYAN}╠═══════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}║${WHITE}  Git-like Database Operations:${NC}                             ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}1.${NC} ${GREEN}Database Status${NC}    - Show current state (git status)   ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}2.${NC} ${BLUE}Stage Changes${NC}      - Add to staging (git add)          ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}3.${NC} ${MAGENTA}Commit Changes${NC}     - Commit staged (git commit)        ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}4.${NC} ${WHITE}Safe Push${NC}          - Push to Supabase (git push)       ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}5.${NC} ${CYAN}Safe Pull${NC}          - Pull from Supabase (git pull)     ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}6.${NC} ${RED}Commit History${NC}     - View commit log (git log)         ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}║${WHITE}  Legacy & Advanced Operations:${NC}                           ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}7.${NC} Legacy Push         - Direct push (legacy mode)    ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}8.${NC} Legacy Pull         - Direct pull (legacy mode)    ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}9.${NC} Backup Database     - Create/restore backups       ${CYAN}║${NC}"
+    echo -e "${CYAN}║ ${YELLOW}10.${NC} Validate Databases  - Check integrity/connectivity ${CYAN}║${NC}"
+    echo -e "${CYAN}║ ${YELLOW}11.${NC} Schema Comparison   - Compare local vs remote      ${CYAN}║${NC}"
+    echo -e "${CYAN}║ ${YELLOW}12.${NC} Migration Tools     - Handle database migrations   ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}0.${NC} Exit                                                 ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}                                                               ${CYAN}║${NC}"
+    echo -e "${CYAN}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo
-    echo "1)  Push to Supabase (Local → Remote)"
-    echo "2)  Pull from Supabase (Remote → Local)"
-    echo "3)  Backup Local Database"
-    echo "4)  Restore from Backup"
-    echo "5)  Compare Schemas (Diff)"
-    echo "6)  Validate Sync Status"
-    echo "7)  Migrate Database"
-    echo "8)  Sync Configuration"
-    echo "9)  View Logs"
-    echo "10) Advanced Options"
-    echo "0)  Exit"
+    echo -e "${WHITE}Environment:${NC} ${YELLOW}${ENVIRONMENT}${NC}"
+    echo -e "${WHITE}Local DB:${NC} ${GREEN}${LOCAL_DB_NAME}@${LOCAL_DB_HOST}${NC}"
+    echo -e "${WHITE}Supabase:${NC} ${GREEN}${SUPABASE_PROJECT_ID}${NC}"
     echo
-    echo -e "${CYAN}============================================${NC}"
 }
 
 # Push to Supabase
@@ -408,6 +441,129 @@ advanced_options() {
     esac
 }
 
+# Git-like database status
+git_status() {
+    log_info "Checking database status..."
+    "${SCRIPT_DIR}/supabase-stage.sh" status
+}
+
+# Git-like stage changes
+git_add() {
+    log_info "Staging database changes..."
+    echo "Stage Options:"
+    echo "1) Stage all changes"
+    echo "2) Stage specific tables"
+    echo "0) Back to Main Menu"
+    read -p "Select option: " stage_choice
+
+    case $stage_choice in
+        1)
+            "${SCRIPT_DIR}/supabase-stage.sh" add
+            ;;
+        2)
+            read -p "Enter table names (comma-separated): " tables
+            "${SCRIPT_DIR}/supabase-stage.sh" add --tables "$tables"
+            ;;
+        0)
+            return
+            ;;
+        *)
+            log_error "Invalid option"
+            ;;
+    esac
+}
+
+# Git-like commit changes
+git_commit() {
+    read -p "Enter commit message: " message
+    if [[ -z "$message" ]]; then
+        log_error "Commit message required"
+        return
+    fi
+    log_info "Committing changes..."
+    "${SCRIPT_DIR}/supabase-stage.sh" commit -m "$message"
+}
+
+# Git-like safe push
+git_push() {
+    log_info "Performing safe push to Supabase..."
+    echo "Push Options:"
+    echo "1) Safe push (with conflict detection)"
+    echo "2) Dry run (preview changes)"
+    echo "3) Force push (dangerous)"
+    echo "0) Back to Main Menu"
+    read -p "Select option: " push_choice
+
+    case $push_choice in
+        1)
+            "${SCRIPT_DIR}/supabase-safe-push.sh"
+            ;;
+        2)
+            "${SCRIPT_DIR}/supabase-safe-push.sh" --dry-run
+            ;;
+        3)
+            echo -e "${RED}WARNING: Force push will overwrite remote changes!${NC}"
+            read -p "Are you absolutely sure? (yes/no): " confirm
+            if [[ "$confirm" == "yes" ]]; then
+                "${SCRIPT_DIR}/supabase-safe-push.sh" --force
+            else
+                log_info "Force push cancelled"
+            fi
+            ;;
+        0)
+            return
+            ;;
+        *)
+            log_error "Invalid option"
+            ;;
+    esac
+}
+
+# Git-like safe pull
+git_pull() {
+    log_info "Performing safe pull from Supabase..."
+    echo "Pull Options:"
+    echo "1) Merge pull (default)"
+    echo "2) Overwrite pull (replace local)"
+    echo "3) Preserve pull (keep local changes)"
+    echo "4) Dry run (preview changes)"
+    echo "0) Back to Main Menu"
+    read -p "Select option: " pull_choice
+
+    case $pull_choice in
+        1)
+            "${SCRIPT_DIR}/supabase-safe-pull.sh" --strategy merge
+            ;;
+        2)
+            echo -e "${RED}WARNING: This will overwrite all local changes!${NC}"
+            read -p "Are you sure? (yes/no): " confirm
+            if [[ "$confirm" == "yes" ]]; then
+                "${SCRIPT_DIR}/supabase-safe-pull.sh" --strategy overwrite
+            else
+                log_info "Overwrite pull cancelled"
+            fi
+            ;;
+        3)
+            "${SCRIPT_DIR}/supabase-safe-pull.sh" --strategy preserve
+            ;;
+        4)
+            "${SCRIPT_DIR}/supabase-safe-pull.sh" --dry-run
+            ;;
+        0)
+            return
+            ;;
+        *)
+            log_error "Invalid option"
+            ;;
+    esac
+}
+
+# Git-like commit history
+git_log() {
+    log_info "Showing commit history..."
+    "${SCRIPT_DIR}/supabase-stage.sh" log
+}
+
 # Main execution
 main() {
     # Create directories
@@ -423,34 +579,40 @@ main() {
 
         case $choice in
             1)
-                push_to_supabase
+                git_status
                 ;;
             2)
-                pull_from_supabase
+                git_add
                 ;;
             3)
-                backup_database
+                git_commit
                 ;;
             4)
-                restore_from_backup
+                git_push
                 ;;
             5)
-                compare_schemas
+                git_pull
                 ;;
             6)
-                validate_sync
+                git_log
                 ;;
             7)
-                run_migrations
+                push_to_supabase
                 ;;
             8)
-                configure_sync
+                pull_from_supabase
                 ;;
             9)
-                view_logs
+                backup_database
                 ;;
             10)
-                advanced_options
+                validate_sync
+                ;;
+            11)
+                compare_schemas
+                ;;
+            12)
+                run_migrations
                 ;;
             0)
                 log_info "Exiting..."
